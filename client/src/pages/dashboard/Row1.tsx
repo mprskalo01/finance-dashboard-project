@@ -64,7 +64,12 @@ const Row1 = () => {
     <>
       <DashboardBox gridArea="a">
         <BoxHeader
-          title="Revenue and Expenses"
+          title={
+            <>
+              <span style={{ color: palette.primary[500] }}>Revenue</span> &{" "}
+              <span style={{ color: palette.secondary[500] }}>Expenses</span>
+            </>
+          }
           subtitle="top line represents revenue, bottom line represents expenses"
           sideText="+4%"
         />
@@ -96,12 +101,12 @@ const Row1 = () => {
               <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor={palette.primary[300]}
+                  stopColor={palette.secondary[300]}
                   stopOpacity={0.5}
                 />
                 <stop
                   offset="95%"
-                  stopColor={palette.primary[300]}
+                  stopColor={palette.secondary[300]}
                   stopOpacity={0}
                 />
               </linearGradient>
@@ -130,7 +135,7 @@ const Row1 = () => {
               type="monotone"
               dataKey="expenses"
               dot={true}
-              stroke={palette.primary.main}
+              stroke={palette.secondary.main}
               fillOpacity={1}
               fill="url(#colorExpenses)"
             />
@@ -139,7 +144,12 @@ const Row1 = () => {
       </DashboardBox>
       <DashboardBox gridArea="b">
         <BoxHeader
-          title="Profit and Revenue"
+          title={
+            <>
+              <span style={{ color: palette.primary[500] }}>Profit</span> &{" "}
+              <span style={{ color: palette.tertiary[500] }}>Revenue</span>
+            </>
+          }
           subtitle="top line represents revenue, bottom line represents expenses"
           sideText="+4%"
         />
@@ -198,7 +208,13 @@ const Row1 = () => {
       </DashboardBox>
       <DashboardBox gridArea="c">
         <BoxHeader
-          title="Revenue Month by Month"
+          title={
+            <>
+              <span style={{ color: palette.primary[500] }}>
+                Monthly Revenue
+              </span>
+            </>
+          }
           subtitle="graph representing the revenue month by month"
           sideText="+4%"
         />
