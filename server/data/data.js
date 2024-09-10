@@ -468,6 +468,7 @@ export const kpis = [
 export const products = [
   {
     _id: "63bf7ac9f03239e002001600",
+    name: "UltraBlend Pro Mixer",
     price: "$43.41",
     expense: "$5.97",
     transactions: [
@@ -479,6 +480,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239e002001601",
+    name: "QuantumX Wireless Earbuds",
     price: "$60.13",
     expense: "$9.12",
     transactions: [
@@ -490,12 +492,14 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239e002001602",
+    name: "EcoPure Water Filter",
     price: "$195.05",
     expense: "$6.72",
     transactions: ["63bf7ccef03239e002001606", "63bf7ccef0323922d200169a"],
   },
   {
     _id: "63bf7ac9f03239e002001603",
+    name: "TurboCharge Power Bank",
     price: "$46.25",
     expense: "$9.95",
     transactions: [
@@ -506,6 +510,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239e002001604",
+    name: "ZenTech Smart Watch",
     price: "$87.41",
     expense: "$7.97",
     transactions: [
@@ -518,6 +523,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239e002001605",
+    name: "HyperWave Gaming Keyboard",
     price: "$73.28",
     expense: "$7.85",
     transactions: [
@@ -530,12 +536,14 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239343e00169b",
+    name: "CrystalClear HD Monitor",
     price: "$130.65",
     expense: "$7.95",
     transactions: ["63bf7ccef0323901e6001560", "63bf7ccef032396d89000013"],
   },
   {
     _id: "63bf7ac9f03239343e00169c",
+    name: "VividLight LED Desk Lamp",
     price: "$198.54",
     expense: "$9.50",
     transactions: [
@@ -547,12 +555,14 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239343e00169d",
+    name: "PowerPulse Portable Speaker",
     price: "$147.32",
     expense: "$5.86",
     transactions: ["63bf7ccef03239343e0016a9", "63bf7ccef03239f920001690"],
   },
   {
     _id: "63bf7ac9f03239343e00169e",
+    name: "AeroFit Yoga Mat",
     price: "$187.22",
     expense: "$5.82",
     transactions: [
@@ -563,6 +573,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239343e00169f",
+    name: "TitanGrip Sports Shoes",
     price: "$162.43",
     expense: "$3.28",
     transactions: [
@@ -573,12 +584,14 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239343e0016a0",
+    name: "NanoBreeze Air Purifier",
     price: "$30.09",
     expense: "$8.55",
     transactions: ["63bf7ccef03239343e0016a3"],
   },
   {
     _id: "63bf7ac9f0323901e6001551",
+    name: "LuxeSkin Facial Serum",
     price: "$31.07",
     expense: "$4.98",
     transactions: [
@@ -591,6 +604,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f0323901e6001552",
+    name: "SpeedBoost External SSD",
     price: "$12.21",
     expense: "$6.82",
     transactions: [
@@ -603,6 +617,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f0323901e6001553",
+    name: "PureScent Essential Oil Diffuser",
     price: "$76.31",
     expense: "$3.84",
     transactions: [
@@ -613,6 +628,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f0323901e6001554",
+    name: "ThunderSound Bluetooth Headphones",
     price: "$169.87",
     expense: "$8.35",
     transactions: [
@@ -623,6 +639,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f0323901e6001555",
+    name: "MegaGrip Fitness Gloves",
     price: "$187.36",
     expense: "$8.12",
     transactions: [
@@ -633,6 +650,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f0323901e6001556",
+    name: "SmartHome Security Camera",
     price: "$67.29",
     expense: "$6.32",
     transactions: [
@@ -643,6 +661,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032394cbd001699",
+    name: "NovaScribe Digital Notebook",
     price: "$85.35",
     expense: "$9.33",
     transactions: [
@@ -654,6 +673,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032394cbd00169a",
+    name: "StellarVision 4K TV",
     price: "$35.75",
     expense: "$9.93",
     transactions: [
@@ -664,6 +684,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032394cbd00169b",
+    name: "EcoCharge Solar Battery",
     price: "$59.80",
     expense: "$1.51",
     transactions: [
@@ -676,18 +697,21 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032394cbd00169c",
+    name: "FlexiTech Laptop Stand",
     price: "$86.45",
     expense: "$3.55",
     transactions: ["63bf7ccef032396d8900000f"],
   },
   {
     _id: "63bf7ac9f032394cbd00169d",
+    name: "OmniCook Air Fryer",
     price: "$142.21",
     expense: "$1.85",
     transactions: ["63bf7ccef032396a8e001698", "63bf7ccef03239eb9d0016d0"],
   },
   {
     _id: "63bf7ac9f032394cbd00169e",
+    name: "GlowWave Night Light",
     price: "$10.01",
     expense: "$5.61",
     transactions: [
@@ -700,36 +724,42 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239cf1b001698",
+    name: "ProSharp Knife Set",
     price: "$112.78",
     expense: "$6.74",
     transactions: ["63bf7ccef032396a8e00169d", "63bf7ccef032396a8e001695"],
   },
   {
     _id: "63bf7ac9f03239cf1b001699",
+    name: "TechEase Wireless Charger",
     price: "$156.34",
     expense: "$6.26",
     transactions: ["63bf7ccef03239e002001606"],
   },
   {
     _id: "63bf7ac9f03239cf1b00169a",
+    name: "MaxPower Cordless Drill",
     price: "$119.34",
     expense: "$8.62",
     transactions: ["63bf7ccef0323975d600169e", "63bf7ccef03239554c00244b"],
   },
   {
     _id: "63bf7ac9f03239cf1b00169b",
+    name: "PureBreeze Portable Fan",
     price: "$87.49",
     expense: "$8.74",
     transactions: ["63bf7ccef03239343e0016ac", "63bf7ccef0323937a5001698"],
   },
   {
     _id: "63bf7ac9f03239cf1b00169c",
+    name: "NanoTech Cleaning Robot",
     price: "$34.52",
     expense: "$2.31",
     transactions: ["63bf7ccef03239aec9001562", "63bf7ccef0323937a500168d"],
   },
   {
     _id: "63bf7ac9f03239cf1b00169d",
+    name: "VibrantMix Blender",
     price: "$90.83",
     expense: "$7.83",
     transactions: [
@@ -742,6 +772,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239aec9001551",
+    name: "HyperCharge Quick Charger",
     price: "$181.98",
     expense: "$3.02",
     transactions: [
@@ -753,12 +784,14 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239aec9001552",
+    name: "SmartNest Thermostat",
     price: "$62.17",
     expense: "$9.52",
     transactions: ["63bf7ccef03239855d00155e", "63bf7ccef03239966c00169e"],
   },
   {
     _id: "63bf7ac9f03239aec9001553",
+    name: "CrystalPure Water Bottle",
     price: "$83.76",
     expense: "$1.09",
     transactions: [
@@ -770,6 +803,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239aec9001554",
+    name: "QuantumPower Multi-Tool",
     price: "$62.47",
     expense: "$2.38",
     transactions: [
@@ -782,6 +816,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239aec9001555",
+    name: "LumiGlow Smart Bulb",
     price: "$54.68",
     expense: "$5.12",
     transactions: [
@@ -793,6 +828,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239aec9001556",
+    name: "UltraCool Mini Fridge",
     price: "$91.72",
     expense: "$4.73",
     transactions: [
@@ -803,6 +839,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239554c002443",
+    name: "SonicBlast Bluetooth Speaker",
     price: "$159.65",
     expense: "$3.79",
     transactions: [
@@ -815,6 +852,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239554c002444",
+    name: "ZenBreeze Air Conditioner",
     price: "$190.89",
     expense: "$5.24",
     transactions: [
@@ -827,6 +865,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239554c002445",
+    name: "FlexiGrip Exercise Bands",
     price: "$155.13",
     expense: "$1.68",
     transactions: [
@@ -838,12 +877,14 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239554c002446",
+    name: "QuickFit Smart Scale",
     price: "$43.82",
     expense: "$7.85",
     transactions: ["63bf7ccef03239eb9d0016dd", "63bf7ccef0323901e6001557"],
   },
   {
     _id: "63bf7ac9f03239554c002447",
+    name: "EverBright LED Lantern",
     price: "$58.31",
     expense: "$9.94",
     transactions: [
@@ -855,6 +896,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239554c002448",
+    name: "UltraSoft Memory Foam Pillow",
     price: "$138.47",
     expense: "$6.40",
     transactions: [
@@ -865,6 +907,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032397420001696",
+    name: "SwiftStream Streaming Device",
     price: "$10.40",
     expense: "$3.20",
     transactions: [
@@ -876,12 +919,14 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032397420001697",
+    name: "ZenSpace Aroma Diffuser",
     price: "$22.48",
     expense: "$5.36",
     transactions: ["63bf7ccef03239cf1b0016a6", "63bf7ccef03239eb9d0016df"],
   },
   {
     _id: "63bf7ac9f032397420001698",
+    name: "TechLink Cable Organizer",
     price: "$92.16",
     expense: "$9.12",
     transactions: [
@@ -893,6 +938,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032397420001699",
+    name: "PowerMax Surge Protector",
     price: "$140.77",
     expense: "$9.02",
     transactions: [
@@ -903,6 +949,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239742000169a",
+    name: "EchoGlow Wireless Lamp",
     price: "$100.62",
     expense: "$6.55",
     transactions: [
@@ -914,6 +961,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239742000169b",
+    name: "PrecisionBlend Coffee Maker",
     price: "$69.13",
     expense: "$6.26",
     transactions: [
@@ -924,6 +972,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239966c001692",
+    name: "AeroClean Vacuum Cleaner",
     price: "$124.82",
     expense: "$8.49",
     transactions: [
@@ -936,6 +985,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239966c001693",
+    name: "HyperTrack Fitness Watch",
     price: "$196.68",
     expense: "$3.32",
     transactions: [
@@ -948,6 +998,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239966c001694",
+    name: "AquaShine Water Purifier",
     price: "$172.48",
     expense: "$2.38",
     transactions: [
@@ -960,12 +1011,14 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239966c001695",
+    name: "StellarSound Home Theater",
     price: "$112.84",
     expense: "$4.34",
     transactions: ["63bf7ccef032396d89000013", "63bf7ccef03239554c00244c"],
   },
   {
     _id: "63bf7ac9f03239966c001696",
+    name: "PrimeCharge Car Battery Charger",
     price: "$37.97",
     expense: "$5.76",
     transactions: [
@@ -978,6 +1031,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239966c001697",
+    name: "PureFlow Water Filter Pitcher",
     price: "$123.72",
     expense: "$2.85",
     transactions: [
@@ -988,18 +1042,21 @@ export const products = [
   },
   {
     _id: "63bf7ac9f0323975d6001692",
+    name: "NovaGlow LED String Lights",
     price: "$15.02",
     expense: "$2.00",
     transactions: ["63bf7ccef032396a8e001697", "63bf7ccef0323975d6001698"],
   },
   {
     _id: "63bf7ac9f0323975d6001693",
+    name: "TurboShine Car Wax",
     price: "$19.69",
     expense: "$2.65",
     transactions: ["63bf7ccef0323937a500168e"],
   },
   {
     _id: "63bf7ac9f0323975d6001694",
+    name: "ZenTune Noise-Cancelling Headphones",
     price: "$30.80",
     expense: "$5.02",
     transactions: [
@@ -1011,12 +1068,14 @@ export const products = [
   },
   {
     _id: "63bf7ac9f0323975d6001695",
+    name: "FlexiLight Reading Lamp",
     price: "$90.56",
     expense: "$2.93",
     transactions: ["63bf7ccef0323975d600169d"],
   },
   {
     _id: "63bf7ac9f0323975d6001696",
+    name: "QuantumScreen Digital Frame",
     price: "$30.37",
     expense: "$8.63",
     transactions: [
@@ -1027,6 +1086,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f0323975d6001697",
+    name: "MaxGrip Workout Mat",
     price: "$149.26",
     expense: "$1.33",
     transactions: [
@@ -1038,6 +1098,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032396a8e00168e",
+    name: "CrystalStream Shower Head",
     price: "$167.45",
     expense: "$9.30",
     transactions: [
@@ -1048,24 +1109,28 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032396a8e00168f",
+    name: "VividView Projector",
     price: "$50.36",
     expense: "$4.38",
     transactions: ["63bf7ccef032394f5f00243f"],
   },
   {
     _id: "63bf7ac9f032396a8e001690",
+    name: "HyperPulse Fitness Tracker",
     price: "$151.61",
     expense: "$2.27",
     transactions: ["63bf7ccef03239966c001699", "63bf7ccef03239742000169f"],
   },
   {
     _id: "63bf7ac9f032396a8e001691",
+    name: "UltraMop Steam Cleaner",
     price: "$191.46",
     expense: "$5.60",
     transactions: ["63bf7ccef0323901e600155f"],
   },
   {
     _id: "63bf7ac9f032396a8e001692",
+    name: "TechGen Smart Plug",
     price: "$131.96",
     expense: "$8.80",
     transactions: [
@@ -1078,42 +1143,49 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032396a8e001693",
+    name: "PureScent Candle Set",
     price: "$164.96",
     expense: "$4.16",
     transactions: ["63bf7ccef03239eb9d0016d8"],
   },
   {
     _id: "63bf7ac9f032395ccf00168e",
+    name: "SonicWave Electric Toothbrush",
     price: "$13.57",
     expense: "$5.18",
     transactions: ["63bf7ccef032395ccf001695"],
   },
   {
     _id: "63bf7ac9f032395ccf00168f",
+    name: "AeroBoost Bike Pump",
     price: "$177.57",
     expense: "$7.04",
     transactions: ["63bf7ccef0323922d2001698", "63bf7ccef03239855d00155c"],
   },
   {
     _id: "63bf7ac9f032395ccf001690",
+    name: "ProClean Carpet Cleaner",
     price: "$172.71",
     expense: "$5.73",
     transactions: ["63bf7ccef03239966c00169d"],
   },
   {
     _id: "63bf7ac9f032395ccf001691",
+    name: "TurboBlend Juicer",
     price: "$17.48",
     expense: "$4.81",
     transactions: ["63bf7ccef0323974200016a0", "63bf7ccef0323937a5001692"],
   },
   {
     _id: "63bf7ac9f032395ccf001692",
+    name: "ZenChill Massage Pillow",
     price: "$54.13",
     expense: "$7.44",
     transactions: ["63bf7ccef0323922d2001694", "63bf7ccef03239eb9d0016df"],
   },
   {
     _id: "63bf7ac9f032395ccf001693",
+    name: "EcoLight Solar Lantern",
     price: "$155.93",
     expense: "$9.10",
     transactions: [
@@ -1125,12 +1197,14 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032397b4f0015fb",
+    name: "MegaView Smart TV",
     price: "$13.34",
     expense: "$6.17",
     transactions: ["63bf7ccef03239cf1b0016a4"],
   },
   {
     _id: "63bf7ac9f032397b4f0015fc",
+    name: "NovaTech Laptop Cooler",
     price: "$75.89",
     expense: "$1.11",
     transactions: [
@@ -1142,6 +1216,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032397b4f0015fd",
+    name: "CrystalWave Wireless Mouse",
     price: "$153.85",
     expense: "$6.99",
     transactions: [
@@ -1154,6 +1229,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032397b4f0015fe",
+    name: "UltraVibe Bluetooth Earphones",
     price: "$187.83",
     expense: "$6.66",
     transactions: [
@@ -1165,6 +1241,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032397b4f0015ff",
+    name: "PurePower Portable Generator",
     price: "$119.33",
     expense: "$1.40",
     transactions: [
@@ -1177,12 +1254,14 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032397b4f001600",
+    name: "SmartView Surveillance Camera",
     price: "$54.00",
     expense: "$5.61",
     transactions: ["63bf7ccef03239554c002454", "63bf7ccef032394cbd0016a9"],
   },
   {
     _id: "63bf7ac9f0323922d200168e",
+    name: "TurboFlex Resistance Bands",
     price: "$144.81",
     expense: "$7.45",
     transactions: [
@@ -1193,18 +1272,21 @@ export const products = [
   },
   {
     _id: "63bf7ac9f0323922d200168f",
+    name: "HyperGlow Desk Organizer",
     price: "$37.04",
     expense: "$5.86",
     transactions: ["63bf7ccef0323974200016a5"],
   },
   {
     _id: "63bf7ac9f0323922d2001690",
+    name: "TechPower Battery Pack",
     price: "$161.03",
     expense: "$4.48",
     transactions: ["63bf7ccef03239966c00169a"],
   },
   {
     _id: "63bf7ac9f0323922d2001691",
+    name: "FlexiCool Mini Air Conditioner",
     price: "$73.46",
     expense: "$7.95",
     transactions: [
@@ -1217,12 +1299,14 @@ export const products = [
   },
   {
     _id: "63bf7ac9f0323922d2001692",
+    name: "UltraShine Car Cleaning Kit",
     price: "$120.96",
     expense: "$8.90",
     transactions: ["63bf7ccef032396a8e00169e", "63bf7ccef032397b4f001603"],
   },
   {
     _id: "63bf7ac9f0323922d2001693",
+    name: "QuantumSafe Lock Box",
     price: "$34.46",
     expense: "$9.25",
     transactions: [
@@ -1235,18 +1319,21 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032396d89000007",
+    name: "ZenFlow Water Fountain",
     price: "$172.27",
     expense: "$3.92",
     transactions: ["63bf7ccef03239554c00244b"],
   },
   {
     _id: "63bf7ac9f032396d89000008",
+    name: "SonicStream Wireless Speaker",
     price: "$20.54",
     expense: "$8.12",
     transactions: ["63bf7ccef03239855d001558"],
   },
   {
     _id: "63bf7ac9f032396d89000009",
+    name: "NovaGrip Golf Club Set",
     price: "$80.31",
     expense: "$7.04",
     transactions: [
@@ -1257,18 +1344,21 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032396d8900000a",
+    name: "PowerWave Cordless Vacuum",
     price: "$77.67",
     expense: "$4.14",
     transactions: ["63bf7ccef03239343e0016ab"],
   },
   {
     _id: "63bf7ac9f032396d8900000b",
+    name: "CrystalTech Smart Thermometer",
     price: "$47.25",
     expense: "$5.53",
     transactions: ["63bf7ccef03239343e0016a8", "63bf7ccef032394f5f00243e"],
   },
   {
     _id: "63bf7ac9f032396d8900000c",
+    name: "FlexiCharge Power Strip",
     price: "$181.02",
     expense: "$7.57",
     transactions: [
@@ -1281,6 +1371,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239f920001689",
+    name: "QuantumFocus Camera Lens",
     price: "$67.20",
     expense: "$8.37",
     transactions: [
@@ -1293,18 +1384,21 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239f92000168a",
+    name: "VividFlex Smartphone Case",
     price: "$58.15",
     expense: "$3.19",
     transactions: ["63bf7ccef03239f920001690"],
   },
   {
     _id: "63bf7ac9f03239f92000168b",
+    name: "UltraSafe Home Alarm System",
     price: "$145.65",
     expense: "$3.83",
     transactions: ["63bf7ccef032394cbd0016aa"],
   },
   {
     _id: "63bf7ac9f03239f92000168c",
+    name: "PureChill Personal Fan",
     price: "$134.08",
     expense: "$7.03",
     transactions: [
@@ -1317,6 +1411,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239f92000168d",
+    name: "ZenZone Sleep Mask",
     price: "$33.79",
     expense: "$4.54",
     transactions: [
@@ -1329,6 +1424,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239f92000168e",
+    name: "TurboPower Hair Dryer",
     price: "$182.10",
     expense: "$9.54",
     transactions: [
@@ -1340,6 +1436,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032394f5f002433",
+    name: "SonicBoost Portable Charger",
     price: "$129.93",
     expense: "$1.15",
     transactions: [
@@ -1351,6 +1448,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032394f5f002434",
+    name: "ProGrip Yoga Block Set",
     price: "$148.47",
     expense: "$1.63",
     transactions: [
@@ -1362,6 +1460,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032394f5f002435",
+    name: "TechSmart Digital Thermometer",
     price: "$13.52",
     expense: "$9.76",
     transactions: [
@@ -1373,6 +1472,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032394f5f002436",
+    name: "NovaLight LED Headlamp",
     price: "$120.88",
     expense: "$5.94",
     transactions: [
@@ -1383,12 +1483,14 @@ export const products = [
   },
   {
     _id: "63bf7ac9f032394f5f002437",
+    name: "HyperPower Portable Air Compressor",
     price: "$153.54",
     expense: "$9.63",
     transactions: ["63bf7ccef03239eb9d0016d0", "63bf7ccef032396d89000010"],
   },
   {
     _id: "63bf7ac9f032394f5f002438",
+    name: "PureScent Essential Oil Set",
     price: "$35.74",
     expense: "$8.71",
     transactions: [
@@ -1401,6 +1503,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f0323937a5001687",
+    name: "FlexiTune Wireless Earbuds",
     price: "$120.21",
     expense: "$5.00",
     transactions: [
@@ -1413,12 +1516,14 @@ export const products = [
   },
   {
     _id: "63bf7ac9f0323937a5001688",
+    name: "QuantumHeat Electric Blanket",
     price: "$180.06",
     expense: "$6.39",
     transactions: ["63bf7ccef03239554c002453"],
   },
   {
     _id: "63bf7ac9f0323937a5001689",
+    name: "UltraGrip Car Floor Mats",
     price: "$92.70",
     expense: "$5.53",
     transactions: [
@@ -1429,6 +1534,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f0323937a500168a",
+    name: "ZenTech Smart Plug",
     price: "$35.39",
     expense: "$2.89",
     transactions: [
@@ -1440,6 +1546,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f0323937a500168b",
+    name: "SonicClean Water Bottle",
     price: "$159.59",
     expense: "$3.54",
     transactions: [
@@ -1451,6 +1558,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f0323937a500168c",
+    name: "CrystalTech Phone Stand",
     price: "$116.66",
     expense: "$5.60",
     transactions: [
@@ -1462,6 +1570,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239855d001551",
+    name: "TurboVibe Fitness Tracker",
     price: "$19.66",
     expense: "$6.43",
     transactions: [
@@ -1472,6 +1581,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239855d001552",
+    name: "NovaGlow Smart Light Bulb",
     price: "$99.78",
     expense: "$7.03",
     transactions: [
@@ -1484,12 +1594,14 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239855d001553",
+    name: "ProMelt Ice Cream Maker",
     price: "$145.56",
     expense: "$9.40",
     transactions: ["63bf7ccef0323922d2001694"],
   },
   {
     _id: "63bf7ac9f03239855d001554",
+    name: "ZenVibe Bluetooth Earbuds",
     price: "$133.65",
     expense: "$1.03",
     transactions: [
@@ -1502,18 +1614,21 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239855d001555",
+    name: "PurePower Solar Charger",
     price: "$174.42",
     expense: "$5.30",
     transactions: ["63bf7ccef03239aec9001558"],
   },
   {
     _id: "63bf7ac9f03239855d001556",
+    name: "FlexiPure Air Purifier",
     price: "$77.55",
     expense: "$1.01",
     transactions: ["63bf7ccef03239e002001607"],
   },
   {
     _id: "63bf7ac9f03239eb9d0016c3",
+    name: "HyperHeat Electric Kettle",
     price: "$103.01",
     expense: "$6.81",
     transactions: [
@@ -1526,18 +1641,21 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239eb9d0016c4",
+    name: "QuantumChill Mini Fridge",
     price: "$88.02",
     expense: "$8.00",
     transactions: ["63bf7ccef0323901e600155f", "63bf7ccef03239eb9d0016e6"],
   },
   {
     _id: "63bf7ac9f03239eb9d0016c5",
+    name: "UltraGlow Desk Lamp",
     price: "$119.84",
     expense: "$8.95",
     transactions: ["63bf7ccef032395ccf001695", "63bf7ccef03239f920001695"],
   },
   {
     _id: "63bf7ac9f03239eb9d0016c6",
+    name: "SonicSync Bluetooth Speaker",
     price: "$18.02",
     expense: "$5.48",
     transactions: [
@@ -1550,6 +1668,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239eb9d0016c7",
+    name: "TechSmart Fitness Scale",
     price: "$121.59",
     expense: "$7.27",
     transactions: [
@@ -1561,18 +1680,21 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239eb9d0016c8",
+    name: "NovaWave Air Purifier",
     price: "$42.71",
     expense: "$7.26",
     transactions: ["63bf7ccef032396a8e001696", "63bf7ccef032397b4f001608"],
   },
   {
     _id: "63bf7ac9f03239eb9d0016c9",
+    name: "TurboFit Resistance Bands",
     price: "$106.89",
     expense: "$2.49",
     transactions: ["63bf7ccef03239966c00169d"],
   },
   {
     _id: "63bf7ac9f03239eb9d0016ca",
+    name: "ZenCharge Wireless Charger",
     price: "$162.96",
     expense: "$2.18",
     transactions: [
@@ -1584,6 +1706,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239eb9d0016cb",
+    name: "CrystalClear Camera Lens",
     price: "$102.90",
     expense: "$1.40",
     transactions: [
@@ -1596,6 +1719,7 @@ export const products = [
   },
   {
     _id: "63bf7ac9f03239eb9d0016cc",
+    name: "FlexiSmart Multi-Tool",
     price: "$21.98",
     expense: "$7.86",
     transactions: [

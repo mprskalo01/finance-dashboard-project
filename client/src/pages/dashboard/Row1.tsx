@@ -60,6 +60,40 @@ const Row1 = () => {
     );
   }, [data]);
 
+  const calculatePercentageChange = (current: number, previous: number) => {
+    if (previous === 0) return current > 0 ? "+100%" : "-100%";
+    const change = ((current - previous) / previous) * 100;
+    return `${change > 0 ? "+" : ""}${change.toFixed(2)}%`;
+  };
+
+  const revenuePercentageChange = useMemo(() => {
+    if (data) {
+      const currentMonthRevenue = data[0].monthlyData[11].revenue; // current month (last in the array)
+      const previousMonthRevenue = data[0].monthlyData[10].revenue; // previous month
+
+      return calculatePercentageChange(
+        currentMonthRevenue,
+        previousMonthRevenue
+      );
+    }
+    return "N/A";
+  }, [data]);
+
+  const profitPercentageChange = useMemo(() => {
+    if (data) {
+      const currentMonthRevenue = data[0].monthlyData[11].revenue;
+      const currentMonthExpenses = data[0].monthlyData[11].expenses;
+      const previousMonthRevenue = data[0].monthlyData[10].revenue;
+      const previousMonthExpenses = data[0].monthlyData[10].expenses;
+
+      const currentMonthProfit = currentMonthRevenue - currentMonthExpenses;
+      const previousMonthProfit = previousMonthRevenue - previousMonthExpenses;
+
+      return calculatePercentageChange(currentMonthProfit, previousMonthProfit);
+    }
+    return "N/A";
+  }, [data]);
+
   return (
     <>
       <DashboardBox gridArea="a">
@@ -71,7 +105,7 @@ const Row1 = () => {
             </>
           }
           subtitle="top line represents revenue, bottom line represents expenses"
-          sideText="+4%"
+          sideText={revenuePercentageChange}
         />
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
@@ -151,7 +185,7 @@ const Row1 = () => {
             </>
           }
           subtitle="top line represents revenue, bottom line represents expenses"
-          sideText="+4%"
+          sideText={profitPercentageChange}
         />
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
@@ -216,7 +250,7 @@ const Row1 = () => {
             </>
           }
           subtitle="graph representing the revenue month by month"
-          sideText="+4%"
+          sideText={revenuePercentageChange}
         />
         <ResponsiveContainer width="100%" height="100%">
           <BarChart

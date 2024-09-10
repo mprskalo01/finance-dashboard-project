@@ -65,7 +65,7 @@ function Dashboard() {
               gridTemplateAreas: gridTemplateLargeScreens,
             }
           : {
-              gridAutoColumns: "1fr",
+              gridAutoColumns: "100%",
               gridAutoRows: "80px",
               gridTemplateAreas: gridTemplateSmallScreens,
             }

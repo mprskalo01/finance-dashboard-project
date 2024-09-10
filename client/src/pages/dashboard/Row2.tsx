@@ -59,6 +59,47 @@ const Row2 = () => {
     );
   }, [productData]);
 
+  const operationalExpensesChange = useMemo(() => {
+    if (
+      operationalData &&
+      operationalData[0] &&
+      operationalData[0].monthlyData.length > 1
+    ) {
+      const latest = operationalData[0].monthlyData.slice(-1)[0];
+      const previous = operationalData[0].monthlyData.slice(-2)[0];
+
+      if (latest && previous) {
+        const operationalChange =
+          previous.operationalExpenses !== 0
+            ? ((latest.operationalExpenses - previous.operationalExpenses) /
+                previous.operationalExpenses) *
+              100
+            : 0;
+
+        const nonOperationalChange =
+          previous.nonOperationalExpenses !== 0
+            ? ((latest.nonOperationalExpenses -
+                previous.nonOperationalExpenses) /
+                previous.nonOperationalExpenses) *
+              100
+            : 0;
+
+        // Helper function to add "+" sign for positive values
+        const formatChange = (value: number) =>
+          value > 0 ? `+${value.toFixed(2)}` : value.toFixed(2);
+
+        return {
+          operationalText: `Op: ${formatChange(operationalChange)}%`,
+          nonOperationalText: `Non-Op: ${formatChange(nonOperationalChange)}%`,
+        };
+      }
+    }
+    return {
+      operationalText: "Op: 0%",
+      nonOperationalText: "Non-Op: 0%",
+    }; // Fallback in case of missing data
+  }, [operationalData]);
+
   return (
     <>
       <DashboardBox gridArea="d">
@@ -72,7 +113,17 @@ const Row2 = () => {
               </span>
             </>
           }
-          sideText="+4%"
+          sideText={
+            <>
+              <span style={{ color: palette.secondary[700] }}>
+                {operationalExpensesChange.operationalText}
+              </span>{" "}
+              |{" "}
+              <span style={{ color: palette.secondary[400] }}>
+                {operationalExpensesChange.nonOperationalText}
+              </span>
+            </>
+          }
         />
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
@@ -128,7 +179,7 @@ const Row2 = () => {
               <span style={{ color: palette.primary[700] }}>Targets</span>
             </>
           }
-          sideText="+4%"
+          sideText={`+83 Targets | Margins Up 30%`}
         />
         <FlexBetween mt="0.25rem" gap="1.5rem" pr="1rem">
           <PieChart
@@ -182,11 +233,10 @@ const Row2 = () => {
               <span style={{ color: palette.tertiary[500] }}>
                 Product Prices
               </span>{" "}
-              &{" "}
-              <span style={{ color: palette.secondary[500] }}>Expenses</span>
+              & <span style={{ color: palette.secondary[500] }}>Expenses</span>
             </>
           }
-          sideText="+4%"
+          sideText="Margin of products"
         />
         <ResponsiveContainer width="100%" height="100%">
           <ScatterChart

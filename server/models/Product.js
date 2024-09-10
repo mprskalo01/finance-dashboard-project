@@ -6,6 +6,9 @@ loadType(mongoose);
 
 const ProductSchema = new Schema(
   {
+    name: {
+      type: String,
+    },
     price: {
       type: mongoose.Types.Currency,
       currency: "USD",
