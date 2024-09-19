@@ -13,7 +13,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 
 const Row3 = () => {
   const { palette } = useTheme();
-  const pieColors = [palette.primary[800], palette.primary[500]];
+  const pieColors = [palette.secondary[800], palette.secondary[500]];
 
   const { data: kpiData } = useGetKpisQuery();
   const { data: productData } = useGetProductsQuery();

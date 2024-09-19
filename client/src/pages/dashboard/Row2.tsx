@@ -1,9 +1,9 @@
+import { useState, useEffect, useMemo } from "react";
+import { HashLoader } from "react-spinners";
 import BoxHeader from "@/components/BoxHeader";
 import DashboardBox from "@/components/DashboardBox";
-import FlexBetween from "@/components/FlexBetween";
 import { useGetKpisQuery, useGetProductsQuery } from "@/state/api";
 import { Box, Typography, useTheme } from "@mui/material";
-import { useMemo } from "react";
 import {
   Tooltip,
   CartesianGrid,
@@ -12,24 +12,46 @@ import {
   XAxis,
   YAxis,
   Line,
-  PieChart,
-  Pie,
-  Cell,
   ScatterChart,
   Scatter,
   ZAxis,
+  TooltipProps,
 } from "recharts";
-
-const pieData = [
-  { name: "Group A", value: 600 },
-  { name: "Group B", value: 400 },
-];
 
 const Row2 = () => {
   const { palette } = useTheme();
-  const pieColors = [palette.primary[800], palette.primary[300]];
   const { data: operationalData } = useGetKpisQuery();
   const { data: productData } = useGetProductsQuery();
+
+  const [loading, setLoading] = useState(true);
+  const [currentMonthRevenue, setCurrentMonthRevenue] = useState(0);
+  const [currentMonthProfit, setCurrentMonthProfit] = useState(0);
+  const [currentMonthExpenses, setCurrentMonthExpenses] = useState(0);
+
+  useEffect(() => {
+    if (operationalData && operationalData[0].monthlyData.length > 0) {
+      const currentMonthName = new Date()
+        .toLocaleString("default", { month: "long" })
+        .toLowerCase();
+      const currentMonthData = operationalData[0].monthlyData.find(
+        (data) => data.month.toLowerCase() === currentMonthName
+      );
+
+      if (currentMonthData) {
+        setCurrentMonthRevenue(currentMonthData.revenue);
+        setCurrentMonthExpenses(currentMonthData.expenses);
+        setCurrentMonthProfit(
+          currentMonthData.revenue - currentMonthData.expenses
+        );
+      } else {
+        // Handle case when there's no data for the current month
+        setCurrentMonthRevenue(0);
+        setCurrentMonthExpenses(0);
+        setCurrentMonthProfit(0);
+      }
+      setLoading(false);
+    }
+  }, [operationalData]);
 
   const operationalExpenses = useMemo(() => {
     return (
@@ -49,8 +71,9 @@ const Row2 = () => {
   const productExpenseData = useMemo(() => {
     return (
       productData &&
-      productData.map(({ _id, price, expense }) => {
+      productData.map(({ _id, name, price, expense }) => {
         return {
+          name: name,
           id: _id,
           price: price,
           expense: expense,
@@ -84,7 +107,6 @@ const Row2 = () => {
               100
             : 0;
 
-        // Helper function to add "+" sign for positive values
         const formatChange = (value: number) =>
           value > 0 ? `+${value.toFixed(2)}` : value.toFixed(2);
 
@@ -97,8 +119,30 @@ const Row2 = () => {
     return {
       operationalText: "Op: 0%",
       nonOperationalText: "Non-Op: 0%",
-    }; // Fallback in case of missing data
+    };
   }, [operationalData]);
+
+  const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+    if (active && payload && payload.length) {
+      const { name, price, expense } = payload[0].payload;
+      return (
+        <div
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.75)",
+            padding: "10px",
+            borderRadius: "5px",
+            color: "#fff",
+          }}
+        >
+          <p>{`Name: ${name}`}</p>
+          <p>{`Price: $${price}`}</p>
+          <p>{`Expense: $${expense}`}</p>
+        </div>
+      );
+    }
+
+    return null;
+  };
 
   return (
     <>
@@ -172,59 +216,71 @@ const Row2 = () => {
         </ResponsiveContainer>
       </DashboardBox>
       <DashboardBox gridArea="e">
-        <BoxHeader
-          title={
-            <>
-              <span style={{ color: palette.primary[300] }}>Campaigns</span> &{" "}
-              <span style={{ color: palette.primary[700] }}>Targets</span>
-            </>
-          }
-          sideText={`+83 Targets | Margins Up 30%`}
-        />
-        <FlexBetween mt="0.25rem" gap="1.5rem" pr="1rem">
-          <PieChart
-            width={110}
-            height={100}
-            margin={{
-              top: 0,
-              right: -10,
-              left: 10,
-              bottom: 0,
-            }}
+        {loading ? (
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="100%"
           >
-            <Pie
-              stroke="none"
-              data={pieData}
-              innerRadius={18}
-              outerRadius={38}
-              paddingAngle={2}
-              dataKey="value"
+            <div>
+              <HashLoader color="#4f46e5" size={100} />
+              <Typography
+                variant="h2"
+                fontWeight="bold"
+                style={{ color: "#4f46e5" }}
+              >
+                Loading...
+              </Typography>
+            </div>
+          </Box>
+        ) : (
+          <>
+            <BoxHeader
+              title="Current Month Performance"
+              sideText={`${new Date().toLocaleString("default", {
+                month: "long",
+              })} ${new Date().getFullYear()}`}
+            />
+            <Box
+              height="100%"
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              position="relative" // Added relative positioning for the inner Box
             >
-              {pieData.map((_, index) => (
-                <Cell key={`cell-${index}`} fill={pieColors[index]} />
-              ))}
-            </Pie>
-          </PieChart>
-          <Box ml="-0.7rem" flexBasis="40%" textAlign="center">
-            <Typography variant="h5">Target Sales</Typography>
-            <Typography m="0.3rem 0" variant="h3" color={palette.primary[300]}>
-              83
-            </Typography>
-            <Typography variant="h6">
-              Finance goals of the campaign that is desired
-            </Typography>
-          </Box>
-          <Box flexBasis="40%">
-            <Typography variant="h5">Losses in Revenue</Typography>
-            <Typography variant="h6">Losses are down 25%</Typography>
-            <Typography mt="0.4rem" variant="h5">
-              Profit Margins
-            </Typography>
-            <Typography variant="h6">
-              Margins are up by 30% from last month.
-            </Typography>
-          </Box>
-        </FlexBetween>
+              <Typography
+                variant="h3"
+                fontWeight="bold"
+                color={palette.primary[300]}
+              >
+                Revenue
+              </Typography>
+              <Typography
+                variant="h1"
+                color={palette.primary[300]}
+                mt={2}
+                sx={{ marginBottom: "4rem" }} // Adjusted margin-bottom
+              >
+                ${currentMonthRevenue.toLocaleString()}
+              </Typography>
+              <Box
+                position="absolute" // Absolute positioning
+                bottom={50} // Position from the bottom
+                right={8} // Position from the right
+                textAlign="right"
+              >
+                <Typography variant="h4" color={palette.primary[500]}>
+                  Profit: ${currentMonthProfit.toLocaleString()}
+                </Typography>
+                <Typography variant="h5" color={palette.secondary[400]}>
+                  Expenses: ${currentMonthExpenses.toLocaleString()}
+                </Typography>
+              </Box>
+            </Box>
+          </>
+        )}
       </DashboardBox>
       <DashboardBox gridArea="f">
         <BoxHeader
@@ -255,14 +311,7 @@ const Row2 = () => {
               axisLine={false}
               tickLine={false}
               style={{ fontSize: "10px" }}
-              tickFormatter={(v) => `$${v}`}
-              label={{
-                value: "Price of Product",
-                position: "insideBottom", // Places it below the axis in the center
-                offset: 5, // Adjusts the vertical distance (increase to move it lower)
-                style: { fontSize: "12px", fill: palette.tertiary[500] },
-              }}
-            ></XAxis>
+            />
             <YAxis
               type="number"
               dataKey="expense"
@@ -270,21 +319,13 @@ const Row2 = () => {
               axisLine={false}
               tickLine={false}
               style={{ fontSize: "10px" }}
-              tickFormatter={(v) => `$${v}`}
-              label={{
-                value: "Expense of Product",
-                position: "insideBottomLeft", // Places it below the axis in the center
-                offset: 30, // Adjusts the vertical distance (increase to move it lower)
-                angle: -90,
-                style: { fontSize: "12px", fill: palette.secondary[500] },
-              }}
             />
-            <ZAxis type="number" range={[20]} />
-            <Tooltip formatter={(v) => `$${v}`} />
+            <ZAxis type="number" dataKey="price" range={[50, 150]} />
+            <Tooltip content={<CustomTooltip />} />
             <Scatter
-              name="Product Expense Ratio"
               data={productExpenseData}
-              fill={palette.tertiary[500]}
+              fill={palette.primary[300]}
+              shape="circle"
             />
           </ScatterChart>
         </ResponsiveContainer>
