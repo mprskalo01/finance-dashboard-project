@@ -204,13 +204,13 @@ const Row2 = () => {
               yAxisId="left"
               type="monotone"
               dataKey="Non Operational Expenses"
-              stroke={palette.secondary[700]}
+              stroke={palette.secondary[400]}
             />
             <Line
               yAxisId="right"
               type="monotone"
               dataKey="Operational Expenses"
-              stroke={palette.secondary[400]}
+              stroke={palette.secondary[700]}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -253,7 +253,7 @@ const Row2 = () => {
               <Typography
                 variant="h3"
                 fontWeight="bold"
-                color={palette.primary[300]}
+                color={palette.tertiary[500]}
               >
                 Revenue
               </Typography>

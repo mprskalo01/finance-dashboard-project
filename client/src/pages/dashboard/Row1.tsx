@@ -68,8 +68,10 @@ const Row1 = () => {
 
   const revenuePercentageChange = useMemo(() => {
     if (data) {
-      const currentMonthRevenue = data[0].monthlyData[11].revenue; // current month (last in the array)
-      const previousMonthRevenue = data[0].monthlyData[10].revenue; // previous month
+      const currentMonthRevenue =
+        data[0].monthlyData[data[0].monthlyData.length - 1].revenue; // current month (last in the array)
+      const previousMonthRevenue =
+        data[0].monthlyData[data[0].monthlyData.length - 2].revenue; // previous month
 
       return calculatePercentageChange(
         currentMonthRevenue,
@@ -81,10 +83,14 @@ const Row1 = () => {
 
   const profitPercentageChange = useMemo(() => {
     if (data) {
-      const currentMonthRevenue = data[0].monthlyData[11].revenue;
-      const currentMonthExpenses = data[0].monthlyData[11].expenses;
-      const previousMonthRevenue = data[0].monthlyData[10].revenue;
-      const previousMonthExpenses = data[0].monthlyData[10].expenses;
+      const currentMonthRevenue =
+        data[0].monthlyData[data[0].monthlyData.length - 1].revenue;
+      const currentMonthExpenses =
+        data[0].monthlyData[data[0].monthlyData.length - 1].expenses;
+      const previousMonthRevenue =
+        data[0].monthlyData[data[0].monthlyData.length - 2].revenue;
+      const previousMonthExpenses =
+        data[0].monthlyData[data[0].monthlyData.length - 2].expenses;
 
       const currentMonthProfit = currentMonthRevenue - currentMonthExpenses;
       const previousMonthProfit = previousMonthRevenue - previousMonthExpenses;
@@ -104,7 +110,7 @@ const Row1 = () => {
               <span style={{ color: palette.secondary[500] }}>Expenses</span>
             </>
           }
-          subtitle="top line represents revenue, bottom line represents expenses"
+          // subtitle="top line represents revenue, bottom line represents expenses"
           sideText={revenuePercentageChange}
         />
         <ResponsiveContainer width="100%" height="100%">
@@ -184,8 +190,8 @@ const Row1 = () => {
               <span style={{ color: palette.tertiary[500] }}>Revenue</span>
             </>
           }
-          subtitle="top line represents revenue, bottom line represents expenses"
-          sideText={profitPercentageChange}
+          // subtitle="top line represents revenue, bottom line represents expenses"
+          sideText={`${profitPercentageChange}`}
         />
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
@@ -229,13 +235,13 @@ const Row1 = () => {
               yAxisId="left"
               type="monotone"
               dataKey="profit"
-              stroke={palette.tertiary[500]}
+              stroke={palette.primary.main}
             />
             <Line
               yAxisId="right"
               type="monotone"
               dataKey="revenue"
-              stroke={palette.primary.main}
+              stroke={palette.tertiary[500]}
             />
           </LineChart>
         </ResponsiveContainer>
