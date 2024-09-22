@@ -1,43 +1,47 @@
 import BoxHeader from "@/components/BoxHeader";
 import DashboardBox from "@/components/DashboardBox";
-// import FlexBetween from "@/components/FlexBetween";
+import { useMemo, useState } from "react";
 import {
   useGetKpisQuery,
-  useGetProductsQuery,
+  // useGetProductsQuery,
   useGetTransactionsQuery,
-} from "@/state/api";
-import { Box, Typography, useTheme, Tooltip } from "@mui/material";
+} from "@/api/api";
+import { Box, Typography, useTheme, IconButton } from "@mui/material";
 import { DataGrid, GridCellParams } from "@mui/x-data-grid";
-import { useMemo } from "react";
-import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
+import {
+  CartesianGrid,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  AreaChart,
+  Area,
+  Tooltip,
+  BarChart,
+  Bar,
+  Legend,
+} from "recharts";
+import Svgs from "@/assets/Svgs";
 
 const Row3 = () => {
   const { palette } = useTheme();
-  const pieColors = [palette.secondary[800], palette.secondary[500]];
+  const { data } = useGetKpisQuery();
+
+  const revenueExpensesProfit = useMemo(() => {
+    return (
+      data &&
+      data[0].monthlyData.map(({ month, revenue, expenses }) => {
+        return {
+          name: month.substring(0, 3),
+          revenue: revenue,
+          expenses: expenses,
+          profit: (revenue - expenses).toFixed(2),
+        };
+      })
+    );
+  }, [data]);
 
   const { data: kpiData } = useGetKpisQuery();
-  const { data: productData } = useGetProductsQuery();
   const { data: transactionData } = useGetTransactionsQuery();
-
-  const pieChartData = useMemo(() => {
-    if (kpiData) {
-      const totalExpenses = kpiData[0].totalExpenses;
-      return Object.entries(kpiData[0].expensesByCategory).map(
-        ([key, value]) => {
-          return [
-            {
-              name: key,
-              value: value,
-            },
-            {
-              name: `${key} of Total`,
-              value: totalExpenses - value,
-            },
-          ];
-        }
-      );
-    }
-  }, [kpiData]);
 
   // Calculate the expenses change
   const currentExpenses = kpiData?.[0]?.totalExpenses || 0;
@@ -75,102 +79,246 @@ const Row3 = () => {
 
     return `Current revenue: $${currentRevenue.toFixed(
       2
-    )}, expenses: $${currentExpenses.toFixed(2)}. 
+    )}, expenses: $${currentExpenses.toFixed(2)}.
     Revenue ${revenueChange >= 0 ? "increased" : "decreased"} by $${Math.abs(
       revenueChange
-    ).toFixed(2)} (${revenueChangePercentage}%). 
+    ).toFixed(2)} (${revenueChangePercentage}%).
     Expenses ${expensesChange >= 0 ? "increased" : "decreased"} by $${Math.abs(
       expensesChange
-    ).toFixed(2)} (${expensesChangePercentage}%). 
+    ).toFixed(2)} (${expensesChangePercentage}%).
     Current profit margin: ${profitMargin}% (previously ${previousProfitMargin}%).`;
   };
 
-  const productColumns = [
-    // {
-    //   field: "_id",
-    //   headerName: "id",
-    //   flex: 0.6,
-    // },
-    {
-      field: "name",
-      headerName: "Product Name",
-      flex: 0.8,
-    },
-    {
-      field: "expense",
-      headerName: "Expense",
-      flex: 0.4,
-      renderCell: (params: GridCellParams) => `$${params.value}`,
-    },
-    {
-      field: "price",
-      headerName: "Price",
-      flex: 0.5,
-      renderCell: (params: GridCellParams) => `$${params.value}`,
-    },
-  ];
-
+  // const productColumns = [
+  //   // {
+  //   //   field: "_id",
+  //   //   headerName: "id",
+  //   //   flex: 0.6,
+  //   // },
+  //   {
+  //     field: "name",
+  //     headerName: "Product Name",
+  //     flex: 0.8,
+  //   },
+  //   {
+  //     field: "expense",
+  //     headerName: "Expense",
+  //     flex: 0.4,
+  //     renderCell: (params: GridCellParams) => `$${params.value}`,
+  //   },
+  //   {
+  //     field: "price",
+  //     headerName: "Price",
+  //     flex: 0.5,
+  //     renderCell: (params: GridCellParams) => `$${params.value}`,
+  //   },
+  // ];
   const transactionColumns = [
-    // {
-    //   field: "_id",
-    //   headerName: "id",
-    //   flex: 1,
-    // },
+    {
+      field: "_id",
+      headerName: "id",
+      flex: 1,
+    },
     {
       field: "buyer",
       headerName: "Buyer",
-      flex: 0.3,
+      flex: 0.67,
     },
     {
       field: "amount",
       headerName: "Amount",
-      flex: 0.3,
+      flex: 0.35,
       renderCell: (params: GridCellParams) => `$${params.value}`,
     },
     {
       field: "productIds",
       headerName: "Count",
-      flex: 0.2,
+      flex: 0.1,
       renderCell: (params: GridCellParams) =>
         (params.value as Array<string>).length,
     },
   ];
+  const [showChart, setShowChart] = useState(true);
+
+  // Handler for the button
+  const handleChartToggle = () => {
+    setShowChart((prev) => !prev);
+  };
 
   return (
     <>
-      <DashboardBox gridArea="g">
+      <DashboardBox gridArea="d">
         <BoxHeader
-          title="List of Products"
-          sideText={`${productData?.length} products`}
+          title={
+            <Box display="flex" gap="10px" alignItems="center">
+              {" "}
+              {/* Added alignItems="center" */}
+              <div>
+                <span style={{ color: palette.tertiary[500] }}>Revenue</span>,{" "}
+                <span style={{ color: palette.secondary[500] }}>Expenses</span>,{" "}
+                {"& "}
+                <span style={{ color: palette.primary[500] }}>Profit</span>
+              </div>
+              {/* Toggle Button */}
+              <IconButton
+                onClick={handleChartToggle}
+                size="small"
+                sx={{
+                  backgroundColor: "rgba(131, 183, 166, 0.1)", // Subtle background color
+                  "&:hover": {
+                    backgroundColor: "rgba(131, 183, 166, 0.2)", // Slightly darker on hover
+                  },
+                  borderRadius: "4px", // Optional: adjust the border radius
+                }}
+              >
+                {showChart ? (
+                  <Svgs.barSvg strokeColor="#83b7a6" />
+                ) : (
+                  <Svgs.areaChartSvg fillColor="#83b7a6" />
+                )}
+              </IconButton>
+            </Box>
+          }
+          sideText="hlelo"
         />
-        <Box
-          mt="0.5rem"
-          p="0 0.5rem"
-          height="75%"
-          sx={{
-            "& .MuiDataGrid-root": {
-              color: palette.grey[300],
-              border: "none",
-            },
-            "& .MuiDataGrid-cell": {
-              borderBottom: `1px solid ${palette.grey[800]} !important`,
-            },
-            "& .MuiDataGrid-columnHeaders": {
-              borderBottom: `1px solid ${palette.grey[800]} !important`,
-            },
-            "& .MuiDataGrid-columnSeparator": {
-              visibility: "hidden",
-            },
-          }}
-        >
-          <DataGrid
-            columnHeaderHeight={25}
-            rowHeight={35}
-            hideFooter={true}
-            rows={productData || []}
-            columns={productColumns}
-          />
-        </Box>
+        <ResponsiveContainer width="100%" height="80%">
+          {showChart ? (
+            <AreaChart
+              width={500}
+              height={400}
+              data={revenueExpensesProfit}
+              margin={{
+                top: 10,
+                right: 30,
+                left: 0,
+                bottom: 0,
+              }}
+            >
+              <defs>
+                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor={palette.tertiary[500]}
+                    stopOpacity={0.5}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor={palette.tertiary[300]}
+                    stopOpacity={0}
+                  />
+                </linearGradient>
+                <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor={palette.secondary[300]}
+                    stopOpacity={0.5}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor={palette.secondary[300]}
+                    stopOpacity={0}
+                  />
+                </linearGradient>
+                <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor={palette.primary[500]}
+                    stopOpacity={0.5}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor={palette.primary[400]}
+                    stopOpacity={0}
+                  />
+                </linearGradient>
+              </defs>
+              <CartesianGrid vertical={false} strokeDasharray="1 2" />
+              <XAxis dataKey="name" />
+              <YAxis domain={["auto", "auto"]} />
+              <Tooltip />
+              <Area
+                type="monotone"
+                dataKey="profit"
+                stackId="1"
+                dot={true}
+                stroke={palette.primary[500]}
+                fill="url(#colorProfit)"
+              />
+
+              <Area
+                type="monotone"
+                dataKey="expenses"
+                stackId="1"
+                dot={true}
+                stroke={palette.secondary[500]}
+                fill="url(#colorExpenses)"
+              />
+              <Area
+                type="monotone"
+                dataKey="revenue"
+                stackId="1"
+                dot={true}
+                stroke={palette.tertiary[500]}
+                fill="url(#colorRevenue)"
+              />
+            </AreaChart>
+          ) : (
+            <BarChart
+              width={500}
+              height={300}
+              data={revenueExpensesProfit}
+              margin={{
+                top: 20,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <defs>
+                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor={palette.tertiary[500]} // Start color (no opacity)
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor={palette.tertiary[400]} // End color (no opacity)
+                  />
+                </linearGradient>
+
+                <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor={palette.secondary[500]} // Start color (no opacity)
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor={palette.secondary[400]} // End color (no opacity)
+                  />
+                </linearGradient>
+
+                <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor={palette.primary[500]} // Start color (no opacity)
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor={palette.primary[400]} // End color (no opacity)
+                  />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="revenue" stackId="a" fill="url(#colorRevenue)" />
+              <Bar dataKey="expenses" stackId="b" fill="url(#colorExpenses)" />
+              <Bar dataKey="profit" stackId="c" fill="url(#colorProfit)" />
+            </BarChart>
+          )}
+        </ResponsiveContainer>
       </DashboardBox>
       <DashboardBox gridArea="h">
         <BoxHeader
@@ -208,80 +356,9 @@ const Row3 = () => {
       </DashboardBox>
       <DashboardBox gridArea="i">
         <BoxHeader
-          title="Expense Breakdown By Category"
-          sideText={`${expensesChangePercentage}%`}
-        />
-        <Box
-          display="flex"
-          flexWrap="wrap"
-          justifyContent="space-around"
-          alignItems="center"
-          mt="0.5rem"
-          gap="0.5rem"
-          p="0 0.5rem"
-        >
-          {pieChartData?.slice(0, 3).map((data, i) => (
-            <Box key={`${data[0].name}-${i}`} width="30%" minWidth="100px">
-              <Tooltip
-                title={`${data[0].name}: $${data[0].value.toFixed(2)}`}
-                arrow
-                placement="top"
-              >
-                <Box>
-                  <ResponsiveContainer width="100%" height={80}>
-                    <PieChart>
-                      <Pie
-                        stroke="none"
-                        data={data}
-                        innerRadius={18}
-                        outerRadius={35}
-                        paddingAngle={2}
-                        dataKey="value"
-                      >
-                        {data.map((_, index) => (
-                          <Cell key={`cell-${index}`} fill={pieColors[index]} />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <Typography variant="h4" textAlign="center">
-                    {data[0].name}
-                    {` $${data[0].value}`}
-                  </Typography>
-                </Box>
-              </Tooltip>
-            </Box>
-          ))}
-        </Box>
-      </DashboardBox>
-      <DashboardBox gridArea="j">
-        <BoxHeader
           title="Overall Summary & Explanation Data"
           sideText={`${revenueChangePercentage}%`}
         />
-        <Tooltip
-          title={`Revenue: $${currentRevenue.toFixed(
-            2
-          )}, Expenses: $${currentExpenses.toFixed(2)}`}
-          arrow
-          placement="top"
-        >
-          <Box
-            height="15px"
-            margin="1.25rem 1rem 0.4rem 1rem"
-            bgcolor={palette.primary[800]}
-            borderRadius="1rem"
-          >
-            <Box
-              height="15px"
-              bgcolor={palette.primary[600]}
-              borderRadius="1rem"
-              width={`${
-                (currentRevenue / (currentRevenue + currentExpenses)) * 100
-              }%`}
-            ></Box>
-          </Box>
-        </Tooltip>
         <Typography margin="0 1rem" variant="h6">
           {generateSummary()}
         </Typography>

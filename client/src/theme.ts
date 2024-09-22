@@ -36,7 +36,15 @@ export const tokens = {
   },
   tertiary: {
     // purple
-    500: "#8884d8",
+    100: "#e3e2f8", // lightest
+    200: "#c7c6f1", // lighter
+    300: "#aba9eb", // light
+    400: "#8f8de4", // medium-light
+    500: "#8884d8", // base purple
+    600: "#6b68ad", // medium-dark
+    700: "#4f4d82", // dark
+    800: "#323157", // darker
+    900: "#16162c", // darkest
   },
   background: {
     light: "#2d2d34",

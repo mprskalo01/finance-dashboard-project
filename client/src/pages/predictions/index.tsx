@@ -1,8 +1,5 @@
-import DashboardBox from "@/components/DashboardBox";
-import FlexBetween from "@/components/FlexBetween";
-import { useGetKpisQuery } from "@/state/api";
-import { Box, Button, Typography, useTheme } from "@mui/material";
 import { useMemo, useState } from "react";
+import { useTheme, Box, Button, Typography } from "@mui/material";
 import {
   CartesianGrid,
   Label,
@@ -15,6 +12,9 @@ import {
   YAxis,
 } from "recharts";
 import regression, { DataPoint } from "regression";
+import DashboardBox from "@/components/DashboardBox";
+import FlexBetween from "@/components/FlexBetween";
+import { useGetKpisQuery } from "@/api/api";
 
 const Predictions = () => {
   const { palette } = useTheme();
@@ -24,22 +24,16 @@ const Predictions = () => {
   const formattedData = useMemo(() => {
     if (!kpiData) return [];
     const monthData = kpiData[0].monthlyData;
-
     const formatted: Array<DataPoint> = monthData.map(
-      ({ revenue }, i: number) => {
-        return [i, revenue];
-      }
+      ({ revenue }, i: number) => [i, revenue]
     );
     const regressionLine = regression.linear(formatted);
-
-    return monthData.map(({ month, revenue }, i: number) => {
-      return {
-        name: month,
-        "Actual Revenue": revenue,
-        "Regression Line": regressionLine.points[i][1],
-        "Predicted Revenue": regressionLine.predict(i + 12)[1],
-      };
-    });
+    return monthData.map(({ month, revenue }, i: number) => ({
+      name: month,
+      "Actual Revenue": revenue,
+      "Regression Line": regressionLine.points[i][1],
+      "Predicted Revenue": regressionLine.predict(i + 12)[1],
+    }));
   }, [kpiData]);
 
   return (
@@ -61,13 +55,13 @@ const Predictions = () => {
             color: palette.grey[100],
             backgroundColor: palette.tertiary[500],
             boxShadow: "0.1rem 0.1rem 0.1rem 0.1rem rgba(0,0,0,.4)",
-            transition: "transform 0.3s ease-in-out", // Smooth transition effect
+            transition: "transform 0.3s ease-in-out",
             "&:hover": {
-              transform: "scale(1.15)", // Scale up effect on hover
+              transform: "scale(1.15)",
             },
           }}
         >
-          Show Predicted Revenue for Next Year
+          {isPredictions ? "Hide" : "Show"} Predicted Revenue for Next Year
         </Button>
       </FlexBetween>
       <ResponsiveContainer width="100%" height="100%">
@@ -85,7 +79,7 @@ const Predictions = () => {
             <Label value="Month" offset={-5} position="insideBottom" />
           </XAxis>
           <YAxis
-            domain={[12000, 26000]}
+            domain={["auto", "auto"]}
             axisLine={{ strokeWidth: "0" }}
             style={{ fontSize: "10px" }}
             tickFormatter={(v) => `$${v}`}
@@ -103,7 +97,7 @@ const Predictions = () => {
             type="monotone"
             dataKey="Actual Revenue"
             stroke={palette.primary.main}
-            strokeWidth={1}
+            strokeWidth={3}
             dot={{ strokeWidth: 5 }}
           />
           <Line
@@ -112,13 +106,19 @@ const Predictions = () => {
             stroke={palette.secondary[600]}
             dot={false}
           />
-          {isPredictions && (
-            <Line
-              strokeDasharray="5 5"
-              dataKey="Predicted Revenue"
-              stroke={palette.tertiary[500]}
-            />
-          )}
+          <Line
+            type="monotone"
+            dataKey="Predicted Revenue"
+            stroke={palette.tertiary[500]}
+            strokeDasharray="5 5"
+            strokeWidth={isPredictions ? 3 : 0}
+            dot={false}
+            style={{
+              opacity: isPredictions ? 1 : 0,
+              transition:
+                "opacity 300ms ease-in-out, stroke-width 300ms ease-in-out",
+            }}
+          />
         </LineChart>
       </ResponsiveContainer>
     </DashboardBox>
