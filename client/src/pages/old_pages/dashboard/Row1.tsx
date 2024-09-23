@@ -1,8 +1,9 @@
 import BoxHeader from "@/components/BoxHeader";
 import DashboardBox from "@/components/DashboardBox";
-import { api } from "@/api/api";
+// import FlexBetween from "@/components/FlexBetween";
+import { useGetAccountsQuery } from "@/api/api";
 import { useTheme, Box, IconButton } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ResponsiveContainer,
   CartesianGrid,
@@ -16,31 +17,9 @@ import {
 } from "recharts";
 import Svgs from "@/assets/Svgs";
 
-interface MonthlyData {
-  month: string;
-  revenue: number;
-  expenses: number;
-}
-
-interface Account {
-  monthlyData: MonthlyData[];
-}
-
 const Row1 = () => {
   const { palette } = useTheme();
-  const [account, setAccount] = useState<Account | null>(null);
-
-  useEffect(() => {
-    const fetchUserAccount = async () => {
-      try {
-        const response = await api.getUserAccount();
-        setAccount(response.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchUserAccount();
-  }, []); // Add dependency array to avoid infinite loop
+  const { data } = useGetAccountsQuery();
   // State to toggle between chart and bar
   const [showRevenueChart, setShowRevenueChart] = useState(true);
   const [showExpensesChart, setShowExpensesChart] = useState(true);
@@ -59,14 +38,17 @@ const Row1 = () => {
 
   const revenueExpensesProfit = useMemo(() => {
     return (
-      account?.monthlyData.map(({ month, revenue, expenses }) => ({
-        name: month.substring(0, 3),
-        revenue,
-        expenses,
-        profit: (revenue - expenses).toFixed(2),
-      })) || [] // Fallback to an empty array if account is null
+      data &&
+      data[0].monthlyData.map(({ month, revenue, expenses }) => {
+        return {
+          name: month.substring(0, 3),
+          revenue: revenue,
+          expenses: expenses,
+          profit: (revenue - expenses).toFixed(2),
+        };
+      })
     );
-  }, [account]);
+  }, [data]);
 
   const calculatePercentageChange = (current: number, previous: number) => {
     if (previous === 0) return current > 0 ? "+100%" : "-100%";
@@ -75,11 +57,11 @@ const Row1 = () => {
   };
 
   const revenuePercentageChange = useMemo(() => {
-    if (account) {
+    if (data) {
       const currentMonthRevenue =
-        account?.monthlyData[account?.monthlyData.length - 1].revenue; // current month (last in the array)
+        data[0].monthlyData[data[0].monthlyData.length - 1].revenue; // current month (last in the array)
       const previousMonthRevenue =
-        account?.monthlyData[account?.monthlyData.length - 2].revenue; // previous month
+        data[0].monthlyData[data[0].monthlyData.length - 2].revenue; // previous month
 
       return calculatePercentageChange(
         currentMonthRevenue,
@@ -87,14 +69,14 @@ const Row1 = () => {
       );
     }
     return "N/A";
-  }, [account]);
+  }, [data]);
 
   const expensesPercentageChange = useMemo(() => {
-    if (account) {
+    if (data) {
       const currentMonthExpenses =
-        account?.monthlyData[account?.monthlyData.length - 1].expenses; // current month (last in the array)
+        data[0].monthlyData[data[0].monthlyData.length - 1].expenses; // current month (last in the array)
       const previousMonthExpenses =
-        account?.monthlyData[account?.monthlyData.length - 2].expenses; // previous month
+        data[0].monthlyData[data[0].monthlyData.length - 2].expenses; // previous month
 
       return calculatePercentageChange(
         currentMonthExpenses,
@@ -102,25 +84,25 @@ const Row1 = () => {
       );
     }
     return "N/A";
-  }, [account]);
+  }, [data]);
 
   const profitPercentageChange = useMemo(() => {
-    if (account) {
+    if (data) {
       const currentMonthRevenue =
-        account?.monthlyData[account?.monthlyData.length - 1].revenue;
+        data[0].monthlyData[data[0].monthlyData.length - 1].revenue;
       const currentMonthExpenses =
-        account?.monthlyData[account?.monthlyData.length - 1].expenses;
+        data[0].monthlyData[data[0].monthlyData.length - 1].expenses;
       const previousMonthRevenue =
-        account?.monthlyData[account?.monthlyData.length - 2].revenue;
+        data[0].monthlyData[data[0].monthlyData.length - 2].revenue;
       const previousMonthExpenses =
-        account?.monthlyData[account?.monthlyData.length - 2].expenses;
+        data[0].monthlyData[data[0].monthlyData.length - 2].expenses;
 
       const currentMonthProfit = currentMonthRevenue - currentMonthExpenses;
       const previousMonthProfit = previousMonthRevenue - previousMonthExpenses;
       return calculatePercentageChange(currentMonthProfit, previousMonthProfit);
     }
     return "N/A";
-  }, [account]);
+  }, [data]);
 
   return (
     <>

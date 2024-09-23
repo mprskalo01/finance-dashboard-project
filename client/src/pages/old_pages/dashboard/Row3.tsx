@@ -1,10 +1,13 @@
 import BoxHeader from "@/components/BoxHeader";
 import DashboardBox from "@/components/DashboardBox";
-import { useMemo, useState, useEffect } from "react";
-import api from "@/api/api";
-// import { Box, Typography, useTheme, IconButton } from "@mui/material";
+import { useMemo, useState } from "react";
+import {
+  useGetKpisQuery,
+  // useGetProductsQuery,
+  useGetTransactionsQuery,
+} from "@/api/api";
 import { Box, Typography, useTheme, IconButton } from "@mui/material";
-// import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridCellParams } from "@mui/x-data-grid";
 import {
   CartesianGrid,
   ResponsiveContainer,
@@ -19,67 +22,30 @@ import {
 } from "recharts";
 import Svgs from "@/assets/Svgs";
 
-interface User {
-  username: string;
-  // Add any other fields you want to display from the user profile
-}
-
-interface MonthlyData {
-  month: string;
-  revenue: number;
-  expenses: number;
-}
-
-interface Account {
-  monthlyData: MonthlyData[];
-  currentBalance: number;
-  totalRevenue: number;
-  totalExpenses: number;
-}
-
 const Row3 = () => {
   const { palette } = useTheme();
-  const [user, setUser] = useState<User | null>(null);
-  const [account, setAccount] = useState<Account | null>(null);
-  // const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const response = await api.getUserProfile();
-        setUser(response.data); // Assuming response contains the user object
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    const fetchUserAccount = async () => {
-      try {
-        const response = await api.getUserAccount();
-        setAccount(response.data); // Assuming response contains the account object
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    fetchUserProfile();
-    fetchUserAccount();
-  }, []);
+  const { data } = useGetKpisQuery();
 
   const revenueExpensesProfit = useMemo(() => {
     return (
-      account?.monthlyData.map(({ month, revenue, expenses }) => ({
-        name: month.substring(0, 3),
-        revenue,
-        expenses,
-        profit: (revenue - expenses).toFixed(2),
-      })) || [] // Fallback to an empty array if account is null
+      data &&
+      data[0].monthlyData.map(({ month, revenue, expenses }) => {
+        return {
+          name: month.substring(0, 3),
+          revenue: revenue,
+          expenses: expenses,
+          profit: (revenue - expenses).toFixed(2),
+        };
+      })
     );
-  }, [account]);
+  }, [data]);
+
+  const { data: kpiData } = useGetKpisQuery();
+  const { data: transactionData } = useGetTransactionsQuery();
 
   // Calculate the expenses change
-  const currentExpenses = account?.monthlyData?.[0]?.expenses || 0;
-  const previousExpenses = account?.monthlyData?.[1]?.expenses || 0;
+  const currentExpenses = kpiData?.[0]?.totalExpenses || 0;
+  const previousExpenses = kpiData?.[1]?.totalExpenses || 0;
   const expensesChange = currentExpenses - previousExpenses;
   const expensesChangePercentage =
     previousExpenses !== 0
@@ -87,14 +53,91 @@ const Row3 = () => {
       : "N/A";
 
   // Calculate the revenue change
-  const currentRevenue = account?.monthlyData?.[0]?.revenue || 0;
-  const previousRevenue = account?.monthlyData?.[1]?.revenue || 0;
+  const currentRevenue = kpiData?.[0]?.totalRevenue || 0;
+  const previousRevenue = kpiData?.[1]?.totalRevenue || 0;
   const revenueChange = currentRevenue - previousRevenue;
   const revenueChangePercentage =
     previousRevenue !== 0
       ? ((revenueChange / previousRevenue) * 100).toFixed(2)
       : "N/A";
 
+  // Generate a summary
+  const generateSummary = () => {
+    // if (!kpiData || kpiData.length < 2) return "Insufficient data for summary.";
+
+    const profitMargin = (
+      ((currentRevenue - currentExpenses) / currentRevenue) *
+      100
+    ).toFixed(2);
+    const previousProfitMargin =
+      previousRevenue !== 0
+        ? (
+            ((previousRevenue - previousExpenses) / previousRevenue) *
+            100
+          ).toFixed(2)
+        : "N/A";
+
+    return `Current revenue: $${currentRevenue.toFixed(
+      2
+    )}, expenses: $${currentExpenses.toFixed(2)}.
+    Revenue ${revenueChange >= 0 ? "increased" : "decreased"} by $${Math.abs(
+      revenueChange
+    ).toFixed(2)} (${revenueChangePercentage}%).
+    Expenses ${expensesChange >= 0 ? "increased" : "decreased"} by $${Math.abs(
+      expensesChange
+    ).toFixed(2)} (${expensesChangePercentage}%).
+    Current profit margin: ${profitMargin}% (previously ${previousProfitMargin}%).`;
+  };
+
+  // const productColumns = [
+  //   // {
+  //   //   field: "_id",
+  //   //   headerName: "id",
+  //   //   flex: 0.6,
+  //   // },
+  //   {
+  //     field: "name",
+  //     headerName: "Product Name",
+  //     flex: 0.8,
+  //   },
+  //   {
+  //     field: "expense",
+  //     headerName: "Expense",
+  //     flex: 0.4,
+  //     renderCell: (params: GridCellParams) => `$${params.value}`,
+  //   },
+  //   {
+  //     field: "price",
+  //     headerName: "Price",
+  //     flex: 0.5,
+  //     renderCell: (params: GridCellParams) => `$${params.value}`,
+  //   },
+  // ];
+  const transactionColumns = [
+    {
+      field: "_id",
+      headerName: "id",
+      flex: 1,
+    },
+    {
+      field: "buyer",
+      headerName: "Buyer",
+      flex: 0.67,
+    },
+    {
+      field: "amount",
+      headerName: "Amount",
+      flex: 0.35,
+      renderCell: (params: GridCellParams) => `$${params.value}`,
+    },
+    {
+      field: "productIds",
+      headerName: "Count",
+      flex: 0.1,
+      renderCell: (params: GridCellParams) =>
+        (params.value as Array<string>).length,
+    },
+  ];
   const [showChart, setShowChart] = useState(true);
 
   // Handler for the button
@@ -136,7 +179,7 @@ const Row3 = () => {
               </IconButton>
             </Box>
           }
-          sideText={`${revenueChangePercentage} & ${expensesChangePercentage}`}
+          sideText="hlelo"
         />
         <ResponsiveContainer width="100%" height="80%">
           {showChart ? (
@@ -278,24 +321,7 @@ const Row3 = () => {
         </ResponsiveContainer>
       </DashboardBox>
       <DashboardBox gridArea="h">
-        <Typography
-          variant="h3"
-          fontWeight="bold"
-          color={palette.secondary[300]}
-          sx={{ my: "1rem" }}
-        >
-          // todo : add CRUD for months and user stats
-          <br />
-          // todo : add user profile popup to change info
-          <br />
-          // todo : change the revenue expense & profit to show something more
-          useful
-          <br />
-          // todo : CRUD for transactions
-          <br />
-          // todo : add view transactions by date
-        </Typography>
-        {/* <BoxHeader
+        <BoxHeader
           title="Recent Orders"
           sideText={`${transactionData?.length} latest transactions`}
         />
@@ -335,59 +361,6 @@ const Row3 = () => {
         />
         <Typography margin="0 1rem" variant="h6">
           {generateSummary()}
-        </Typography> */}
-      </DashboardBox>
-      <DashboardBox
-        gridArea="i"
-        sx={{
-          p: 2,
-        }}
-      >
-        <Typography variant="h2" fontWeight="bold" color={palette.grey[200]}>
-          Welcome, {user?.username}!
-        </Typography>
-        <Box mt={2}>
-          <Typography variant="h3" color={palette.grey[300]}>
-            Your current account balance is:{" "}
-            <Typography
-              variant="h2"
-              component="span"
-              fontWeight="bold"
-              color={palette.primary[500]}
-            >
-              ${account?.currentBalance.toFixed(2)}
-            </Typography>
-          </Typography>
-          <Typography variant="h3" color={palette.grey[300]}>
-            Your total revenue is:{" "}
-            <Typography
-              variant="h3"
-              component="span"
-              fontWeight="bold"
-              color={palette.tertiary[500]}
-            >
-              ${account?.totalRevenue.toFixed(2)}
-            </Typography>
-          </Typography>
-          <Typography variant="h3" color={palette.grey[300]}>
-            Your total expenses are:{" "}
-            <Typography
-              variant="h3"
-              component="span"
-              fontWeight="bold"
-              color={palette.secondary[500]}
-            >
-              ${account?.totalExpenses.toFixed(2)}
-            </Typography>
-          </Typography>
-        </Box>
-        <Typography
-          variant="h3"
-          fontWeight="bold"
-          color={palette.secondary[300]}
-          sx={{ my: "1rem" }}
-        >
-          will add logout button here and make the layout better
         </Typography>
       </DashboardBox>
     </>

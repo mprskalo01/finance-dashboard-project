@@ -4,13 +4,12 @@ import { themeSettings } from "./theme";
 import { Box, CssBaseline, ThemeProvider } from "@mui/material";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Navbar from "@/components/navbar";
-// import Dashboard from "@/pages/dashboard";
-// import Predictions from "@/pages/predictions";
+import Predictions from "@/pages/predictions";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import { AuthProvider } from "@/context/AuthProvider"; // Import AuthProvider
 import ProtectedRoute from "@/components/ProtectedRoute";
-import AccountInfo from "@/pages/AccountInfo";
+import Dashboard from "@/pages/dashboard";
 
 function App() {
   const theme = useMemo(() => createTheme(themeSettings), []);
@@ -31,12 +30,12 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 <Route
                   path="/dashboard"
-                  element={<ProtectedRoute element={<AccountInfo />} />}
+                  element={<ProtectedRoute element={<Dashboard />} />}
                 />
-                {/* <Route
+                <Route
                   path="/predictions"
                   element={<ProtectedRoute element={<Predictions />} />}
-                /> */}
+                />
               </Routes>
             </Box>
           </ThemeProvider>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useTheme, Box, Button, Typography } from "@mui/material";
 import {
   CartesianGrid,
@@ -14,16 +14,36 @@ import {
 import regression, { DataPoint } from "regression";
 import DashboardBox from "@/components/DashboardBox";
 import FlexBetween from "@/components/FlexBetween";
-import { useGetKpisQuery } from "@/api/api";
+import api from "@/api/api";
+interface MonthlyData {
+  month: string;
+  revenue: number;
+  expenses: number;
+}
 
+interface Account {
+  monthlyData: MonthlyData[];
+}
 const Predictions = () => {
   const { palette } = useTheme();
   const [isPredictions, setIsPredictions] = useState(false);
-  const { data: kpiData } = useGetKpisQuery();
+  const [account, setAccount] = useState<Account | null>(null);
+
+  useEffect(() => {
+    const fetchUserAccount = async () => {
+      try {
+        const response = await api.getUserAccount();
+        setAccount(response.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchUserAccount();
+  }, []); // Add dependency array to avoid infinite loop
 
   const formattedData = useMemo(() => {
-    if (!kpiData) return [];
-    const monthData = kpiData[0].monthlyData;
+    if (!account) return [];
+    const monthData = account?.monthlyData;
     const formatted: Array<DataPoint> = monthData.map(
       ({ revenue }, i: number) => [i, revenue]
     );
@@ -32,9 +52,9 @@ const Predictions = () => {
       name: month,
       "Actual Revenue": revenue,
       "Regression Line": regressionLine.points[i][1],
-      "Predicted Revenue": regressionLine.predict(i + 12)[1],
+      "Predicted Revenue": regressionLine.predict(i + monthData.length)[1],
     }));
-  }, [kpiData]);
+  }, [account]);
 
   return (
     <DashboardBox width="100%" height="100%" p="1rem" overflow="hidden">

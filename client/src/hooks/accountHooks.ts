@@ -12,7 +12,6 @@ export const useAccount = () => {
     }
     try {
       const data = await api.getUserAccount();
-      console.log(data);
       return data;
     } catch (error) {
       handleError(error);

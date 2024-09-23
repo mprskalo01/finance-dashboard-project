@@ -65,9 +65,9 @@ export const api = {
 
   // Account API
   getUserAccount: async () => {
-    // , getAuthHeader()
-    return await axios.get(`${baseURL}/account/account`);
+    return await axios.get(`${baseURL}/account/account`, getAuthHeader());
   },
+
   updateAccount: async (accountData: {
     currentBalance?: number;
     totalRevenue?: number;
