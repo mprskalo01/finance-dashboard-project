@@ -2,8 +2,8 @@ import BoxHeader from "@/components/BoxHeader";
 import DashboardBox from "@/components/DashboardBox";
 import { useMemo, useState, useEffect } from "react";
 import api from "@/api/api";
-// import { Box, Typography, useTheme, IconButton } from "@mui/material";
-import { Box, Typography, useTheme, IconButton } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { Box, Typography, useTheme, IconButton, Button } from "@mui/material";
 // import { DataGrid } from "@mui/x-data-grid";
 import {
   CartesianGrid,
@@ -18,6 +18,7 @@ import {
   Legend,
 } from "recharts";
 import Svgs from "@/assets/Svgs";
+import { useUser } from "@/hooks/userHooks"; // Import the custom hook
 
 interface User {
   username: string;
@@ -41,7 +42,14 @@ const Row3 = () => {
   const { palette } = useTheme();
   const [user, setUser] = useState<User | null>(null);
   const [account, setAccount] = useState<Account | null>(null);
+  const { handleLogout } = useUser();
+  const navigate = useNavigate();
   // const [error, setError] = useState<string | null>(null);
+
+  const buttonClick = () => {
+    handleLogout(); // Perform logout
+    navigate("/login"); // Redirect to login page
+  };
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -387,7 +395,15 @@ const Row3 = () => {
           color={palette.secondary[300]}
           sx={{ my: "1rem" }}
         >
-          will add logout button here and make the layout better
+          {/* Logout Button */}
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={buttonClick}
+            sx={{ mt: 2 }} // Add some margin for layout
+          >
+            Logout
+          </Button>
         </Typography>
       </DashboardBox>
     </>

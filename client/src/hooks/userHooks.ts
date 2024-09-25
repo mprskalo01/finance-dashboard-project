@@ -3,9 +3,10 @@ import { useAuth } from "@/context/useAuth";
 import api from "@/api/api"; // Adjust the path if necessary
 import axios from "axios";
 
+
 export const useUser = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
 
   // Function to handle registration
   const handleRegister = async (
@@ -38,6 +39,15 @@ export const useUser = () => {
       }
     } catch (error) {
       handleError(error); // Handle the error appropriately
+    }
+  };
+  // Function to handle logout
+  const handleLogout = () => {
+    try {
+      logout(); // Call logout to remove token and update auth state
+      navigate("/login"); // Redirect to login page
+    } catch (error) {
+      handleError(error); // Handle any error that occurs
     }
   };
 
@@ -125,6 +135,7 @@ export const useUser = () => {
   return {
     handleRegister,
     handleLogin,
+    handleLogout,
     getUserProfile,
     updateUserProfile,
     getAllUsers,
