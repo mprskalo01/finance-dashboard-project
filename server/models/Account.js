@@ -4,25 +4,6 @@ import { loadType } from "mongoose-currency";
 const Schema = mongoose.Schema;
 loadType(mongoose);
 
-const daySchema = new Schema(
-  {
-    date: String,
-    revenue: {
-      type: mongoose.Types.Currency,
-      currency: "USD",
-      get: (v) => v / 100,
-      set: (v) => v * 100, // Added set to multiply by 100
-    },
-    expenses: {
-      type: mongoose.Types.Currency,
-      currency: "USD",
-      get: (v) => v / 100,
-      set: (v) => v * 100, // Added set to multiply by 100
-    },
-  },
-  { toJSON: { getters: true } }
-);
-
 const monthSchema = new Schema(
   {
     month: String,
@@ -94,7 +75,6 @@ const AccountSchema = new Schema(
     },
 
     monthlyData: [monthSchema],
-    dailyData: [daySchema],
     transactions: [transactionSchema],
   },
   { timestamps: true, toJSON: { getters: true } }

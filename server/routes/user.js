@@ -53,6 +53,8 @@ router.post("/register", async (req, res) => {
     const payload = {
       user: {
         id: user.id,
+        email: user.email,
+        isAdmin: user.isAdmin, // Assuming isAdmin exists in your User schema
       },
     };
 
@@ -62,7 +64,16 @@ router.post("/register", async (req, res) => {
       { expiresIn: "1h" },
       (err, token) => {
         if (err) throw err;
-        res.status(201).json({ token, userId: user.id });
+
+        // Send both token and user data in the response
+        res.json({
+          token, // JWT token
+          user: {
+            id: user.id,
+            email: user.email,
+            isAdmin: user.isAdmin, // Include isAdmin
+          },
+        });
       }
     );
   } catch (error) {
@@ -93,8 +104,11 @@ router.post("/login", async (req, res) => {
     // Create and return JWT
     const payload = {
       user: {
-        id: user.id,
-      },
+          id: user.id,
+          email: user.email,
+          isAdmin: user.isAdmin,
+          // other user properties
+        },
     };
 
     jwt.sign(

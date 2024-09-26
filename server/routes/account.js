@@ -8,7 +8,7 @@ const router = express.Router();
 router.get("/account", authMiddleware, accountController.getUserAccount);
 
 // Update user's account
-router.put("/", authMiddleware, accountController.updateAccount);
+router.put("/account", authMiddleware, accountController.updateAccount);
 
 // Add transaction to user's account
 router.post("/transaction", authMiddleware, accountController.addTransaction);
@@ -36,5 +36,8 @@ router.get(
 
 // Get account statistics
 router.get("/stats", authMiddleware, accountController.getAccountStats);
+
+// Edit monthly data
+router.patch("/edit", authMiddleware, accountController.editMonthlyData);
 
 export default router;

@@ -23,11 +23,9 @@ router.post("/register", async (req, res) => {
       name,
       email,
       password,
+      // You might want to set default values here for fields like isAdmin
+      isAdmin: false, // or based on your logic
     });
-
-    // // Hash password redudant, hashing is done in the model
-    // const salt = await bcrypt.genSalt(10);
-    // user.password = await bcrypt.hash(password, salt);
 
     // Save user
     await user.save();
@@ -36,6 +34,8 @@ router.post("/register", async (req, res) => {
     const payload = {
       user: {
         id: user.id,
+        email: user.email,
+        isAdmin: user.isAdmin, // Assuming isAdmin exists in your User schema
       },
     };
 
@@ -45,7 +45,17 @@ router.post("/register", async (req, res) => {
       { expiresIn: "1h" },
       (err, token) => {
         if (err) throw err;
-        res.json({ token });
+
+        // Send both token and user data in the response
+        res.json({
+          token: token,
+          user: {
+            id: user.id,
+            email: user.email,
+            isAdmin: user.isAdmin,
+            // other user properties
+          },
+        });
       }
     );
   } catch (err) {
@@ -60,9 +70,19 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     // Check if user exists
-    let user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ msg: "Invalid credentials" });
+    if (user && user.validatePassword(password)) {
+      const token = generateToken(user); // generate JWT token
+      res.json({
+        token: token,
+        user: {
+          id: user._id,
+          email: user.email,
+          isAdmin: user.isAdmin,
+          // include other user properties as needed
+        },
+      });
+    } else {
+      res.status(401).json({ message: "Invalid credentials" });
     }
 
     // Check password
@@ -75,6 +95,8 @@ router.post("/login", async (req, res) => {
     const payload = {
       user: {
         id: user.id,
+        email: user.email,
+        isAdmin: user.isAdmin, // Assuming isAdmin exists in your User schema
       },
     };
 
@@ -84,7 +106,17 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1h" },
       (err, token) => {
         if (err) throw err;
-        res.json({ token });
+
+        // Send both token and user data in the response
+        res.json({
+          token: token,
+          user: {
+            id: user.id,
+            email: user.email,
+            isAdmin: user.isAdmin,
+            // other user properties
+          },
+        });
       }
     );
   } catch (err) {

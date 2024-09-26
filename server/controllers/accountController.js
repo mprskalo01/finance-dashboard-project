@@ -38,7 +38,6 @@ const accountController = {
         totalRevenue: 10,
         totalExpenses: 10,
         monthlyData: monthlyData,
-        dailyData: [],
       });
 
       await newAccount.save();
@@ -70,7 +69,7 @@ const accountController = {
       if (!account) {
         return res.status(404).json({ message: "Account not found" });
       }
-
+      console.log(`here ${account}`);
       if (req.body.currentBalance !== undefined)
         account.currentBalance = req.body.currentBalance;
       if (req.body.totalRevenue !== undefined)
@@ -84,6 +83,63 @@ const accountController = {
       res
         .status(500)
         .json({ message: "Error updating account", error: error.message });
+    }
+  },
+
+  editMonthlyData: async (req, res) => {
+    try {
+      console.log("Received request body:", req.body);
+      const { month, revenue, expenses } = req.body;
+
+      if (!month || revenue === undefined || expenses === undefined) {
+        console.error("Invalid request body:", req.body);
+        return res.status(400).json({
+          message:
+            "Invalid request. Month, revenue, and expenses are required.",
+        });
+      }
+
+      const account = await Account.findOne({ userId: req.user.id });
+      if (!account) {
+        console.error("Account not found for user:", req.user.id);
+        return res.status(404).json({ message: "Account not found" });
+      }
+
+      const monthDataIndex = account.monthlyData.findIndex(
+        (m) => m.month.toLowerCase() === month.toLowerCase()
+      );
+      if (monthDataIndex === -1) {
+        console.error("Month data not found:", month);
+        return res.status(404).json({ message: "Month data not found" });
+      }
+
+      // Update the monthly revenue and expenses with proper conversion
+      account.monthlyData[monthDataIndex].revenue = revenue * 100; // Convert to cents
+      account.monthlyData[monthDataIndex].expenses = expenses * 100; // Convert to cents
+
+      // Recalculate total revenue and expenses
+      account.totalRevenue = account.monthlyData.reduce(
+        (sum, month) => sum + month.revenue,
+        0
+      );
+      account.totalExpenses = account.monthlyData.reduce(
+        (sum, month) => sum + month.expenses,
+        0
+      );
+
+      console.log("Account state before saving:", account);
+      await account.save();
+      res.json({
+        account,
+        updatedMonthData: account.monthlyData[monthDataIndex],
+      });
+    } catch (error) {
+      console.error("Error in editMonthlyData:", error);
+      res.status(500).json({
+        message: "Error editing monthly data",
+        error: error.message,
+        stack: error.stack,
+      });
     }
   },
 
@@ -106,7 +162,7 @@ const accountController = {
         account.totalExpenses += amount;
       }
 
-      await updateDailyAndMonthlyData(account, date, amount, type);
+      await updateMonthlyData(account, date, amount, type);
       await account.save();
       res.json({ account, transaction: newTransaction });
     } catch (error) {
@@ -130,7 +186,7 @@ const accountController = {
       }
 
       // Revert old transaction
-      await updateDailyAndMonthlyData(
+      await updateMonthlyData(
         account,
         transaction.date,
         -transaction.amount,
@@ -150,7 +206,7 @@ const accountController = {
       transaction.type = type;
       transaction.description = description;
 
-      await updateDailyAndMonthlyData(account, date, amount, type);
+      await updateMonthlyData(account, date, amount, type);
       if (type === "revenue") {
         account.currentBalance += amount;
         account.totalRevenue += amount;
@@ -181,7 +237,7 @@ const accountController = {
         return res.status(404).json({ message: "Transaction not found" });
       }
 
-      await updateDailyAndMonthlyData(
+      await updateMonthlyData(
         account,
         transaction.date,
         -transaction.amount,
@@ -238,16 +294,6 @@ const accountController = {
           (sum, month) => sum + month.expenses,
           0
         ),
-        dailyAvgRevenue:
-          account.dailyData.length > 0
-            ? account.dailyData.reduce((sum, day) => sum + day.revenue, 0) /
-              account.dailyData.length
-            : 0,
-        dailyAvgExpenses:
-          account.dailyData.length > 0
-            ? account.dailyData.reduce((sum, day) => sum + day.expenses, 0) /
-              account.dailyData.length
-            : 0,
       };
 
       res.json(stats);
@@ -260,16 +306,7 @@ const accountController = {
   },
 };
 
-async function updateDailyAndMonthlyData(account, date, amount, type) {
-  // Update daily data
-  let dayData = account.dailyData.find((day) => day.date === date);
-  if (!dayData) {
-    dayData = { date, revenue: 0, expenses: 0 };
-    account.dailyData.push(dayData);
-  }
-  if (type === "revenue") dayData.revenue += amount;
-  else dayData.expenses += amount;
-
+async function updateMonthlyData(account, date, amount, type) {
   // Update monthly data
   const monthStr = new Date(date).toLocaleString("default", { month: "long" });
   let monthData = account.monthlyData.find((month) => month.month === monthStr);

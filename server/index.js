@@ -21,8 +21,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
 
 // ROUTES
-app.use("/api/user", userRoutes);
-app.use("/api/account", accountRoutes);
+app.use("/api/", userRoutes);
+app.use("/api/", accountRoutes);
 app.use("/api/", productRoutes);
 
 // MONGOOSE SETUP
