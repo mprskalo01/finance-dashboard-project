@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/useAuth";
 import api from "@/api/api"; // Adjust the path if necessary
 import axios from "axios";
-
+import { useCallback } from "react";
 
 export const useUser = () => {
   const navigate = useNavigate();
@@ -34,13 +34,20 @@ export const useUser = () => {
         localStorage.setItem("token", token); // Store the token in localStorage
         login(); // Set authentication state to true
         navigate("/dashboard"); // Redirect to dashboard
+
+        // Return success result
+        return { success: true };
       } else {
-        throw new Error("No token received");
+        // If no token is received, return a failure result
+        return { success: false, message: "No token received" };
       }
     } catch (error) {
-      handleError(error); // Handle the error appropriately
+      // If an error occurs, handle it and return a failure result with a message
+      const errorMessage = handleError(error); // Assume this returns a readable error message
+      return { success: false, message: errorMessage };
     }
   };
+
   // Function to handle logout
   const handleLogout = () => {
     try {
@@ -73,14 +80,14 @@ export const useUser = () => {
   };
 
   // Admin function to get all users
-  const getAllUsers = async () => {
+  const getAllUsers = useCallback(async () => {
     try {
       const data = await api.getAllUsers();
       return data;
     } catch (error) {
       handleError(error);
     }
-  };
+  }, []); // Empty dependency array ensures this function is stable
 
   // Admin function to update a user
   const updateUser = async (

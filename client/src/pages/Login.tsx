@@ -8,20 +8,37 @@ import {
   TextField,
   Button,
   Grid,
+  useTheme,
 } from "@mui/material";
 import { useState } from "react";
-import { Link } from "react-router-dom"; // Import useNavigate
+import { Link } from "react-router-dom";
 import { useUser } from "@/hooks/userHooks"; // Import the custom hook
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { handleLogin } = useUser();
+  const { palette } = useTheme();
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Call the handleLogin function from the custom hook
-    handleLogin(email, password);
+
+    // Call the handleLogin function and get the result
+    const result = await handleLogin(email, password);
+
+    if (result.success) {
+      // Show success alert if login was successful
+      // window.alert("Login successful!");
+    } else {
+      // Show failure alert if login failed, with the error message
+      window.alert(
+        result.message || "Invalid email or password. Please try again."
+      );
+    }
+
+    // Optionally clear input fields after submission
+    setEmail("");
+    setPassword("");
   };
 
   return (
@@ -36,7 +53,7 @@ const Login = () => {
             alignItems: "center",
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: "primary.light" }}>
+          <Avatar sx={{ m: 1, bgcolor: palette.tertiary[500] }}>
             <LockOutlined />
           </Avatar>
           <Typography variant="h5">Login</Typography>
@@ -50,6 +67,13 @@ const Login = () => {
               name="email"
               autoFocus
               value={email}
+              style={{
+                backgroundColor: palette.grey[600],
+                borderRadius: "1rem",
+              }}
+              InputLabelProps={{
+                style: { color: palette.tertiary[100], fontSize: "1rem" },
+              }}
               onChange={(e) => setEmail(e.target.value)}
             />
 
@@ -62,22 +86,38 @@ const Login = () => {
               label="Password"
               type="password"
               value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
+              style={{
+                backgroundColor: palette.grey[600],
+                borderRadius: "1rem",
               }}
+              InputLabelProps={{
+                style: { color: palette.tertiary[100], fontSize: "1rem" },
+              }}
+              onChange={(e) => setPassword(e.target.value)}
             />
 
             <Button
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ mt: 3, mb: 2, backgroundColor: palette.tertiary[500] }}
               type="submit"
             >
               Login
             </Button>
             <Grid container justifyContent={"flex-end"}>
               <Grid item>
-                <Link to="/register">Don't have an account? Register</Link>
+                <Link
+                  to="/register"
+                  style={{
+                    fontSize: "1rem",
+                    backgroundColor: palette.grey[700],
+                    padding: "0.25rem",
+                    borderRadius: "1rem",
+                    color: palette.grey[100],
+                  }}
+                >
+                  Don't have an account? Register
+                </Link>
               </Grid>
             </Grid>
           </Box>
