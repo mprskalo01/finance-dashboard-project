@@ -32,7 +32,6 @@ export interface Account {
   totalRevenue: number;
   totalExpenses: number;
   monthlyData: Array<Month>;
-  dailyData: Array<Day>;
   createdAt: string;
   updatedAt: string;
 }

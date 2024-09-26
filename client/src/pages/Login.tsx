@@ -28,7 +28,7 @@ const Login = () => {
 
     if (result.success) {
       // Show success alert if login was successful
-      // window.alert("Login successful!");
+      // window.alert("Login successful!"); // Consider using a more user-friendly notification
     } else {
       // Show failure alert if login failed, with the error message
       window.alert(

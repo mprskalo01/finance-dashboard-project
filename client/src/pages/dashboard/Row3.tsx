@@ -1,32 +1,21 @@
-import BoxHeader from "@/components/BoxHeader";
-import DashboardBox from "@/components/DashboardBox";
-import { useMemo, useState, useEffect } from "react";
-import api from "@/api/api";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
   useTheme,
   Button,
   IconButton,
-  styled,
+  Modal,
+  TextField,
 } from "@mui/material";
-import {
-  CartesianGrid,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  AreaChart,
-  Area,
-  Tooltip,
-  BarChart,
-  Bar,
-  Legend,
-} from "recharts";
-import Svgs from "@/assets/Svgs";
+import { useNavigate } from "react-router-dom";
+import api from "@/api/api";
+import DashboardBox from "@/components/DashboardBox";
+import CombinedChart from "./charts/CombinedChart";
+import ProductList from "./lists/ProductList";
 import { useUser } from "@/hooks/userHooks";
-import { DataGrid, GridCellParams } from "@mui/x-data-grid";
-import { ProductDialog, DeleteConfirmationDialog } from "./ProductDialog";
+import BoxHeader from "@/components/BoxHeader";
+import Svgs from "@/assets/Svgs";
 
 interface User {
   _id: string;
@@ -46,29 +35,19 @@ interface Account {
   totalExpenses: number;
 }
 
-interface Product {
-  _id: string;
-  name: string;
-  price: number;
-  expense: number;
-}
-
 const Row3 = () => {
+  const navigate = useNavigate();
   const { palette } = useTheme();
   const [user, setUser] = useState<User | null>(null);
   const [account, setAccount] = useState<Account | null>(null);
-  const [productData, setProductData] = useState<Product[]>([]);
-  const { handleLogout } = useUser();
-  const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editedAccount, setEditedAccount] = useState<Partial<Account>>({});
 
-  const [openAddDialog, setOpenAddDialog] = useState(false);
-  const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const { handleLogout } = useUser();
 
   const buttonClick = () => {
-    handleLogout(); // Perform logout
-    navigate("/login"); // Redirect to login page
+    handleLogout();
+    navigate("/login");
   };
 
   useEffect(() => {
@@ -94,404 +73,63 @@ const Row3 = () => {
     fetchUserAccount();
   }, []);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await api.getAllProducts(); // Fetch products
-        setProductData(response.data); // Set the fetched products to state
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
-  const revenueExpensesProfit = useMemo(() => {
-    return (
-      account?.monthlyData.map(({ month, revenue, expenses }) => ({
-        name: month.substring(0, 3),
-        revenue,
-        expenses,
-        profit: (revenue - expenses).toFixed(2),
-      })) || []
-    );
-  }, [account]);
-
-  const [showChart, setShowChart] = useState(true);
-
-  // Handler for the button
-  const handleChartToggle = () => {
-    setShowChart((prev) => !prev);
+  const handleEditAccount = () => {
+    setEditedAccount({
+      currentBalance: account?.currentBalance || 0,
+      totalRevenue: account?.totalRevenue || 0,
+      totalExpenses: account?.totalExpenses || 0,
+    });
+    setIsModalOpen(true);
   };
 
-  // Calculate the expenses change
-  const currentExpenses = account?.monthlyData?.[0]?.expenses || 0;
-  const previousExpenses = account?.monthlyData?.[1]?.expenses || 0;
-  const expensesChange = currentExpenses - previousExpenses;
-  const expensesChangePercentage =
-    previousExpenses !== 0
-      ? ((expensesChange / previousExpenses) * 100).toFixed(2)
-      : "N/A";
-  // Calculate the revenue change
-  const currentRevenue = account?.monthlyData?.[0]?.revenue || 0;
-  const previousRevenue = account?.monthlyData?.[1]?.revenue || 0;
-  const revenueChange = currentRevenue - previousRevenue;
-  const revenueChangePercentage =
-    previousRevenue !== 0
-      ? ((revenueChange / previousRevenue) * 100).toFixed(2)
-      : "N/A";
-
-  // New handler for editing monthly values
-  const handleEditMonthlyValues = () => {
-    // Implement your editing logic here, e.g., open a modal or navigate to an edit page
-    console.log("Edit monthly values");
-    // You might want to open a form/modal to handle the CRUD operations
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
-  const handleAddProduct = async (productData: {
-    name: string;
-    price: number;
-    expense: number;
-  }) => {
-    if (user) {
-      try {
-        const response = await api.createProduct({
-          userId: user._id,
-          ...productData,
-        });
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setEditedAccount((prev) => ({ ...prev, [name]: parseFloat(value) || 0 }));
+  };
 
-        // Assuming you have a state variable `products` that holds the list of products
-        setProductData((prevProducts) => [...prevProducts, response.data]);
-        setOpenAddDialog(false);
-      } catch (error) {
-        console.error("Failed to add product:", error);
-      }
+  const handleSaveChanges = async () => {
+    try {
+      await api.updateAccount(editedAccount);
+      const updatedAccount = await api.getUserAccount();
+      setAccount(updatedAccount.data);
+      setIsModalOpen(false);
+    } catch (err) {
+      console.log(err);
     }
   };
-
-  const handleEditProduct = async (productData: {
-    name: string;
-    price: number;
-    expense: number;
-  }) => {
-    if (selectedProduct) {
-      try {
-        const response = await api.updateProduct(
-          selectedProduct._id,
-          productData
-        );
-
-        // Assuming you have a state variable `productData` that holds the list of products
-        setProductData((prevProducts) =>
-          prevProducts.map((p) =>
-            p._id === selectedProduct._id ? response.data : p
-          )
-        );
-        setOpenEditDialog(false);
-      } catch (error) {
-        console.error("Failed to update product:", error);
-      }
-    }
-  };
-
-  const handleDeleteProduct = async () => {
-    if (selectedProduct) {
-      try {
-        await api.deleteProduct(selectedProduct._id);
-        setProductData(
-          productData.filter((p) => p._id !== selectedProduct._id)
-        );
-        setOpenDeleteDialog(false);
-      } catch (error) {
-        console.error("Failed to delete product:", error);
-      }
-    }
-  };
-  const StyledCell = styled("div")({
-    color: "white", // Set text color to white
-  });
-  const productColumns = [
-    {
-      field: "name",
-      headerName: "Name",
-      flex: 1,
-      renderCell: (params: GridCellParams) => (
-        <StyledCell>{params.value as string}</StyledCell> // Cast params.value to string
-      ),
-    },
-    {
-      field: "expense",
-      headerName: "Expense",
-      flex: 0.5,
-      renderCell: (params: GridCellParams) => (
-        <StyledCell>{`$${params.value as number}`}</StyledCell> // Cast params.value to number
-      ),
-    },
-    {
-      field: "price",
-      headerName: "Price",
-      flex: 0.5,
-      renderCell: (params: GridCellParams) => (
-        <StyledCell>{`$${params.value as number}`}</StyledCell> // Cast params.value to number
-      ),
-    },
-    {
-      field: "actions",
-      headerName: "Actions",
-      width: 120,
-      renderCell: (params: GridCellParams) => (
-        <Box>
-          <IconButton
-            onClick={() => {
-              setSelectedProduct(params.row as Product);
-              setOpenEditDialog(true);
-            }}
-          >
-            <Svgs.editSvg fillColor="#fff" />
-          </IconButton>
-          <IconButton
-            onClick={() => {
-              setSelectedProduct(params.row as Product);
-              setOpenDeleteDialog(true);
-            }}
-          >
-            <Svgs.deleteSvg fillColor="#fff" />
-          </IconButton>
-        </Box>
-      ),
-    },
-  ];
 
   return (
     <>
-      <DashboardBox gridArea="d">
+      <CombinedChart />
+      <ProductList />
+      <DashboardBox gridArea="i" sx={{ p: 2 }}>
         <BoxHeader
           title={
             <Box display="flex" gap="10px" alignItems="center">
-              <div>
-                <span style={{ color: palette.tertiary[500] }}>Revenue</span>,{" "}
-                <span style={{ color: palette.secondary[500] }}>Expenses</span>,{" "}
-                {"& "}
-                <span style={{ color: palette.primary[500] }}>Profit</span>
-              </div>
-              {/* Toggle Button */}
-              <IconButton
-                onClick={handleChartToggle}
-                size="small"
-                sx={{
-                  backgroundColor: "rgba(131, 183, 166, 0.1)",
-                  "&:hover": {
-                    backgroundColor: "rgba(131, 183, 166, 0.2)",
-                  },
-                  borderRadius: "4px",
-                }}
-              >
-                {showChart ? (
-                  <Svgs.barSvg strokeColor="#83b7a6" />
-                ) : (
-                  <Svgs.areaChartSvg fillColor="#83b7a6" />
-                )}
-              </IconButton>
-              {/* Edit Button */}
-              <IconButton
-                onClick={handleEditMonthlyValues}
-                size="small"
-                sx={{
-                  backgroundColor: "rgba(255, 206, 86, 0.1)", // Example background color
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 206, 86, 0.2)", // Darker on hover
-                  },
-                  borderRadius: "4px",
-                }}
-              >
-                <Svgs.editSvg fillColor="#0ea5e9" />{" "}
-                {/* Ensure to have an edit SVG icon */}
-              </IconButton>
-            </Box>
-          }
-          sideText={`${revenueChangePercentage} & ${expensesChangePercentage}`}
-        />
-        <ResponsiveContainer width="100%" height="80%">
-          {showChart ? (
-            <AreaChart
-              width={500}
-              height={400}
-              data={revenueExpensesProfit}
-              margin={{
-                top: 10,
-                right: 30,
-                left: 0,
-                bottom: 0,
-              }}
-            >
-              <defs>
-                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor={palette.tertiary[500]}
-                    stopOpacity={0.5}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor={palette.tertiary[300]}
-                    stopOpacity={0}
-                  />
-                </linearGradient>
-                <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor={palette.secondary[300]}
-                    stopOpacity={0.5}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor={palette.secondary[300]}
-                    stopOpacity={0}
-                  />
-                </linearGradient>
-                <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor={palette.primary[500]}
-                    stopOpacity={0.5}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor={palette.primary[400]}
-                    stopOpacity={0}
-                  />
-                </linearGradient>
-              </defs>
-              <CartesianGrid vertical={false} strokeDasharray="1 2" />
-              <XAxis dataKey="name" />
-              <YAxis domain={["auto", "auto"]} />
-              <Tooltip />
-              <Area
-                type="monotone"
-                dataKey="profit"
-                stackId="1"
-                dot={true}
-                stroke={palette.primary[500]}
-                fill="url(#colorProfit)"
-              />
-              <Area
-                type="monotone"
-                dataKey="expenses"
-                stackId="1"
-                dot={true}
-                stroke={palette.secondary[500]}
-                fill="url(#colorExpenses)"
-              />
-              <Area
-                type="monotone"
-                dataKey="revenue"
-                stackId="1"
-                dot={true}
-                stroke={palette.tertiary[500]}
-                fill="url(#colorRevenue)"
-              />
-            </AreaChart>
-          ) : (
-            <BarChart
-              width={500}
-              height={300}
-              data={revenueExpensesProfit}
-              margin={{
-                top: 20,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <defs>
-                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={palette.tertiary[500]} />
-                  <stop offset="95%" stopColor={palette.tertiary[400]} />
-                </linearGradient>
-                <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={palette.secondary[500]} />
-                  <stop offset="95%" stopColor={palette.secondary[400]} />
-                </linearGradient>
-                <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={palette.primary[500]} />
-                  <stop offset="95%" stopColor={palette.primary[400]} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="revenue" stackId="a" fill="url(#colorRevenue)" />
-              <Bar dataKey="expenses" stackId="b" fill="url(#colorExpenses)" />
-              <Bar dataKey="profit" stackId="c" fill="url(#colorProfit)" />
-            </BarChart>
-          )}
-        </ResponsiveContainer>
-      </DashboardBox>
-      <DashboardBox gridArea="h">
-        <BoxHeader
-          title={
-            <Box display="flex" gap="10px" alignItems="center">
-              <span style={{ color: palette.tertiary[200] }}>
-                List of products
+              <span style={{ color: palette.primary[500] }}>
+                Account balance:
               </span>
               <IconButton
-                onClick={() => setOpenAddDialog(true)}
+                onClick={handleEditAccount}
                 size="small"
                 sx={{
-                  backgroundColor: "rgba(136, 132, 216, 0.1)",
+                  backgroundColor: "rgba(18, 239, 200, 0.1)",
                   "&:hover": {
-                    backgroundColor: "rgba(136, 132, 216, 0.2)",
+                    backgroundColor: "rgba(18, 239, 200, 0.2)",
                   },
                   borderRadius: "4px",
                 }}
               >
-                <Svgs.addSvg strokeColor="#12efc8" />
+                <Svgs.editSvg fillColor="#0ea5e9" />
               </IconButton>
             </Box>
           }
-          sideText={`${productData?.length} products`}
+          sideText={`Welcome, ${user?.username}!`}
         />
-        <Box
-          mt="0.5rem"
-          p="0 0.5rem"
-          height="75%"
-          sx={{
-            "& .MuiDataGrid-root": {
-              color: palette.grey[300],
-              border: "none",
-            },
-            "& .MuiDataGrid-cell": {
-              borderBottom: `1px solid ${palette.grey[800]} !important`,
-            },
-            "& .MuiDataGrid-columnHeaders": {
-              borderBottom: `1px solid ${palette.grey[800]} !important`,
-            },
-            // "& .MuiDataGrid-columnSeparator": {
-            //   visibility: "hidden",
-            // },
-          }}
-        >
-          <DataGrid
-            columnHeaderHeight={25}
-            rowHeight={35}
-            hideFooter={true}
-            rows={productData}
-            columns={productColumns}
-          />
-        </Box>
-      </DashboardBox>
-      <DashboardBox
-        gridArea="i"
-        sx={{
-          p: 2,
-        }}
-      >
-        <Typography variant="h2" fontWeight="bold" color={palette.grey[200]}>
-          Welcome, {user?.username}!
-        </Typography>
         <Box mt={2}>
           <Typography variant="h3" color={palette.grey[300]}>
             Your current account balance is:{" "}
@@ -533,45 +171,96 @@ const Row3 = () => {
           color={palette.secondary[300]}
           sx={{ my: "1rem" }}
         >
-          {/* Logout Button */}
           <Button
             variant="contained"
             color="secondary"
             onClick={buttonClick}
-            sx={{ mt: 2 }} // Add some margin for layout
+            sx={{ mt: 2 }}
           >
             Logout
           </Button>
         </Typography>
       </DashboardBox>
-      <ProductDialog
-        open={openAddDialog}
-        onClose={() => setOpenAddDialog(false)}
-        onSubmit={handleAddProduct}
-        title="Add Product"
-      />
 
-      <ProductDialog
-        open={openEditDialog}
-        onClose={() => setOpenEditDialog(false)}
-        onSubmit={handleEditProduct}
-        initialData={
-          selectedProduct
-            ? {
-                name: selectedProduct.name,
-                price: selectedProduct.price,
-                expense: selectedProduct.expense,
-              }
-            : undefined
-        }
-        title="Edit Product"
-      />
-
-      <DeleteConfirmationDialog
-        open={openDeleteDialog}
-        onClose={() => setOpenDeleteDialog(false)}
-        onConfirm={handleDeleteProduct}
-      />
+      <Modal
+        open={isModalOpen}
+        onClose={handleCloseModal}
+        aria-labelledby="edit-account-modal"
+        aria-describedby="modal-to-edit-account-stats"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            color: palette.grey[100],
+            bgcolor: palette.grey[600],
+            boxShadow: 24,
+            p: 4,
+            borderRadius: "2rem",
+          }}
+        >
+          <Typography
+            variant="h4"
+            component="h3"
+            color={palette.primary[500]}
+            gutterBottom
+          >
+            Edit Account Stats
+          </Typography>
+          <TextField
+            fullWidth
+            label="Current Balance"
+            type="number"
+            name="currentBalance"
+            sx={{ backgroundColor: palette.grey[200] }}
+            value={editedAccount.currentBalance}
+            onChange={handleInputChange}
+            margin="normal"
+          />
+          <TextField
+            fullWidth
+            label="Total Revenue"
+            type="number"
+            name="totalRevenue"
+            sx={{ backgroundColor: palette.grey[200] }}
+            value={editedAccount.totalRevenue}
+            onChange={handleInputChange}
+            margin="normal"
+          />
+          <TextField
+            fullWidth
+            label="Total Expenses"
+            type="number"
+            name="totalExpenses"
+            sx={{ backgroundColor: palette.grey[200] }}
+            value={editedAccount.totalExpenses}
+            onChange={handleInputChange}
+            margin="normal"
+          />
+          <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
+            <Button
+              onClick={handleCloseModal}
+              sx={{
+                mr: 1,
+                backgroundColor: palette.secondary[500],
+                color: palette.grey[700],
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveChanges}
+              variant="contained"
+              color="primary"
+            >
+              Save Changes
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
     </>
   );
 };

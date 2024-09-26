@@ -1,13 +1,19 @@
 import { createContext } from "react";
 
-// Define and export the type
+// Define user type
+interface User {
+  isAdmin: boolean;
+  // Add other user properties if needed
+}
+
 export interface AuthContextType {
   isAuthenticated: boolean;
-  login: () => void;
+  user: User | null;
+  login: (userData: User) => void;
   logout: () => void;
 }
 
-// Create the context with an undefined initial value
+// Create the context
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined
 );

@@ -3,7 +3,15 @@ import { useAuth } from "@/context/useAuth";
 import api from "@/api/api"; // Adjust the path if necessary
 import axios from "axios";
 import { useCallback } from "react";
+import { jwtDecode, JwtPayload } from "jwt-decode";
 
+interface DecodedToken extends JwtPayload {
+  user: {
+    id: string;
+    email: string;
+    isAdmin: boolean;
+  };
+}
 export const useUser = () => {
   const navigate = useNavigate();
   const { login, logout } = useAuth();
@@ -28,23 +36,39 @@ export const useUser = () => {
   const handleLogin = async (email: string, password: string) => {
     try {
       const response = await api.login(email, password);
-      const token = response.data.token; // Assuming token is sent in response
+      const token = response.data.token; // Get token from response
 
+      // Decode the token with the new type
+      const decodedToken = jwtDecode<DecodedToken>(token); // Specify the type here
+
+      // Extract userData from the decoded token
+      const userData = {
+        email: decodedToken.user.email, // Access email from decoded token
+        isAdmin: decodedToken.user.isAdmin, // Access isAdmin from decoded token
+      };
+
+      // Log the userData object to the console
+      console.log("User Data:", userData);
+
+      // Check if token exists
       if (token) {
-        localStorage.setItem("token", token); // Store the token in localStorage
-        login(); // Set authentication state to true
-        navigate("/dashboard"); // Redirect to dashboard
+        localStorage.setItem("token", token); // Store token
+        login(userData); // Pass userData (now includes email and isAdmin)
 
-        // Return success result
-        return { success: true };
+        // Admin check logic
+        if (userData.isAdmin) {
+          navigate("/admin");
+        } else {
+          navigate("/dashboard");
+        }
+
+        return { success: true }; // Return success result
       } else {
-        // If no token is received, return a failure result
-        return { success: false, message: "No token received" };
+        return { success: false, message: "No token received" }; // Token is missing
       }
     } catch (error) {
-      // If an error occurs, handle it and return a failure result with a message
-      const errorMessage = handleError(error); // Assume this returns a readable error message
-      return { success: false, message: errorMessage };
+      const errorMessage = handleError(error); // Handle error and get readable message
+      return { success: false, message: errorMessage }; // Return failure result
     }
   };
 

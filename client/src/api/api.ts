@@ -26,7 +26,7 @@ export const api = {
     password: string;
   }) => {
     try {
-      return await axios.post(`${baseURL}/user/register`, userData);
+      return await axios.post(`${baseURL}/register`, userData);
     } catch (error) {
       console.error("Failed to register user:", error);
       throw error;
@@ -35,7 +35,7 @@ export const api = {
 
   login: async (email: string, password: string) => {
     try {
-      return await axios.post(`${baseURL}/user/login`, { email, password });
+      return await axios.post(`${baseURL}/login`, { email, password });
     } catch (error) {
       console.error("Failed to login:", error);
       throw error;
@@ -44,7 +44,7 @@ export const api = {
 
   getUserProfile: async () => {
     try {
-      return await axios.get(`${baseURL}/user/profile`, getAuthHeader());
+      return await axios.get(`${baseURL}/profile`, getAuthHeader());
     } catch (error) {
       console.error("Failed to fetch user profile:", error);
       throw error;
@@ -57,7 +57,7 @@ export const api = {
   }) => {
     try {
       return await axios.put(
-        `${baseURL}/user/profile`,
+        `${baseURL}/profile`,
         profileData,
         getAuthHeader()
       );
@@ -69,7 +69,7 @@ export const api = {
 
   getAllUsers: async () => {
     try {
-      return await axios.get(`${baseURL}/user/users`, getAuthHeader());
+      return await axios.get(`${baseURL}/users`, getAuthHeader());
     } catch (error) {
       console.error("Failed to fetch all users:", error);
       throw error;
@@ -82,7 +82,7 @@ export const api = {
   ) => {
     try {
       return await axios.put(
-        `${baseURL}/user/admin/users/${userId}`,
+        `${baseURL}/admin/users/${userId}`,
         userData,
         getAuthHeader()
       );
@@ -95,7 +95,7 @@ export const api = {
   deleteUser: async (userId: string) => {
     try {
       return await axios.delete(
-        `${baseURL}/user/admin/users/${userId}`,
+        `${baseURL}/admin/users/${userId}`,
         getAuthHeader()
       );
     } catch (error) {
@@ -107,7 +107,7 @@ export const api = {
   // Account API
   getUserAccount: async () => {
     try {
-      return await axios.get(`${baseURL}/account/account`, getAuthHeader());
+      return await axios.get(`${baseURL}/account`, getAuthHeader());
     } catch (error) {
       console.error("Failed to fetch user account:", error);
       throw error;
@@ -127,6 +127,23 @@ export const api = {
       );
     } catch (error) {
       console.error("Failed to update account:", error);
+      throw error;
+    }
+  },
+  // Edit monthly data
+  editMonthlyData: async (monthData: {
+    month: string;
+    revenue: number;
+    expenses: number;
+  }) => {
+    try {
+      return await axios.patch(
+        `${baseURL}/account/edit`,
+        monthData,
+        getAuthHeader()
+      );
+    } catch (error) {
+      console.error("Failed to edit monthly data:", error);
       throw error;
     }
   },
