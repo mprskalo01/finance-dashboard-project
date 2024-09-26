@@ -6,6 +6,11 @@ loadType(mongoose);
 
 const ProductSchema = new Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     name: {
       type: String,
     },
@@ -13,18 +18,14 @@ const ProductSchema = new Schema(
       type: mongoose.Types.Currency,
       currency: "USD",
       get: (v) => v / 100,
+      set: (v) => v * 100,
     },
     expense: {
       type: mongoose.Types.Currency,
       currency: "USD",
       get: (v) => v / 100,
+      set: (v) => v * 100,
     },
-    transactions: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Transaction",
-      },
-    ],
   },
   { timestamps: true, toJSON: { getters: true } }
 );
