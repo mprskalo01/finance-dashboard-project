@@ -282,7 +282,7 @@ const Row2 = () => {
                     color={palette.tertiary[500]}
                     sx={{
                       fontSize: {
-                        xs: "1.5rem",
+                        xs: "1rem",
                         sm: "1.5rem",
                         md: "1rem",
                         xl: "1.25rem",
@@ -298,7 +298,7 @@ const Row2 = () => {
                     sx={{
                       marginBottom: "4rem",
                       fontSize: {
-                        xs: "1.5rem",
+                        xs: "1rem",
                         sm: "1.5rem",
                         md: "1rem",
                         xl: "1.25rem",
@@ -316,7 +316,7 @@ const Row2 = () => {
                     color={palette.secondary[500]}
                     sx={{
                       fontSize: {
-                        xs: "1.5rem",
+                        xs: "1rem",
                         sm: "1.5rem",
                         md: "1rem",
                         xl: "1.25rem",
@@ -332,7 +332,7 @@ const Row2 = () => {
                     sx={{
                       marginBottom: "4rem",
                       fontSize: {
-                        xs: "1.5rem",
+                        xs: "1rem",
                         sm: "1.5rem",
                         md: "1rem",
                         xl: "1.25rem",
@@ -350,7 +350,7 @@ const Row2 = () => {
                     color={palette.primary[500]}
                     sx={{
                       fontSize: {
-                        xs: "1.5rem",
+                        xs: "1rem",
                         sm: "1.5rem",
                         md: "1rem",
                         xl: "1.25rem",
@@ -366,7 +366,7 @@ const Row2 = () => {
                     sx={{
                       marginBottom: "4rem",
                       fontSize: {
-                        xs: "1.5rem",
+                        xs: "1rem",
                         sm: "1.5rem",
                         md: "1rem",
                         xl: "1.25rem",

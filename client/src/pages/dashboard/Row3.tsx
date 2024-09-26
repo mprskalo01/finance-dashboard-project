@@ -3,7 +3,14 @@ import DashboardBox from "@/components/DashboardBox";
 import { useMemo, useState, useEffect } from "react";
 import api from "@/api/api";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, useTheme, IconButton, Button } from "@mui/material";
+import {
+  Box,
+  Typography,
+  useTheme,
+  Button,
+  IconButton,
+  styled,
+} from "@mui/material";
 import {
   CartesianGrid,
   ResponsiveContainer,
@@ -17,10 +24,12 @@ import {
   Legend,
 } from "recharts";
 import Svgs from "@/assets/Svgs";
-import { useUser } from "@/hooks/userHooks"; // Import the custom hook
+import { useUser } from "@/hooks/userHooks";
 import { DataGrid, GridCellParams } from "@mui/x-data-grid";
+import { ProductDialog, DeleteConfirmationDialog } from "./ProductDialog";
 
 interface User {
+  _id: string;
   username: string;
 }
 
@@ -38,6 +47,7 @@ interface Account {
 }
 
 interface Product {
+  _id: string;
   name: string;
   price: number;
   expense: number;
@@ -50,6 +60,11 @@ const Row3 = () => {
   const [productData, setProductData] = useState<Product[]>([]);
   const { handleLogout } = useUser();
   const navigate = useNavigate();
+
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const buttonClick = () => {
     handleLogout(); // Perform logout
@@ -91,14 +106,6 @@ const Row3 = () => {
 
     fetchProducts();
   }, []);
-
-  // const productColumns = [
-  //   // { field: "id", headerName: "ID", width: 90 },
-  //   { field: "name", headerName: "Name", flex: 1 },
-  //   { field: "price", headerName: "Price", width: 120 },
-  //   { field: "expense", headerName: "Expense", width: 120 },
-  //   // Add more columns as needed based on your Product model
-  // ];
 
   const revenueExpensesProfit = useMemo(() => {
     return (
@@ -142,23 +149,117 @@ const Row3 = () => {
     // You might want to open a form/modal to handle the CRUD operations
   };
 
+  const handleAddProduct = async (productData: {
+    name: string;
+    price: number;
+    expense: number;
+  }) => {
+    if (user) {
+      try {
+        const response = await api.createProduct({
+          userId: user._id,
+          ...productData,
+        });
+
+        // Assuming you have a state variable `products` that holds the list of products
+        setProductData((prevProducts) => [...prevProducts, response.data]);
+        setOpenAddDialog(false);
+      } catch (error) {
+        console.error("Failed to add product:", error);
+      }
+    }
+  };
+
+  const handleEditProduct = async (productData: {
+    name: string;
+    price: number;
+    expense: number;
+  }) => {
+    if (selectedProduct) {
+      try {
+        const response = await api.updateProduct(
+          selectedProduct._id,
+          productData
+        );
+
+        // Assuming you have a state variable `productData` that holds the list of products
+        setProductData((prevProducts) =>
+          prevProducts.map((p) =>
+            p._id === selectedProduct._id ? response.data : p
+          )
+        );
+        setOpenEditDialog(false);
+      } catch (error) {
+        console.error("Failed to update product:", error);
+      }
+    }
+  };
+
+  const handleDeleteProduct = async () => {
+    if (selectedProduct) {
+      try {
+        await api.deleteProduct(selectedProduct._id);
+        setProductData(
+          productData.filter((p) => p._id !== selectedProduct._id)
+        );
+        setOpenDeleteDialog(false);
+      } catch (error) {
+        console.error("Failed to delete product:", error);
+      }
+    }
+  };
+  const StyledCell = styled("div")({
+    color: "white", // Set text color to white
+  });
   const productColumns = [
     {
       field: "name",
       headerName: "Name",
       flex: 1,
+      renderCell: (params: GridCellParams) => (
+        <StyledCell>{params.value as string}</StyledCell> // Cast params.value to string
+      ),
     },
     {
       field: "expense",
       headerName: "Expense",
       flex: 0.5,
-      renderCell: (params: GridCellParams) => `$${params.value}`,
+      renderCell: (params: GridCellParams) => (
+        <StyledCell>{`$${params.value as number}`}</StyledCell> // Cast params.value to number
+      ),
     },
     {
       field: "price",
       headerName: "Price",
       flex: 0.5,
-      renderCell: (params: GridCellParams) => `$${params.value}`,
+      renderCell: (params: GridCellParams) => (
+        <StyledCell>{`$${params.value as number}`}</StyledCell> // Cast params.value to number
+      ),
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      width: 120,
+      renderCell: (params: GridCellParams) => (
+        <Box>
+          <IconButton
+            onClick={() => {
+              setSelectedProduct(params.row as Product);
+              setOpenEditDialog(true);
+            }}
+          >
+            <Svgs.editSvg fillColor="#fff" />
+          </IconButton>
+          <IconButton
+            onClick={() => {
+              setSelectedProduct(params.row as Product);
+              setOpenDeleteDialog(true);
+            }}
+          >
+            <Svgs.deleteSvg fillColor="#fff" />
+          </IconButton>
+        </Box>
+      ),
     },
   ];
 
@@ -331,7 +432,26 @@ const Row3 = () => {
       </DashboardBox>
       <DashboardBox gridArea="h">
         <BoxHeader
-          title="List of Products"
+          title={
+            <Box display="flex" gap="10px" alignItems="center">
+              <span style={{ color: palette.tertiary[200] }}>
+                List of products
+              </span>
+              <IconButton
+                onClick={() => setOpenAddDialog(true)}
+                size="small"
+                sx={{
+                  backgroundColor: "rgba(136, 132, 216, 0.1)",
+                  "&:hover": {
+                    backgroundColor: "rgba(136, 132, 216, 0.2)",
+                  },
+                  borderRadius: "4px",
+                }}
+              >
+                <Svgs.addSvg strokeColor="#12efc8" />
+              </IconButton>
+            </Box>
+          }
           sideText={`${productData?.length} products`}
         />
         <Box
@@ -349,17 +469,17 @@ const Row3 = () => {
             "& .MuiDataGrid-columnHeaders": {
               borderBottom: `1px solid ${palette.grey[800]} !important`,
             },
-            "& .MuiDataGrid-columnSeparator": {
-              visibility: "hidden",
-            },
+            // "& .MuiDataGrid-columnSeparator": {
+            //   visibility: "hidden",
+            // },
           }}
         >
           <DataGrid
             columnHeaderHeight={25}
             rowHeight={35}
             hideFooter={true}
-            rows={productData} // Use the fetched product data
-            columns={productColumns} // Pass the defined columns
+            rows={productData}
+            columns={productColumns}
           />
         </Box>
       </DashboardBox>
@@ -424,6 +544,34 @@ const Row3 = () => {
           </Button>
         </Typography>
       </DashboardBox>
+      <ProductDialog
+        open={openAddDialog}
+        onClose={() => setOpenAddDialog(false)}
+        onSubmit={handleAddProduct}
+        title="Add Product"
+      />
+
+      <ProductDialog
+        open={openEditDialog}
+        onClose={() => setOpenEditDialog(false)}
+        onSubmit={handleEditProduct}
+        initialData={
+          selectedProduct
+            ? {
+                name: selectedProduct.name,
+                price: selectedProduct.price,
+                expense: selectedProduct.expense,
+              }
+            : undefined
+        }
+        title="Edit Product"
+      />
+
+      <DeleteConfirmationDialog
+        open={openDeleteDialog}
+        onClose={() => setOpenDeleteDialog(false)}
+        onConfirm={handleDeleteProduct}
+      />
     </>
   );
 };
