@@ -11,13 +11,13 @@ const monthSchema = new Schema(
       type: mongoose.Types.Currency,
       currency: "USD",
       get: (v) => v / 100,
-      set: (v) => v * 100, // Added set to multiply by 100
+      set: (v) => v * 100,
     },
     expenses: {
       type: mongoose.Types.Currency,
       currency: "USD",
       get: (v) => v / 100,
-      set: (v) => v * 100, // Added set to multiply by 100
+      set: (v) => v * 100,
     },
   },
   { toJSON: { getters: true } }
@@ -56,24 +56,23 @@ const AccountSchema = new Schema(
       type: mongoose.Types.Currency,
       currency: "USD",
       get: (v) => v / 100,
-      set: (v) => v * 100, // Added set to multiply by 100
-      default: 0,
+      set: (v) => v * 100,
+      default: 1,
     },
     totalRevenue: {
       type: mongoose.Types.Currency,
       currency: "USD",
       get: (v) => v / 100,
-      set: (v) => v * 100, // Added set to multiply by 100
-      default: 0,
+      set: (v) => v * 100,
+      default: 1,
     },
     totalExpenses: {
       type: mongoose.Types.Currency,
       currency: "USD",
       get: (v) => v / 100,
-      set: (v) => v * 100, // Added set to multiply by 100
-      default: 0,
+      set: (v) => v * 100,
+      default: 1,
     },
-
     monthlyData: [monthSchema],
     transactions: [transactionSchema],
   },

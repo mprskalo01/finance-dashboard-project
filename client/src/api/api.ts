@@ -237,14 +237,12 @@ export const api = {
     }
   },
 
-  getProductById: async (productId: string): Promise<any> => {
+  getProductsByUserId: async (userId: string) => {
     try {
-      return await axios.get(
-        `${baseURL}/products/${productId}`,
-        getAuthHeader()
-      );
+      const response = await axios.get(`/api/products?userId=${userId}`);
+      return response.data;
     } catch (error) {
-      console.error(`Failed to fetch product with ID ${productId}:`, error);
+      console.error("Failed to fetch products by user ID:", error);
       throw error;
     }
   },

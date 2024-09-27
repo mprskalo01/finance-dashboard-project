@@ -104,11 +104,11 @@ router.post("/login", async (req, res) => {
     // Create and return JWT
     const payload = {
       user: {
-          id: user.id,
-          email: user.email,
-          isAdmin: user.isAdmin,
-          // other user properties
-        },
+        id: user.id,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        // other user properties
+      },
     };
 
     jwt.sign(
@@ -214,7 +214,7 @@ router.delete(
         return res.status(404).json({ message: "User not found" });
       }
 
-      await user.remove();
+      await user.deleteOne();
       res.json({ message: "User removed" });
     } catch (error) {
       res

@@ -27,7 +27,7 @@ const accountController = {
         .slice(0, currentMonthIndex + 1)
         .map((month) => ({
           month: month,
-          revenue: 10,
+          revenue: 15,
           expenses: 10,
         }));
 
@@ -88,178 +88,156 @@ const accountController = {
 
   editMonthlyData: async (req, res) => {
     try {
-      console.log("Received request body:", req.body);
       const { month, revenue, expenses } = req.body;
 
+      // Validate request body
       if (!month || revenue === undefined || expenses === undefined) {
-        console.error("Invalid request body:", req.body);
-        return res.status(400).json({
-          message:
-            "Invalid request. Month, revenue, and expenses are required.",
-        });
+        return res.status(400).json({ message: "Invalid request data" });
       }
 
       const account = await Account.findOne({ userId: req.user.id });
+
       if (!account) {
-        console.error("Account not found for user:", req.user.id);
         return res.status(404).json({ message: "Account not found" });
       }
 
-      const monthDataIndex = account.monthlyData.findIndex(
+      let monthData = account.monthlyData.find(
         (m) => m.month.toLowerCase() === month.toLowerCase()
       );
-      if (monthDataIndex === -1) {
-        console.error("Month data not found:", month);
-        return res.status(404).json({ message: "Month data not found" });
+      if (!monthData) {
+        monthData = { month, revenue: 0, expenses: 0 };
+        account.monthlyData.push(monthData);
       }
 
-      // Update the monthly revenue and expenses with proper conversion
-      account.monthlyData[monthDataIndex].revenue = revenue * 100; // Convert to cents
-      account.monthlyData[monthDataIndex].expenses = expenses * 100; // Convert to cents
+      monthData.revenue = revenue;
+      monthData.expenses = expenses;
 
-      // Recalculate total revenue and expenses
-      account.totalRevenue = account.monthlyData.reduce(
-        (sum, month) => sum + month.revenue,
-        0
-      );
-      account.totalExpenses = account.monthlyData.reduce(
-        (sum, month) => sum + month.expenses,
-        0
-      );
-
-      console.log("Account state before saving:", account);
       await account.save();
-      res.json({
-        account,
-        updatedMonthData: account.monthlyData[monthDataIndex],
-      });
-    } catch (error) {
-      console.error("Error in editMonthlyData:", error);
-      res.status(500).json({
-        message: "Error editing monthly data",
-        error: error.message,
-        stack: error.stack,
-      });
-    }
-  },
-
-  addTransaction: async (req, res) => {
-    try {
-      const { date, amount, type, description } = req.body;
-      const account = await Account.findOne({ userId: req.user.id });
-      if (!account) {
-        return res.status(404).json({ message: "Account not found" });
-      }
-
-      const newTransaction = { date, amount, type, description };
-      account.transactions.push(newTransaction);
-
-      if (type === "revenue") {
-        account.currentBalance += amount;
-        account.totalRevenue += amount;
-      } else if (type === "expense") {
-        account.currentBalance -= amount;
-        account.totalExpenses += amount;
-      }
-
-      await updateMonthlyData(account, date, amount, type);
-      await account.save();
-      res.json({ account, transaction: newTransaction });
+      res.status(200).json(account);
     } catch (error) {
       res
         .status(500)
-        .json({ message: "Error adding transaction", error: error.message });
+        .json({ message: "Error editing monthly data", error: error.message });
     }
   },
 
-  updateTransaction: async (req, res) => {
-    try {
-      const { transactionId, date, amount, type, description } = req.body;
-      const account = await Account.findOne({ userId: req.user.id });
-      if (!account) {
-        return res.status(404).json({ message: "Account not found" });
-      }
+  // addTransaction: async (req, res) => {
+  //   try {
+  //     const { date, amount, type, description } = req.body;
+  //     const account = await Account.findOne({ userId: req.user.id });
+  //     if (!account) {
+  //       return res.status(404).json({ message: "Account not found" });
+  //     }
 
-      const transaction = account.transactions.id(transactionId);
-      if (!transaction) {
-        return res.status(404).json({ message: "Transaction not found" });
-      }
+  //     const newTransaction = { date, amount, type, description };
+  //     account.transactions.push(newTransaction);
 
-      // Revert old transaction
-      await updateMonthlyData(
-        account,
-        transaction.date,
-        -transaction.amount,
-        transaction.type
-      );
-      if (transaction.type === "revenue") {
-        account.currentBalance -= transaction.amount;
-        account.totalRevenue -= transaction.amount;
-      } else {
-        account.currentBalance += transaction.amount;
-        account.totalExpenses -= transaction.amount;
-      }
+  //     if (type === "revenue") {
+  //       account.currentBalance += amount;
+  //       account.totalRevenue += amount;
+  //     } else if (type === "expense") {
+  //       account.currentBalance -= amount;
+  //       account.totalExpenses += amount;
+  //     }
 
-      // Apply new transaction
-      transaction.date = date;
-      transaction.amount = amount;
-      transaction.type = type;
-      transaction.description = description;
+  //     await updateMonthlyData(account, date, amount, type);
+  //     await account.save();
+  //     res.json({ account, transaction: newTransaction });
+  //   } catch (error) {
+  //     res
+  //       .status(500)
+  //       .json({ message: "Error adding transaction", error: error.message });
+  //   }
+  // },
 
-      await updateMonthlyData(account, date, amount, type);
-      if (type === "revenue") {
-        account.currentBalance += amount;
-        account.totalRevenue += amount;
-      } else {
-        account.currentBalance -= amount;
-        account.totalExpenses += amount;
-      }
+  // updateTransaction: async (req, res) => {
+  //   try {
+  //     const { transactionId, date, amount, type, description } = req.body;
+  //     const account = await Account.findOne({ userId: req.user.id });
+  //     if (!account) {
+  //       return res.status(404).json({ message: "Account not found" });
+  //     }
 
-      await account.save();
-      res.json({ account, transaction });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error updating transaction", error: error.message });
-    }
-  },
+  //     const transaction = account.transactions.id(transactionId);
+  //     if (!transaction) {
+  //       return res.status(404).json({ message: "Transaction not found" });
+  //     }
 
-  deleteTransaction: async (req, res) => {
-    try {
-      const { transactionId } = req.params;
-      const account = await Account.findOne({ userId: req.user.id });
-      if (!account) {
-        return res.status(404).json({ message: "Account not found" });
-      }
+  //     // Revert old transaction
+  //     await updateMonthlyData(
+  //       account,
+  //       transaction.date,
+  //       -transaction.amount,
+  //       transaction.type
+  //     );
+  //     if (transaction.type === "revenue") {
+  //       account.currentBalance -= transaction.amount;
+  //       account.totalRevenue -= transaction.amount;
+  //     } else {
+  //       account.currentBalance += transaction.amount;
+  //       account.totalExpenses -= transaction.amount;
+  //     }
 
-      const transaction = account.transactions.id(transactionId);
-      if (!transaction) {
-        return res.status(404).json({ message: "Transaction not found" });
-      }
+  //     // Apply new transaction
+  //     transaction.date = date;
+  //     transaction.amount = amount;
+  //     transaction.type = type;
+  //     transaction.description = description;
 
-      await updateMonthlyData(
-        account,
-        transaction.date,
-        -transaction.amount,
-        transaction.type
-      );
-      if (transaction.type === "revenue") {
-        account.currentBalance -= transaction.amount;
-        account.totalRevenue -= transaction.amount;
-      } else {
-        account.currentBalance += transaction.amount;
-        account.totalExpenses -= transaction.amount;
-      }
+  //     await updateMonthlyData(account, date, amount, type);
+  //     if (type === "revenue") {
+  //       account.currentBalance += amount;
+  //       account.totalRevenue += amount;
+  //     } else {
+  //       account.currentBalance -= amount;
+  //       account.totalExpenses += amount;
+  //     }
 
-      account.transactions.id(transactionId).remove();
-      await account.save();
-      res.json({ message: "Transaction deleted", account });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error deleting transaction", error: error.message });
-    }
-  },
+  //     await account.save();
+  //     res.json({ account, transaction });
+  //   } catch (error) {
+  //     res
+  //       .status(500)
+  //       .json({ message: "Error updating transaction", error: error.message });
+  //   }
+  // },
+
+  // deleteTransaction: async (req, res) => {
+  //   try {
+  //     const { transactionId } = req.params;
+  //     const account = await Account.findOne({ userId: req.user.id });
+  //     if (!account) {
+  //       return res.status(404).json({ message: "Account not found" });
+  //     }
+
+  //     const transaction = account.transactions.id(transactionId);
+  //     if (!transaction) {
+  //       return res.status(404).json({ message: "Transaction not found" });
+  //     }
+
+  //     await updateMonthlyData(
+  //       account,
+  //       transaction.date,
+  //       -transaction.amount,
+  //       transaction.type
+  //     );
+  //     if (transaction.type === "revenue") {
+  //       account.currentBalance -= transaction.amount;
+  //       account.totalRevenue -= transaction.amount;
+  //     } else {
+  //       account.currentBalance += transaction.amount;
+  //       account.totalExpenses -= transaction.amount;
+  //     }
+
+  //     account.transactions.id(transactionId).deleteOne();
+  //     await account.save();
+  //     res.json({ message: "Transaction deleted", account });
+  //   } catch (error) {
+  //     res
+  //       .status(500)
+  //       .json({ message: "Error deleting transaction", error: error.message });
+  //   }
+  // },
 
   getUserTransactions: async (req, res) => {
     try {

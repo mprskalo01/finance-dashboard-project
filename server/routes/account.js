@@ -11,21 +11,21 @@ router.get("/account", authMiddleware, accountController.getUserAccount);
 router.put("/account", authMiddleware, accountController.updateAccount);
 
 // Add transaction to user's account
-router.post("/transaction", authMiddleware, accountController.addTransaction);
+// router.post("/transaction", authMiddleware, accountController.addTransaction);
 
 // Update a specific transaction
-router.put(
-  "/transaction/:id",
-  authMiddleware,
-  accountController.updateTransaction
-);
+// router.put(
+//   "/transaction/:id",
+//   authMiddleware,
+//   accountController.updateTransaction
+// );
 
 // Delete a specific transaction
-router.delete(
-  "/transaction/:id",
-  authMiddleware,
-  accountController.deleteTransaction
-);
+// router.delete(
+//   "/transaction/:id",
+//   authMiddleware,
+//   accountController.deleteTransaction
+// );
 
 // Get user's transactions
 router.get(

@@ -51,7 +51,7 @@ function ProductList() {
       if (user) {
         try {
           const response = await api.getProductsByUserId(user._id); // Fetch products by userId
-          setProductData(response.data); // Set the fetched products to state
+          setProductData(response); // Set the fetched products to state
         } catch (error) {
           console.error("Failed to fetch products:", error);
         }
