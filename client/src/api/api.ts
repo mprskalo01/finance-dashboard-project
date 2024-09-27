@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 
-const baseURL = import.meta.env.VITE_BASE_URL;
+const baseURL = import.meta.env.VITE_BASE_URL || "http://localhost:5000"; // Fallback URL
 
 // Helper function to get the authentication token
 const getAuthHeader = () => {
@@ -24,7 +25,7 @@ export const api = {
     name: string;
     email: string;
     password: string;
-  }) => {
+  }): Promise<any> => {
     try {
       return await axios.post(`${baseURL}/register`, userData);
     } catch (error) {
@@ -33,7 +34,7 @@ export const api = {
     }
   },
 
-  login: async (email: string, password: string) => {
+  login: async (email: string, password: string): Promise<any> => {
     try {
       return await axios.post(`${baseURL}/login`, { email, password });
     } catch (error) {
@@ -42,7 +43,7 @@ export const api = {
     }
   },
 
-  getUserProfile: async () => {
+  getUserProfile: async (): Promise<any> => {
     try {
       return await axios.get(`${baseURL}/profile`, getAuthHeader());
     } catch (error) {
@@ -54,7 +55,7 @@ export const api = {
   updateUserProfile: async (profileData: {
     username?: string;
     email?: string;
-  }) => {
+  }): Promise<any> => {
     try {
       return await axios.put(
         `${baseURL}/profile`,
@@ -67,7 +68,7 @@ export const api = {
     }
   },
 
-  getAllUsers: async () => {
+  getAllUsers: async (): Promise<any> => {
     try {
       return await axios.get(`${baseURL}/users`, getAuthHeader());
     } catch (error) {
@@ -79,7 +80,7 @@ export const api = {
   updateUser: async (
     userId: string,
     userData: { username?: string; email?: string; isAdmin?: boolean }
-  ) => {
+  ): Promise<any> => {
     try {
       return await axios.put(
         `${baseURL}/admin/users/${userId}`,
@@ -92,7 +93,7 @@ export const api = {
     }
   },
 
-  deleteUser: async (userId: string) => {
+  deleteUser: async (userId: string): Promise<any> => {
     try {
       return await axios.delete(
         `${baseURL}/admin/users/${userId}`,
@@ -105,7 +106,7 @@ export const api = {
   },
 
   // Account API
-  getUserAccount: async () => {
+  getUserAccount: async (): Promise<any> => {
     try {
       return await axios.get(`${baseURL}/account`, getAuthHeader());
     } catch (error) {
@@ -118,7 +119,7 @@ export const api = {
     currentBalance?: number;
     totalRevenue?: number;
     totalExpenses?: number;
-  }) => {
+  }): Promise<any> => {
     try {
       return await axios.put(
         `${baseURL}/account/`,
@@ -135,7 +136,7 @@ export const api = {
     month: string;
     revenue: number;
     expenses: number;
-  }) => {
+  }): Promise<any> => {
     try {
       return await axios.patch(
         `${baseURL}/account/edit`,
@@ -153,7 +154,7 @@ export const api = {
     amount: number;
     type: "revenue" | "expense";
     description: string;
-  }) => {
+  }): Promise<any> => {
     try {
       return await axios.post(
         `${baseURL}/account/transaction`,
@@ -172,7 +173,7 @@ export const api = {
     type: "revenue" | "expense";
     date: string;
     description: string;
-  }) => {
+  }): Promise<any> => {
     try {
       const { transactionId, ...data } = transactionData;
       return await axios.put(
@@ -189,7 +190,7 @@ export const api = {
     }
   },
 
-  deleteTransaction: async (transactionId: string) => {
+  deleteTransaction: async (transactionId: string): Promise<any> => {
     try {
       return await axios.delete(
         `${baseURL}/account/transaction/${transactionId}`,
@@ -204,7 +205,7 @@ export const api = {
     }
   },
 
-  getUserTransactions: async () => {
+  getUserTransactions: async (): Promise<any> => {
     try {
       return await axios.get(
         `${baseURL}/account/transactions`,
@@ -216,7 +217,7 @@ export const api = {
     }
   },
 
-  getAccountStats: async () => {
+  getAccountStats: async (): Promise<any> => {
     try {
       return await axios.get(`${baseURL}/account/stats`, getAuthHeader());
     } catch (error) {
@@ -226,7 +227,7 @@ export const api = {
   },
 
   // Product API
-  getAllProducts: async () => {
+  getAllProducts: async (): Promise<any> => {
     try {
       return await axios.get(`${baseURL}/products`, getAuthHeader());
     } catch (error) {
@@ -236,7 +237,7 @@ export const api = {
     }
   },
 
-  getProductById: async (productId: string) => {
+  getProductById: async (productId: string): Promise<any> => {
     try {
       return await axios.get(
         `${baseURL}/products/${productId}`,
@@ -253,7 +254,7 @@ export const api = {
     name: string;
     price: number;
     expense: number;
-  }) => {
+  }): Promise<any> => {
     try {
       return await axios.post(
         `${baseURL}/products`,
@@ -274,7 +275,7 @@ export const api = {
       price?: number;
       expense?: number;
     }
-  ) => {
+  ): Promise<any> => {
     try {
       return await axios.put(
         `${baseURL}/products/${productId}`,
@@ -287,7 +288,7 @@ export const api = {
     }
   },
 
-  deleteProduct: async (productId: string) => {
+  deleteProduct: async (productId: string): Promise<any> => {
     try {
       return await axios.delete(
         `${baseURL}/products/${productId}`,

@@ -1,30 +1,29 @@
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Box,
+  Typography,
   useTheme,
   IconButton,
   Modal,
   TextField,
   Button,
-  Typography,
 } from "@mui/material";
 import {
+  AreaChart,
+  BarChart,
   CartesianGrid,
-  ResponsiveContainer,
   XAxis,
   YAxis,
-  AreaChart,
-  Area,
   Tooltip,
-  BarChart,
+  Area,
   Bar,
   Legend,
+  ResponsiveContainer,
 } from "recharts";
 import api from "@/api/api";
-import BoxHeader from "@/components/BoxHeader";
 import DashboardBox from "@/components/DashboardBox";
+import BoxHeader from "@/components/BoxHeader";
 import Svgs from "@/assets/Svgs";
-import { AxiosError } from "axios";
 
 interface MonthlyData {
   month: string;
@@ -74,7 +73,13 @@ function CombinedChart() {
 
   const handleChartToggle = () => setShowChart((prev) => !prev);
 
-  const handleEditMonthlyValues = () => setIsModalOpen(true);
+  const handleEditMonthlyValues = () => {
+    if (account?.monthlyData) {
+      const latestMonth = account.monthlyData[account.monthlyData.length - 1];
+      setEditingMonth(latestMonth);
+    }
+    setIsModalOpen(true);
+  };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -91,52 +96,18 @@ function CombinedChart() {
   };
 
   const handleSaveChanges = async () => {
-    if (!editingMonth) {
-      console.error("No month selected for editing");
-      return;
-    }
-
-    // Optimistically update the account state
-    setAccount((prevAccount) => {
-      if (!prevAccount) return prevAccount; // If no account, return
-
-      const updatedMonthlyData = prevAccount.monthlyData.map((monthData) => {
-        if (monthData.month === editingMonth.month) {
-          return {
-            ...monthData,
-            revenue: editingMonth.revenue,
-            expenses: editingMonth.expenses,
-          };
-        }
-        return monthData;
-      });
-
-      return {
-        ...prevAccount,
-        monthlyData: updatedMonthlyData,
-      };
-    });
-
     try {
-      const response = await api.editMonthlyData({
-        month: editingMonth.month,
-        revenue: editingMonth.revenue,
-        expenses: editingMonth.expenses,
-      });
-
-      console.log("API response:", response);
-
-      // Handle success case
-      if (response.data.account) {
-        setAccount(response.data.account);
-      }
-
-      handleCloseModal();
+      const monthData = {
+        month: editingMonth?.month || "",
+        revenue: parseFloat(editingMonth?.revenue.toString() || "0"),
+        expenses: parseFloat(editingMonth?.expenses.toString() || "0"),
+      };
+      await api.editMonthlyData(monthData);
+      fetchUserAccount(); // Refresh data after saving changes
+      handleCloseModal(); // Close modal after saving changes
     } catch (error) {
-      const axiosError = error as AxiosError;
-
-      console.error("Failed to update monthly data:", axiosError);
-      // Handle rollback if needed, or display an error message
+      console.error("Failed to save changes:", error);
+      // Handle error (e.g., show error message)
     }
   };
 
@@ -191,30 +162,6 @@ function CombinedChart() {
                   stopOpacity={0}
                 />
               </linearGradient>
-              <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor={palette.secondary[300]}
-                  stopOpacity={0.5}
-                />
-                <stop
-                  offset="95%"
-                  stopColor={palette.secondary[300]}
-                  stopOpacity={0}
-                />
-              </linearGradient>
-              <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor={palette.primary[500]}
-                  stopOpacity={0.5}
-                />
-                <stop
-                  offset="95%"
-                  stopColor={palette.primary[400]}
-                  stopOpacity={0}
-                />
-              </linearGradient>
             </defs>
             <CartesianGrid vertical={false} strokeDasharray="1 2" />
             <XAxis dataKey="name" />
@@ -257,20 +204,7 @@ function CombinedChart() {
               bottom: 5,
             }}
           >
-            <defs>
-              <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={palette.tertiary[500]} />
-                <stop offset="95%" stopColor={palette.tertiary[400]} />
-              </linearGradient>
-              <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={palette.secondary[500]} />
-                <stop offset="95%" stopColor={palette.secondary[400]} />
-              </linearGradient>
-              <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={palette.primary[500]} />
-                <stop offset="95%" stopColor={palette.primary[400]} />
-              </linearGradient>
-            </defs>
+            <defs></defs>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis />
@@ -295,7 +229,7 @@ function CombinedChart() {
             p: 4,
             maxHeight: "80vh",
             overflowY: "auto",
-            borderRadius: "2rem"
+            borderRadius: "2rem",
           }}
         >
           <Typography variant="h6" component="h2" gutterBottom>
@@ -316,9 +250,6 @@ function CombinedChart() {
           ))}
           {editingMonth && (
             <Box mt={2}>
-              <Typography variant="subtitle1" gutterBottom>
-                Editing: {editingMonth.month}
-              </Typography>
               <TextField
                 label="Revenue"
                 type="number"
@@ -335,16 +266,25 @@ function CombinedChart() {
                 fullWidth
                 margin="normal"
               />
-              <Box mt={2} display="flex" justifyContent="space-between">
-                <Button onClick={handleCloseModal} variant="outlined">
+              <Box mt={2} display="flex" justifyContent="flex-end">
+                <Button
+                  onClick={handleCloseModal}
+                  sx={{
+                    mr: 1,
+                    backgroundColor: palette.secondary[500],
+                    color: palette.grey[700],
+                  }}
+                >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleSaveChanges}
-                  variant="contained"
-                  color="primary"
+                  sx={{
+                    backgroundColor: palette.primary[500],
+                    color: palette.grey[700],
+                  }}
                 >
-                  Save Changes
+                  Save
                 </Button>
               </Box>
             </Box>

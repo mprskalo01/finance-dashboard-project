@@ -48,16 +48,18 @@ function ProductList() {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      try {
-        const response = await api.getAllProducts(); // Fetch products
-        setProductData(response.data); // Set the fetched products to state
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
+      if (user) {
+        try {
+          const response = await api.getProductsByUserId(user._id); // Fetch products by userId
+          setProductData(response.data); // Set the fetched products to state
+        } catch (error) {
+          console.error("Failed to fetch products:", error);
+        }
       }
     };
 
     fetchProducts();
-  }, []);
+  }, [user]);
 
   const handleAddProduct = async (productData: {
     name: string;
