@@ -11,12 +11,12 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import regression, { DataPoint } from "regression";
+import * as tf from "@tensorflow/tfjs";
 import DashboardBox from "@/components/DashboardBox";
 import FlexBetween from "@/components/FlexBetween";
 import api from "@/api/api";
 import Navbar from "@/components/navbar";
-// import LSTMPredictions from "./LSTMPredictions";
+
 interface MonthlyData {
   month: string;
   revenue: number;
@@ -26,10 +26,18 @@ interface MonthlyData {
 interface Account {
   monthlyData: MonthlyData[];
 }
-const Predictions = () => {
+
+const LSTMPredictions = () => {
   const { palette } = useTheme();
   const [isPredictions, setIsPredictions] = useState(false);
   const [account, setAccount] = useState<Account | null>(null);
+  interface FormattedData {
+    name: string;
+    "Actual Revenue": number;
+    "Predicted Revenue": number;
+  }
+
+  const [formattedData, setFormattedData] = useState<FormattedData[]>([]);
 
   useEffect(() => {
     const fetchUserAccount = async () => {
@@ -41,21 +49,52 @@ const Predictions = () => {
       }
     };
     fetchUserAccount();
-  }, []); // Add dependency array to avoid infinite loop
+  }, []);
 
-  const formattedData = useMemo(() => {
+  useMemo(() => {
     if (!account) return [];
     const monthData = account?.monthlyData;
-    const formatted: Array<DataPoint> = monthData.map(
-      ({ revenue }, i: number) => [i, revenue]
-    );
-    const regressionLine = regression.linear(formatted);
-    return monthData.map(({ month, revenue }, i: number) => ({
-      name: month,
-      "Actual Revenue": revenue,
-      "Regression Line": regressionLine.points[i][1],
-      "Predicted Revenue": regressionLine.predict(i + monthData.length)[1],
-    }));
+    const formatted = monthData.map(({ revenue }) => revenue);
+
+    const createLSTMModel = () => {
+      const model = tf.sequential();
+      model.add(
+        tf.layers.lstm({
+          units: 50,
+          returnSequences: true,
+          inputShape: [formatted.length, 1],
+        })
+      );
+      model.add(tf.layers.lstm({ units: 50 }));
+      model.add(tf.layers.dense({ units: 1 }));
+      model.compile({ optimizer: "adam", loss: "meanSquaredError" });
+      return model;
+    };
+
+    const trainLSTMModel = async (model: tf.Sequential, data: number[]) => {
+      const xs = tf.tensor2d(data.slice(0, -1), [data.length - 1, 1]);
+      const ys = tf.tensor2d(data.slice(1), [data.length - 1, 1]);
+      await model.fit(xs, ys, { epochs: 100 });
+    };
+
+    const predictLSTM = (model: tf.Sequential, data: number[]) => {
+      const input = tf.tensor2d(data, [data.length, 1]);
+      const prediction = model.predict(input) as tf.Tensor;
+      return prediction.dataSync();
+    };
+
+    const model = createLSTMModel();
+    trainLSTMModel(model, formatted).then(() => {
+      const predictions = predictLSTM(model, formatted);
+      const result = monthData.map(({ month, revenue }, i) => ({
+        name: month,
+        "Actual Revenue": revenue,
+        "Predicted Revenue": predictions[i] || revenue,
+      }));
+      setFormattedData(result);
+    });
+
+    return [];
   }, [account]);
 
   return (
@@ -69,8 +108,7 @@ const Predictions = () => {
               <span style={{ color: "#0ea5e9" }}>Predictions</span>
             </Typography>
             <Typography variant="h6">
-              charted revenue and predicted revenue based on a simple linear
-              regression model
+              charted revenue and predicted revenue based on an LSTM model
             </Typography>
           </Box>
           <Button
@@ -126,12 +164,6 @@ const Predictions = () => {
             />
             <Line
               type="monotone"
-              dataKey="Regression Line"
-              stroke={"#e11d48"}
-              dot={false}
-            />
-            <Line
-              type="monotone"
               dataKey="Predicted Revenue"
               stroke={"#0ea5e9"}
               strokeDasharray="5 5"
@@ -146,9 +178,8 @@ const Predictions = () => {
           </LineChart>
         </ResponsiveContainer>
       </DashboardBox>
-      {/* <LSTMPredictions /> */}
     </>
   );
 };
 
-export default Predictions;
+export default LSTMPredictions;

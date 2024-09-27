@@ -138,11 +138,7 @@ export const api = {
     expenses: number;
   }): Promise<any> => {
     try {
-      return await axios.patch(
-        `${baseURL}/account/edit`,
-        monthData,
-        getAuthHeader()
-      );
+      return await axios.patch(`${baseURL}/edit`, monthData, getAuthHeader());
     } catch (error) {
       console.error("Failed to edit monthly data:", error);
       throw error;
@@ -157,7 +153,7 @@ export const api = {
   }): Promise<any> => {
     try {
       return await axios.post(
-        `${baseURL}/account/transaction`,
+        `${baseURL}/transaction`,
         transactionData,
         getAuthHeader()
       );
@@ -177,7 +173,7 @@ export const api = {
     try {
       const { transactionId, ...data } = transactionData;
       return await axios.put(
-        `${baseURL}/account/transaction/${transactionId}`,
+        `${baseURL}/transaction/${transactionId}`,
         data,
         getAuthHeader()
       );
@@ -192,14 +188,19 @@ export const api = {
 
   deleteTransaction: async (transactionId: string): Promise<any> => {
     try {
-      return await axios.delete(
-        `${baseURL}/account/transaction/${transactionId}`,
+      console.log(`Attempting to delete transaction with ID ${transactionId}`);
+      const response = await axios.delete(
+        `${baseURL}/transaction/${transactionId}`,
         getAuthHeader()
       );
+      console.log(`Successfully deleted transaction with ID ${transactionId}`);
+      return response;
     } catch (error) {
       console.error(
         `Failed to delete transaction with ID ${transactionId}:`,
-        error
+        axios.isAxiosError(error) && error.response
+          ? error.response.data
+          : (error as Error).message
       );
       throw error;
     }
@@ -207,10 +208,7 @@ export const api = {
 
   getUserTransactions: async (): Promise<any> => {
     try {
-      return await axios.get(
-        `${baseURL}/account/transactions`,
-        getAuthHeader()
-      );
+      return await axios.get(`${baseURL}/transactions`, getAuthHeader());
     } catch (error) {
       console.error("Failed to fetch user transactions:", error);
       throw error;
@@ -227,20 +225,21 @@ export const api = {
   },
 
   // Product API
-  getAllProducts: async (): Promise<any> => {
-    try {
-      return await axios.get(`${baseURL}/products`, getAuthHeader());
-    } catch (error) {
-      console.log(error);
-      console.error("Failed to fetch all products:", error);
-      throw error;
-    }
-  },
-
   getProductsByUserId: async (userId: string) => {
     try {
-      const response = await axios.get(`/api/products?userId=${userId}`);
-      return response.data;
+      const response = await axios.get(
+        `${baseURL}/products?userId=${userId}`,
+        getAuthHeader()
+      );
+
+      // Check if the response is JSON
+      const contentType = response.headers["content-type"];
+      if (contentType && contentType.includes("application/json")) {
+        return response.data;
+      } else {
+        console.error("Unexpected response format:", response);
+        throw new Error("Unexpected response format");
+      }
     } catch (error) {
       console.error("Failed to fetch products by user ID:", error);
       throw error;

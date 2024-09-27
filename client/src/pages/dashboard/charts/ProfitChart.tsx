@@ -1,8 +1,7 @@
 import BoxHeader from "@/components/BoxHeader";
 import DashboardBox from "@/components/DashboardBox";
-import { api } from "@/api/api";
 import { useTheme, Box, IconButton } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ResponsiveContainer,
   CartesianGrid,
@@ -15,42 +14,18 @@ import {
   Area,
 } from "recharts";
 import Svgs from "@/assets/Svgs";
-
-interface MonthlyData {
-  month: string;
-  revenue: number;
-  expenses: number;
-}
-
-interface Account {
-  monthlyData: MonthlyData[];
-}
+import { useAccount } from "@/context/AccountContext/UseAccount";
 
 function ProfitChart() {
   const { palette } = useTheme();
-  const [account, setAccount] = useState<Account | null>(null);
-
-  useEffect(() => {
-    const fetchUserAccount = async () => {
-      try {
-        const response = await api.getUserAccount();
-        setAccount(response.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchUserAccount();
-  }, []); // Add dependency array to avoid infinite loop
-  // State to toggle between chart and bar
+  const { account } = useAccount();
   const [showProfitChart, setShowProfitChart] = useState(true);
 
-  // Handler for the button
   const handleProfitToggle = () => {
     setShowProfitChart((prev) => !prev);
   };
 
   const revenueExpensesProfit = useMemo(() => {
-    // Check if account and monthlyData exist and have length
     if (
       account &&
       Array.isArray(account.monthlyData) &&
@@ -58,12 +33,12 @@ function ProfitChart() {
     ) {
       return account.monthlyData.map(({ month, revenue, expenses }) => ({
         name: month.substring(0, 3),
-        revenue: revenue, // assuming revenue is already a number
-        expenses: expenses, // assuming expenses is already a number
+        revenue,
+        expenses,
         profit: (revenue - expenses).toFixed(2),
       }));
     }
-    return []; // Fallback to an empty array if account or monthlyData is invalid
+    return [];
   }, [account]);
 
   const calculatePercentageChange = (current: number, previous: number) => {
@@ -75,13 +50,13 @@ function ProfitChart() {
   const profitPercentageChange = useMemo(() => {
     if (account && account.monthlyData?.length > 1) {
       const currentMonthRevenue =
-        account.monthlyData[account.monthlyData.length - 1].revenue; // current month
+        account.monthlyData[account.monthlyData.length - 1].revenue;
       const currentMonthExpenses =
-        account.monthlyData[account.monthlyData.length - 1].expenses; // current month
+        account.monthlyData[account.monthlyData.length - 1].expenses;
       const previousMonthRevenue =
-        account.monthlyData[account.monthlyData.length - 2].revenue; // previous month
+        account.monthlyData[account.monthlyData.length - 2].revenue;
       const previousMonthExpenses =
-        account.monthlyData[account.monthlyData.length - 2].expenses; // previous month
+        account.monthlyData[account.monthlyData.length - 2].expenses;
 
       const currentMonthProfit = currentMonthRevenue - currentMonthExpenses;
       const previousMonthProfit = previousMonthRevenue - previousMonthExpenses;
@@ -89,24 +64,23 @@ function ProfitChart() {
     }
     return "N/A";
   }, [account]);
+
   return (
     <DashboardBox gridArea="c">
       <BoxHeader
         title={
           <Box display="flex" gap="10px" alignItems="center">
-            {" "}
-            {/* Added alignItems="center" */}
             <span style={{ color: palette.primary[500] }}>Profit</span>
-            {/* Toggle Button */}
             <IconButton
               onClick={handleProfitToggle}
               size="small"
               sx={{
-                backgroundColor: "rgba(18, 239, 200, 0.1)", // Subtle background color
+                backgroundColor: "rgba(18, 239, 200, 0.1)",
                 "&:hover": {
-                  backgroundColor: "rgba(18, 239, 200, 0.2)", // Slightly darker on hover
+                  backgroundColor: "rgba(18, 239, 200, 0.2)",
+                  scale: 1.1,
                 },
-                borderRadius: "4px", // Optional: adjust the border radius
+                borderRadius: "4px",
               }}
             >
               {showProfitChart ? (

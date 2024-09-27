@@ -16,18 +16,13 @@ import ProductList from "./lists/ProductList";
 import { useUser } from "@/hooks/userHooks";
 import BoxHeader from "@/components/BoxHeader";
 import Svgs from "@/assets/Svgs";
-
-interface User {
-  _id: string;
-  username: string;
-}
+import { useAccount } from "@/context/AccountContext/UseAccount"; // Import useAccount
 
 interface MonthlyData {
   month: string;
   revenue: number;
   expenses: number;
 }
-
 interface Account {
   monthlyData: MonthlyData[];
   currentBalance: number;
@@ -35,15 +30,20 @@ interface Account {
   totalExpenses: number;
 }
 
+interface User {
+  _id: string;
+  username: string;
+}
+
 const Row3 = () => {
   const navigate = useNavigate();
   const { palette } = useTheme();
   const [user, setUser] = useState<User | null>(null);
-  const [account, setAccount] = useState<Account | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editedAccount, setEditedAccount] = useState<Partial<Account>>({});
 
   const { handleLogout } = useUser();
+  const { account, fetchUserAccount } = useAccount(); // Use account context
 
   const buttonClick = () => {
     handleLogout();
@@ -60,24 +60,12 @@ const Row3 = () => {
       }
     };
 
-    const fetchUserAccount = async () => {
-      try {
-        const response = await api.getUserAccount();
-        setAccount(response.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
     fetchUserProfile();
-    fetchUserAccount();
   }, []);
 
   const handleEditAccount = () => {
     setEditedAccount({
       currentBalance: account?.currentBalance || 0,
-      totalRevenue: account?.totalRevenue || 0,
-      totalExpenses: account?.totalExpenses || 0,
     });
     setIsModalOpen(true);
   };
@@ -94,8 +82,7 @@ const Row3 = () => {
   const handleSaveChanges = async () => {
     try {
       await api.updateAccount(editedAccount);
-      const updatedAccount = await api.getUserAccount();
-      setAccount(updatedAccount.data);
+      await fetchUserAccount(); // Refresh account data
       setIsModalOpen(false);
     } catch (err) {
       console.log(err);
@@ -106,26 +93,13 @@ const Row3 = () => {
     <>
       <CombinedChart />
       <ProductList />
-      <DashboardBox gridArea="i" sx={{ p: 2 }}>
+      <DashboardBox gridArea="i" sx={{ px: 2, pb: 2, pt: 0 }}>
         <BoxHeader
           title={
             <Box display="flex" gap="10px" alignItems="center">
               <span style={{ color: palette.primary[500] }}>
-                Account balance:
+                Account stats:
               </span>
-              <IconButton
-                onClick={handleEditAccount}
-                size="small"
-                sx={{
-                  backgroundColor: "rgba(18, 239, 200, 0.1)",
-                  "&:hover": {
-                    backgroundColor: "rgba(18, 239, 200, 0.2)",
-                  },
-                  borderRadius: "4px",
-                }}
-              >
-                <Svgs.editSvg fillColor="#0ea5e9" />
-              </IconButton>
             </Box>
           }
           sideText={`Welcome, ${user?.username}!`}
@@ -141,6 +115,20 @@ const Row3 = () => {
             >
               ${account?.currentBalance.toFixed(2)}
             </Typography>
+            <IconButton
+              onClick={handleEditAccount}
+              size="small"
+              sx={{
+                backgroundColor: "rgba(18, 239, 200, 0.1)",
+                "&:hover": {
+                  backgroundColor: "rgba(18, 239, 200, 0.2)",
+                },
+                borderRadius: "4px",
+                marginLeft: "10px",
+              }}
+            >
+              <Svgs.editSvg fillColor="#0ea5e9" size="16px" />
+            </IconButton>
           </Typography>
           <Typography variant="h3" color={palette.grey[300]}>
             Your total revenue is:{" "}
@@ -217,26 +205,6 @@ const Row3 = () => {
             name="currentBalance"
             sx={{ backgroundColor: palette.grey[200] }}
             value={editedAccount.currentBalance}
-            onChange={handleInputChange}
-            margin="normal"
-          />
-          <TextField
-            fullWidth
-            label="Total Revenue"
-            type="number"
-            name="totalRevenue"
-            sx={{ backgroundColor: palette.grey[200] }}
-            value={editedAccount.totalRevenue}
-            onChange={handleInputChange}
-            margin="normal"
-          />
-          <TextField
-            fullWidth
-            label="Total Expenses"
-            type="number"
-            name="totalExpenses"
-            sx={{ backgroundColor: palette.grey[200] }}
-            value={editedAccount.totalExpenses}
             onChange={handleInputChange}
             margin="normal"
           />

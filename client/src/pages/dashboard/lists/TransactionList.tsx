@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import BoxHeader from "@/components/BoxHeader";
 import DashboardBox from "@/components/DashboardBox";
 import api from "@/api/api";
@@ -18,12 +18,7 @@ import {
 } from "@mui/material";
 import { DataGrid, GridCellParams, GridColDef } from "@mui/x-data-grid";
 import Svgs from "@/assets/Svgs";
-
-interface MonthlyData {
-  month: string;
-  revenue: number;
-  expenses: number;
-}
+import { useAccount } from "@/context/AccountContext/UseAccount";
 
 interface Transaction {
   _id: string;
@@ -33,17 +28,9 @@ interface Transaction {
   description: string;
 }
 
-interface Account {
-  monthlyData: MonthlyData[];
-  transactions: Transaction[];
-  currentBalance: number;
-  totalRevenue: number;
-  totalExpenses: number;
-}
-
 const TransactionList = () => {
   const { palette } = useTheme();
-  const [account, setAccount] = useState<Account | null>(null);
+  const { account, fetchUserAccount } = useAccount();
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [selectedTransaction, setSelectedTransaction] =
@@ -62,29 +49,9 @@ const TransactionList = () => {
     isError: false,
   });
 
-  const fetchAccountData = useCallback(async () => {
-    try {
-      const response = await api.getUserAccount(); // Fetch account data
-      setAccount(response.data); // Set account data
-    } catch (err) {
-      console.error(err);
-      setSnackbar({
-        open: true,
-        message: "Failed to fetch account data",
-        isError: true,
-      });
-    }
-  }, []); // Dependencies for useCallback can be adjusted if needed
-
-  useEffect(() => {
-    fetchAccountData();
-  }, [fetchAccountData]);
-
   const handleAddTransaction = async () => {
     try {
       await api.addTransaction(newTransaction);
-      console.log(newTransaction);
-      await fetchAccountData();
       setOpenAddDialog(false);
       setNewTransaction({
         amount: 0,
@@ -97,6 +64,7 @@ const TransactionList = () => {
         message: "Transaction added successfully",
         isError: false,
       });
+      fetchUserAccount(); // Refetch account data
     } catch (err) {
       console.error(err);
       setSnackbar({
@@ -114,7 +82,6 @@ const TransactionList = () => {
           transactionId: selectedTransaction._id,
           ...newTransaction,
         });
-        await fetchAccountData();
         setOpenEditDialog(false);
         setSelectedTransaction(null);
         setSnackbar({
@@ -122,6 +89,7 @@ const TransactionList = () => {
           message: "Transaction updated successfully",
           isError: false,
         });
+        fetchUserAccount(); // Refetch account data
       } catch (err) {
         console.error(err);
         setSnackbar({
@@ -136,12 +104,12 @@ const TransactionList = () => {
   const handleDeleteTransaction = async (id: string) => {
     try {
       await api.deleteTransaction(id);
-      await fetchAccountData();
       setSnackbar({
         open: true,
         message: "Transaction deleted successfully",
         isError: false,
       });
+      fetchUserAccount(); // Refetch account data
     } catch (err) {
       console.error(err);
       setSnackbar({
@@ -165,17 +133,17 @@ const TransactionList = () => {
     {
       field: "type",
       headerName: "Type",
-      flex: 1,
+      flex: 0.4,
     },
     {
       field: "description",
       headerName: "Desc.",
-      flex: 0.67,
+      flex: 0.5,
     },
     {
       field: "date",
       headerName: "Date",
-      flex: 0.1,
+      flex: 0.4,
     },
     {
       field: "actions",
@@ -204,40 +172,44 @@ const TransactionList = () => {
       ),
     },
   ];
+
   return (
     <>
       <DashboardBox gridArea="f">
         <BoxHeader
           title={
             <Box display="flex" gap="10px" alignItems="center">
-              {" "}
-              {/* Added alignItems="center" */}
               <span style={{ color: palette.tertiary[200] }}>
                 Recent Transactions
               </span>
-              {/* Toggle Button */}
               <IconButton
                 onClick={() => setOpenAddDialog(true)}
                 size="small"
                 sx={{
-                  backgroundColor: "rgba(136, 132, 216, 0.1)", // Subtle background color
+                  backgroundColor: "rgba(136, 132, 216, 0.1)",
                   "&:hover": {
-                    backgroundColor: "rgba(136, 132, 216, 0.2)", // Slightly darker on hover
+                    backgroundColor: "rgba(136, 132, 216, 0.2)",
                   },
-                  borderRadius: "4px", // Optional: adjust the border radius
+                  borderRadius: "4px",
                 }}
               >
                 <Svgs.addSvg strokeColor="#12efc8" />
               </IconButton>
             </Box>
           }
-          sideText={`${account?.transactions.length || 0} transactions`}
+          sideText={
+            account?.transactions.length === 0
+              ? "No transactions stored"
+              : `${account?.transactions.length} transaction${
+                  (account?.transactions?.length ?? 0) > 1 ? "s" : ""
+                }`
+          }
         />
 
         <Box
-          mt="1rem"
+          mt="0.5rem"
           p="0 0.5rem"
-          height="calc(100% - 80px)"
+          height="75%"
           sx={{
             "& .MuiDataGrid-root": {
               color: palette.grey[300],
@@ -257,15 +229,17 @@ const TransactionList = () => {
           <DataGrid
             columnHeaderHeight={25}
             rowHeight={35}
-            rows={account?.transactions || []}
+            autoPageSize
+            hideFooter={true}
+            rows={
+              Array.isArray(account?.transactions) ? account.transactions : []
+            }
             columns={transactionColumns}
             getRowId={(row) => row._id}
-            autoPageSize
           />
         </Box>
       </DashboardBox>
 
-      {/* Add Transaction Dialog */}
       <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)}>
         <DialogTitle>Add New Transaction</DialogTitle>
         <DialogContent>
@@ -325,7 +299,6 @@ const TransactionList = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Edit Transaction Dialog */}
       <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
         <DialogTitle>Edit Transaction</DialogTitle>
         <DialogContent>
@@ -385,7 +358,6 @@ const TransactionList = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar for notifications */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}

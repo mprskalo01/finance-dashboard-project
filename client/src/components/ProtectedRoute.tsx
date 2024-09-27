@@ -1,4 +1,4 @@
-import { useAuth } from "@/context/useAuth";
+import { useAuth } from "@/context/AuthContext/useAuth";
 import { Navigate } from "react-router-dom";
 
 const ProtectedRoute = ({

@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useContext, useRef } from "react";
 import { HashLoader } from "react-spinners";
 import BoxHeader from "@/components/BoxHeader";
 import DashboardBox from "@/components/DashboardBox";
-import api from "@/api/api";
 import { Box, Typography, useTheme } from "@mui/material";
 import FlexBetween from "@/components/FlexBetween";
 import TransactionList from "./lists/TransactionList";
+import { AccountContext } from "@/context/AccountContext/AccountContext";
 
 interface MonthlyData {
   month: string;
@@ -13,44 +13,31 @@ interface MonthlyData {
   expenses: number;
 }
 
-interface Transaction {
-  _id: string;
-  amount: number;
-  type: "revenue" | "expense";
-  date: string;
-  description: string;
-}
-
 interface Account {
   monthlyData: MonthlyData[];
-  transactions: Transaction[];
   currentBalance: number;
   totalRevenue: number;
   totalExpenses: number;
 }
 
+const useAccount = () => {
+  const context = useContext(AccountContext);
+  if (!context) {
+    throw new Error("useAccount must be used within an AccountProvider");
+  }
+  return context;
+};
+
 const Row2 = () => {
   const { palette } = useTheme();
+  const { account, fetchUserAccount } = useAccount();
 
   const [loading, setLoading] = useState(true);
   const [currentMonthRevenue, setCurrentMonthRevenue] = useState(0);
   const [currentMonthProfit, setCurrentMonthProfit] = useState(0);
   const [currentMonthExpenses, setCurrentMonthExpenses] = useState(0);
 
-  // In the fetchAccountData, you can remove the setAccount call if it's not needed:
-  const fetchAccountData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await api.getUserAccount();
-      updateCurrentMonthData(response.data); // You are already using the data here
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const updateCurrentMonthData = (accountData: Account) => {
+  const updateCurrentMonthData = useCallback((accountData: Account) => {
     const currentMonthName = new Date()
       .toLocaleString("default", { month: "long" })
       .toLowerCase();
@@ -69,11 +56,33 @@ const Row2 = () => {
       setCurrentMonthExpenses(0);
       setCurrentMonthProfit(0);
     }
-  };
+  }, []);
+
+  const initialFetch = useRef(true);
 
   useEffect(() => {
-    fetchAccountData();
-  }, [fetchAccountData]);
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        await fetchUserAccount();
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (initialFetch.current) {
+      fetchData();
+      initialFetch.current = false;
+    }
+  }, [fetchUserAccount]);
+
+  useEffect(() => {
+    if (account) {
+      updateCurrentMonthData(account);
+    }
+  }, [account, updateCurrentMonthData]);
 
   return (
     <>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -24,6 +24,7 @@ import api from "@/api/api";
 import DashboardBox from "@/components/DashboardBox";
 import BoxHeader from "@/components/BoxHeader";
 import Svgs from "@/assets/Svgs";
+import { useAccount } from "@/context/AccountContext/UseAccount";
 
 interface MonthlyData {
   month: string;
@@ -31,33 +32,12 @@ interface MonthlyData {
   expenses: number;
 }
 
-interface Account {
-  monthlyData: MonthlyData[];
-  currentBalance: number;
-  totalRevenue: number;
-  totalExpenses: number;
-}
-
 function CombinedChart() {
   const { palette } = useTheme();
-  const [account, setAccount] = useState<Account | null>(null);
+  const { account, fetchUserAccount } = useAccount();
   const [showChart, setShowChart] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMonth, setEditingMonth] = useState<MonthlyData | null>(null);
-
-  useEffect(() => {
-    fetchUserAccount();
-  }, []);
-
-  const fetchUserAccount = async () => {
-    try {
-      const response = await api.getUserAccount();
-      console.log("Fetched account data:", response.data);
-      setAccount(response.data);
-    } catch (err) {
-      console.error("Failed to fetch user account:", err);
-    }
-  };
 
   const revenueExpensesProfit = useMemo(() => {
     if (account?.monthlyData) {
@@ -99,8 +79,8 @@ function CombinedChart() {
     try {
       const monthData = {
         month: editingMonth?.month || "",
-        revenue: parseFloat(editingMonth?.revenue.toString() || "0"),
-        expenses: parseFloat(editingMonth?.expenses.toString() || "0"),
+        revenue: Number(editingMonth?.revenue) || 0,
+        expenses: Number(editingMonth?.expenses) || 0,
       };
       await api.editMonthlyData(monthData);
       fetchUserAccount(); // Refresh data after saving changes
@@ -122,15 +102,37 @@ function CombinedChart() {
               {"& "}
               <span style={{ color: palette.primary[500] }}>Profit</span>
             </div>
-            <IconButton onClick={handleChartToggle} size="small">
+            <IconButton
+              onClick={handleChartToggle}
+              size="small"
+              sx={{
+                backgroundColor: "rgba(131, 183, 166, 0.1)",
+                "&:hover": {
+                  backgroundColor: "rgba(131, 183, 166, 0.2)",
+                  scale: 1.1,
+                },
+                borderRadius: "4px",
+              }}
+            >
               {showChart ? (
                 <Svgs.barSvg strokeColor="#83b7a6" />
               ) : (
                 <Svgs.areaChartSvg fillColor="#83b7a6" />
               )}
             </IconButton>
-            <IconButton onClick={handleEditMonthlyValues} size="small">
-              <Svgs.editSvg fillColor="#0ea5e9" />
+            <IconButton
+              onClick={handleEditMonthlyValues}
+              size="small"
+              sx={{
+                backgroundColor: "rgba(18, 239, 200, 0.1)",
+                "&:hover": {
+                  backgroundColor: "rgba(18, 239, 200, 0.2)",
+                  scale: 1.1,
+                },
+                borderRadius: "4px",
+              }}
+            >
+              <Svgs.editSvg fillColor="#0ea5e9" size="24px" />
             </IconButton>
           </Box>
         }

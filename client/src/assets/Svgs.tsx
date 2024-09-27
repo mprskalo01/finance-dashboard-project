@@ -87,11 +87,14 @@ const addSvg = ({ strokeColor = "#12efc8" }: SvgProps) => {
   );
 };
 
-const editSvg = ({ fillColor = "#12efc8" }: SvgProps) => {
+const editSvg = ({
+  fillColor = "#12efc8",
+  size = "16px",
+}: SvgProps & { size?: string }) => {
   return (
     <svg
-      width="24px"
-      height="24px"
+      width={size}
+      height={size}
       viewBox="0 -0.5 21 21"
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
@@ -126,8 +129,8 @@ const editSvg = ({ fillColor = "#12efc8" }: SvgProps) => {
 const deleteSvg = ({ strokeColor = "#ef4444" }: SvgProps) => {
   return (
     <svg
-      width="800px"
-      height="800px"
+      width="16px"
+      height="16px"
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

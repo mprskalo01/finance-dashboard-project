@@ -1,82 +1,52 @@
-import BoxHeader from "@/components/BoxHeader";
-import DashboardBox from "@/components/DashboardBox";
-import { api } from "@/api/api";
-import { useTheme, Box, IconButton } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { useState, useMemo } from "react";
+import { Box, IconButton, useTheme } from "@mui/material";
 import {
-  ResponsiveContainer,
-  CartesianGrid,
   AreaChart,
   BarChart,
-  Bar,
+  CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
   Area,
+  Bar,
+  ResponsiveContainer,
 } from "recharts";
+import DashboardBox from "@/components/DashboardBox";
+import BoxHeader from "@/components/BoxHeader";
 import Svgs from "@/assets/Svgs";
-
-interface MonthlyData {
-  month: string;
-  revenue: number;
-  expenses: number;
-}
-
-interface Account {
-  monthlyData: MonthlyData[];
-}
+import { useAccount } from "@/context/AccountContext/UseAccount";
 
 function RevenueChart() {
   const { palette } = useTheme();
-  const [account, setAccount] = useState<Account | null>(null);
-
-  useEffect(() => {
-    const fetchUserAccount = async () => {
-      try {
-        const response = await api.getUserAccount();
-        setAccount(response.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchUserAccount();
-  }, []); // Add dependency array to avoid infinite loop
-  // State to toggle between chart and bar
+  const { account } = useAccount();
   const [showRevenueChart, setShowRevenueChart] = useState(true);
-  // Handler for the button
-  const handleRevenueToggle = () => {
-    setShowRevenueChart((prev) => !prev);
-  };
 
   const revenueExpensesProfit = useMemo(() => {
-    // Check if account and monthlyData exist and have length
-    if (
-      account &&
-      Array.isArray(account.monthlyData) &&
-      account.monthlyData.length > 0
-    ) {
+    if (account?.monthlyData) {
       return account.monthlyData.map(({ month, revenue, expenses }) => ({
         name: month.substring(0, 3),
-        revenue: revenue, // assuming revenue is already a number
-        expenses: expenses, // assuming expenses is already a number
+        revenue,
+        expenses,
         profit: (revenue - expenses).toFixed(2),
       }));
     }
-    return []; // Fallback to an empty array if account or monthlyData is invalid
+    return [];
   }, [account]);
 
+  const handleRevenueToggle = () => {
+    setShowRevenueChart((prev) => !prev);
+  };
   const calculatePercentageChange = (current: number, previous: number) => {
     if (previous === 0) return current > 0 ? "+100%" : "-100%";
     const change = ((current - previous) / previous) * 100;
     return `${change > 0 ? "+" : ""}${change.toFixed(2)}%`;
   };
-
   const revenuePercentageChange = useMemo(() => {
     if (account && account.monthlyData?.length > 1) {
       const currentMonthRevenue =
-        account.monthlyData[account.monthlyData.length - 1].revenue; // current month
+        account.monthlyData[account.monthlyData.length - 1].revenue;
       const previousMonthRevenue =
-        account.monthlyData[account.monthlyData.length - 2].revenue; // previous month
+        account.monthlyData[account.monthlyData.length - 2].revenue;
 
       return calculatePercentageChange(
         currentMonthRevenue,
@@ -85,24 +55,23 @@ function RevenueChart() {
     }
     return "N/A";
   }, [account]);
+
   return (
-    <DashboardBox gridArea='a'>
+    <DashboardBox gridArea="a">
       <BoxHeader
         title={
           <Box display="flex" gap="10px" alignItems="center">
-            {" "}
-            {/* Added alignItems="center" */}
             <span style={{ color: palette.tertiary[500] }}>Revenue</span>
-            {/* Toggle Button */}
             <IconButton
               onClick={handleRevenueToggle}
               size="small"
               sx={{
-                backgroundColor: "rgba(136, 132, 216, 0.1)", // Subtle background color
+                backgroundColor: "rgba(136, 132, 216, 0.2)",
                 "&:hover": {
-                  backgroundColor: "rgba(136, 132, 216, 0.2)", // Slightly darker on hover
+                  backgroundColor: "rgba(136, 132, 216, 0.3)",
+                  scale: 1.1,
                 },
-                borderRadius: "4px", // Optional: adjust the border radius
+                borderRadius: "4px",
               }}
             >
               {showRevenueChart ? (
@@ -113,7 +82,6 @@ function RevenueChart() {
             </IconButton>
           </Box>
         }
-        // subtitle=""
         sideText={revenuePercentageChange}
       />
       <ResponsiveContainer width="100%" height="100%">

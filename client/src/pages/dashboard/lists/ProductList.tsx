@@ -8,7 +8,7 @@ import { Box, useTheme, IconButton, styled } from "@mui/material";
 import Svgs from "@/assets/Svgs";
 
 import { DataGrid, GridCellParams } from "@mui/x-data-grid";
-import { ProductDialog, DeleteConfirmationDialog } from "../ProductDialog";
+import { ProductDialog, DeleteConfirmationDialog } from "./ProductDialog";
 
 interface User {
   _id: string;
@@ -51,6 +51,7 @@ function ProductList() {
       if (user) {
         try {
           const response = await api.getProductsByUserId(user._id); // Fetch products by userId
+
           setProductData(response); // Set the fetched products to state
         } catch (error) {
           console.error("Failed to fetch products:", error);
@@ -133,6 +134,14 @@ function ProductList() {
       ),
     },
     {
+      field: "price",
+      headerName: "Price",
+      flex: 0.5,
+      renderCell: (params: GridCellParams) => (
+        <StyledCell>{`$${params.value as number}`}</StyledCell> // Cast params.value to number
+      ),
+    },
+    {
       field: "expense",
       headerName: "Expense",
       flex: 0.5,
@@ -141,12 +150,15 @@ function ProductList() {
       ),
     },
     {
-      field: "price",
-      headerName: "Price",
+      field: "margin",
+      headerName: "Margin",
       flex: 0.5,
-      renderCell: (params: GridCellParams) => (
-        <StyledCell>{`$${params.value as number}`}</StyledCell> // Cast params.value to number
-      ),
+      renderCell: (params: GridCellParams) => {
+        const product = params.row as Product;
+        const margin =
+          ((product.price - product.expense) / product.price) * 100;
+        return <StyledCell>{`${margin.toFixed(2)}%`}</StyledCell>;
+      },
     },
     {
       field: "actions",
@@ -159,14 +171,16 @@ function ProductList() {
               setSelectedProduct(params.row as Product);
               setOpenEditDialog(true);
             }}
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.1)", margin: "0 5px" }} // Temporary styles
           >
-            <Svgs.editSvg fillColor="#fff" />
+            <Svgs.editSvg fillColor="#fff" size="12px" />
           </IconButton>
           <IconButton
             onClick={() => {
               setSelectedProduct(params.row as Product);
               setOpenDeleteDialog(true);
             }}
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.1)", margin: "0 5px" }} // Temporary styles
           >
             <Svgs.deleteSvg fillColor="#fff" />
           </IconButton>
@@ -174,6 +188,7 @@ function ProductList() {
       ),
     },
   ];
+  // console.log(productData);
   return (
     <DashboardBox gridArea="h">
       <BoxHeader
@@ -197,7 +212,13 @@ function ProductList() {
             </IconButton>
           </Box>
         }
-        sideText={`${productData?.length} products`}
+        sideText={
+          productData?.length === 0
+            ? "No products stored"
+            : `${productData.length} product${
+                productData.length > 1 ? "s" : ""
+              }`
+        }
       />
       <Box
         mt="0.5rem"
@@ -223,8 +244,9 @@ function ProductList() {
           columnHeaderHeight={25}
           rowHeight={35}
           hideFooter={true}
-          rows={productData}
+          rows={Array.isArray(productData) ? productData : []}
           columns={productColumns}
+          getRowId={(row) => row._id || row.name} // Ensure unique id
         />
       </Box>
       <ProductDialog

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -28,16 +28,35 @@ export const ProductDialog: React.FC<ProductDialogProps> = ({
   title,
 }) => {
   const [name, setName] = useState(initialData?.name || "");
-  const [price, setPrice] = useState(initialData?.price || 0);
-  const [expense, setExpense] = useState(initialData?.expense || 0);
+  const [price, setPrice] = useState(initialData?.price || 1);
+  const [expense, setExpense] = useState(initialData?.expense || 1);
+  const [isValid, setIsValid] = useState(false);
+
+  useEffect(() => {
+    if (initialData) {
+      setName(initialData.name);
+      setPrice(initialData.price);
+      setExpense(initialData.expense);
+    }
+  }, [initialData]);
+
+  useEffect(() => {
+    setIsValid(name.trim() !== "" && price > 0 && expense > 0);
+  }, [name, price, expense]);
 
   const handleSubmit = () => {
-    onSubmit({ name, price, expense });
-    onClose();
+    if (isValid) {
+      onSubmit({ name, price, expense });
+      onClose();
+    }
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      sx={{ "& .MuiDialog-paper": { minWidth: "300px", maxWidth: "400px" } }}
+    >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <TextField
@@ -47,28 +66,43 @@ export const ProductDialog: React.FC<ProductDialogProps> = ({
           type="text"
           fullWidth
           value={name}
+          inputProps={{ maxLength: 30 }}
           onChange={(e) => setName(e.target.value)}
         />
         <TextField
           margin="dense"
           label="Price"
-          type="number"
+          type="text"
           fullWidth
           value={price}
-          onChange={(e) => setPrice(Number(e.target.value))}
+          inputProps={{ maxLength: 10 }}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (/^\d{0,10}$/.test(value) && Number(value) >= 0) {
+              setPrice(Number(value));
+            }
+          }}
         />
         <TextField
           margin="dense"
           label="Expense"
-          type="number"
+          type="text"
           fullWidth
           value={expense}
-          onChange={(e) => setExpense(Number(e.target.value))}
+          inputProps={{ maxLength: 10 }}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (/^\d{0,10}$/.test(value) && Number(value) >= 0) {
+              setExpense(Number(value));
+            }
+          }}
         />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSubmit}>Submit</Button>
+        <Button onClick={handleSubmit} disabled={!isValid}>
+          Submit
+        </Button>
       </DialogActions>
     </Dialog>
   );

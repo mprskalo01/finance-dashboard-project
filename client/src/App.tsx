@@ -9,7 +9,7 @@ import Register from "@/pages/Register";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Dashboard from "@/pages/dashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
-import { AuthProvider } from "@/context/AuthProvider";
+import { AuthProvider } from "@/context/AuthContext/AuthProvider";
 
 function App() {
   const theme = useMemo(() => createTheme(themeSettings), []);

@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/useAuth"; // Adjust the path as necessary
+import { useAuth } from "../context/AuthContext/useAuth"; // Adjust the path as necessary
 
 interface ProtectedAdminRouteProps {
   element: JSX.Element;

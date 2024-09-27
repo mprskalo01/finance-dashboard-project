@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/useAuth";
+import { useAuth } from "@/context/AuthContext/useAuth";
 import api from "@/api/api"; // Adjust the path if necessary
 import axios from "axios";
 import { useCallback } from "react";

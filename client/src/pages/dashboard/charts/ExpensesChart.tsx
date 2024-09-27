@@ -1,84 +1,52 @@
-import BoxHeader from "@/components/BoxHeader";
-import DashboardBox from "@/components/DashboardBox";
-import { api } from "@/api/api";
-import { useTheme, Box, IconButton } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { useState, useMemo } from "react";
+import { Box, IconButton, useTheme } from "@mui/material";
 import {
-  ResponsiveContainer,
-  CartesianGrid,
   AreaChart,
   BarChart,
-  Bar,
+  CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
   Area,
+  Bar,
+  ResponsiveContainer,
 } from "recharts";
+import DashboardBox from "@/components/DashboardBox";
+import BoxHeader from "@/components/BoxHeader";
 import Svgs from "@/assets/Svgs";
-
-interface MonthlyData {
-  month: string;
-  revenue: number;
-  expenses: number;
-}
-
-interface Account {
-  monthlyData: MonthlyData[];
-}
+import { useAccount } from "@/context/AccountContext/UseAccount";
 
 function ExpensesChart() {
   const { palette } = useTheme();
-  const [account, setAccount] = useState<Account | null>(null);
-
-  useEffect(() => {
-    const fetchUserAccount = async () => {
-      try {
-        const response = await api.getUserAccount();
-        setAccount(response.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchUserAccount();
-  }, []); // Add dependency array to avoid infinite loop
-
-  // State to toggle between chart and bar
+  const { account } = useAccount();
   const [showExpensesChart, setShowExpensesChart] = useState(true);
 
-  // Handler for the button
-  const handleExpensesToggle = () => {
-    setShowExpensesChart((prev) => !prev);
-  };
-
   const revenueExpensesProfit = useMemo(() => {
-    // Check if account and monthlyData exist and have length
-    if (
-      account &&
-      Array.isArray(account.monthlyData) &&
-      account.monthlyData.length > 0
-    ) {
+    if (account?.monthlyData) {
       return account.monthlyData.map(({ month, revenue, expenses }) => ({
         name: month.substring(0, 3),
-        revenue: revenue, // assuming revenue is already a number
-        expenses: expenses, // assuming expenses is already a number
+        revenue,
+        expenses,
         profit: (revenue - expenses).toFixed(2),
       }));
     }
-    return []; // Fallback to an empty array if account or monthlyData is invalid
+    return [];
   }, [account]);
 
+  const handleExpensesToggle = () => {
+    setShowExpensesChart((prev) => !prev);
+  };
   const calculatePercentageChange = (current: number, previous: number) => {
     if (previous === 0) return current > 0 ? "+100%" : "-100%";
     const change = ((current - previous) / previous) * 100;
     return `${change > 0 ? "+" : ""}${change.toFixed(2)}%`;
   };
-
   const expensesPercentageChange = useMemo(() => {
     if (account && account.monthlyData?.length > 1) {
       const currentMonthExpenses =
-        account.monthlyData[account.monthlyData.length - 1].expenses; // current month
+        account.monthlyData[account.monthlyData.length - 1].expenses;
       const previousMonthExpenses =
-        account.monthlyData[account.monthlyData.length - 2].expenses; // previous month
+        account.monthlyData[account.monthlyData.length - 2].expenses;
 
       return calculatePercentageChange(
         currentMonthExpenses,
@@ -87,35 +55,33 @@ function ExpensesChart() {
     }
     return "N/A";
   }, [account]);
+
   return (
     <DashboardBox gridArea="b">
       <BoxHeader
         title={
           <Box display="flex" gap="10px" alignItems="center">
-            {" "}
-            {/* Added alignItems="center" */}
             <span style={{ color: palette.secondary[500] }}>Expenses</span>
-            {/* Toggle Button */}
             <IconButton
               onClick={handleExpensesToggle}
               size="small"
               sx={{
-                backgroundColor: "rgba(242, 180, 85, 0.1)", // Subtle background color
+                backgroundColor: "rgba(242, 180, 85, 0.1)",
                 "&:hover": {
-                  backgroundColor: "rgba(242, 180, 85, 0.2)", // Slightly darker on hover
+                  backgroundColor: "rgba(242, 180, 85, 0.2)",
+                  scale: 1.1,
                 },
-                borderRadius: "4px", // Optional: adjust the border radius
+                borderRadius: "4px",
               }}
             >
               {showExpensesChart ? (
-                <Svgs.barSvg strokeColor="#f2b455" />
+                <Svgs.barSvg strokeColor="#ff7300" />
               ) : (
-                <Svgs.areaChartSvg fillColor="#f2b455" />
+                <Svgs.areaChartSvg fillColor="#ff7300" />
               )}
             </IconButton>
           </Box>
         }
-        // subtitle=""
         sideText={expensesPercentageChange}
       />
       <ResponsiveContainer width="100%" height="100%">
@@ -140,7 +106,7 @@ function ExpensesChart() {
                 />
                 <stop
                   offset="95%"
-                  stopColor={palette.secondary[400]}
+                  stopColor={palette.secondary[300]}
                   stopOpacity={0}
                 />
               </linearGradient>
@@ -161,7 +127,7 @@ function ExpensesChart() {
               type="monotone"
               dataKey="expenses"
               dot={true}
-              stroke={palette.secondary.main}
+              stroke={palette.secondary[500]}
               fillOpacity={1}
               fill="url(#colorExpenses)"
             />
@@ -187,7 +153,7 @@ function ExpensesChart() {
                 />
                 <stop
                   offset="95%"
-                  stopColor={palette.secondary[300]}
+                  stopColor={palette.secondary[400]}
                   stopOpacity={0}
                 />
               </linearGradient>
