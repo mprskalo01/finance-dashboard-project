@@ -8,6 +8,7 @@ import morgan from "morgan";
 import userRoutes from "./routes/user.js";
 import accountRoutes from "./routes/account.js";
 import productRoutes from "./routes/product.js";
+import tensorflowRoutes from "./routes/tensorflow.js";
 
 // CONFIG
 dotenv.config();
@@ -24,6 +25,7 @@ app.use(cors());
 app.use("/api/", userRoutes);
 app.use("/api/", accountRoutes);
 app.use("/api/", productRoutes);
+app.use("/api/", tensorflowRoutes);
 
 // MONGOOSE SETUP
 const PORT = process.env.PORT || 9000;

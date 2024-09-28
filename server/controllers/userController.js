@@ -1,41 +1,38 @@
-const express = require("express");
-const router = express.Router();
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const User = require("../models/User"); // Assuming you have a User model
-const auth = require("../middleware/auth"); // Middleware for authentication
-const admin = require("../middleware/admin"); // Middleware for admin check
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
+import User from "../models/User.js";
+import Account from "../models/Account.js";
+import Product from "../models/Product.js";
+import accountController from "./accountController.js";
 
 // Register a new user
-router.post("/register", async (req, res) => {
+export const registerUser = async (req, res) => {
   try {
-    const { username, name, email, password } = req.body;
+    const { name, email, password } = req.body;
 
-    // Check if user already exists
     let user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ msg: "User already exists" });
     }
 
-    // Create new user
     user = new User({
-      username,
       name,
       email,
       password,
-      // You might want to set default values here for fields like isAdmin
-      isAdmin: false, // or based on your logic
+      isAdmin: false,
     });
 
-    // Save user
     await user.save();
 
-    // Create and return JWT
+    // Initialize account for the new user
+    await accountController.initializeAccountAndTransactions(user.id);
+
     const payload = {
       user: {
         id: user.id,
         email: user.email,
-        isAdmin: user.isAdmin, // Assuming isAdmin exists in your User schema
+        isAdmin: user.isAdmin,
       },
     };
 
@@ -46,14 +43,12 @@ router.post("/register", async (req, res) => {
       (err, token) => {
         if (err) throw err;
 
-        // Send both token and user data in the response
         res.json({
           token: token,
           user: {
             id: user.id,
             email: user.email,
             isAdmin: user.isAdmin,
-            // other user properties
           },
         });
       }
@@ -62,41 +57,28 @@ router.post("/register", async (req, res) => {
     console.error(err.message);
     res.status(500).send("Server error");
   }
-});
+};
 
 // Login user
-router.post("/login", async (req, res) => {
+export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check if user exists
-    if (user && user.validatePassword(password)) {
-      const token = generateToken(user); // generate JWT token
-      res.json({
-        token: token,
-        user: {
-          id: user._id,
-          email: user.email,
-          isAdmin: user.isAdmin,
-          // include other user properties as needed
-        },
-      });
-    } else {
-      res.status(401).json({ message: "Invalid credentials" });
+    let user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ msg: "Invalid credentials" });
     }
 
-    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ msg: "Invalid credentials" });
     }
 
-    // Create and return JWT
     const payload = {
       user: {
         id: user.id,
         email: user.email,
-        isAdmin: user.isAdmin, // Assuming isAdmin exists in your User schema
+        isAdmin: user.isAdmin,
       },
     };
 
@@ -107,14 +89,12 @@ router.post("/login", async (req, res) => {
       (err, token) => {
         if (err) throw err;
 
-        // Send both token and user data in the response
         res.json({
           token: token,
           user: {
             id: user.id,
             email: user.email,
             isAdmin: user.isAdmin,
-            // other user properties
           },
         });
       }
@@ -123,10 +103,10 @@ router.post("/login", async (req, res) => {
     console.error(err.message);
     res.status(500).send("Server error");
   }
-});
+};
 
 // Get current user profile
-router.get("/profile", auth, async (req, res) => {
+export const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
     res.json(user);
@@ -134,27 +114,32 @@ router.get("/profile", auth, async (req, res) => {
     console.error(err.message);
     res.status(500).send("Server error");
   }
-});
+};
 
 // Update user profile
-router.put("/profile", auth, async (req, res) => {
+export const updateUserProfile = async (req, res) => {
   try {
-    const { username, email } = req.body;
+    const { name, email } = req.body;
     const user = await User.findById(req.user.id);
 
-    if (username) user.username = username;
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (name) user.name = name;
     if (email) user.email = email;
 
     await user.save();
     res.json(user);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server error");
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error updating profile", error: error.message });
   }
-});
+};
 
 // Admin: Get all users
-router.get("/admin/users", [auth, admin], async (req, res) => {
+export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find().select("-password");
     res.json(users);
@@ -162,32 +147,36 @@ router.get("/admin/users", [auth, admin], async (req, res) => {
     console.error(err.message);
     res.status(500).send("Server error");
   }
-});
+};
 
 // Admin: Update user
-router.put("/admin/users/:id", [auth, admin], async (req, res) => {
+export const updateUser = async (req, res) => {
   try {
-    const { username, email, isAdmin } = req.body;
+    const { name, email, isAdmin } = req.body;
     const user = await User.findById(req.params.id);
 
     if (!user) {
-      return res.status(404).json({ msg: "User not found" });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    if (username) user.username = username;
+    if (name) user.name = name;
     if (email) user.email = email;
     if (isAdmin !== undefined) user.isAdmin = isAdmin;
 
     await user.save();
     res.json(user);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server error");
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error updating user", error: error.message });
   }
-});
+};
 
 // Admin: Delete user
-router.delete("/admin/users/:id", [auth, admin], async (req, res) => {
+export const deleteUser = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const user = await User.findById(req.params.id);
 
@@ -195,12 +184,44 @@ router.delete("/admin/users/:id", [auth, admin], async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    await User.deleteOne({ _id: req.params.id });
-    res.json({ msg: "User removed" });
+    await Product.deleteMany({ userId: req.params.id }, { session });
+    await Account.deleteOne({ userId: req.params.id }, { session });
+    await User.deleteOne({ _id: req.params.id }, { session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.json({ msg: "User and associated data deleted successfully" });
   } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
+
     console.error(err.message);
     res.status(500).send("Server error");
   }
-});
+};
 
-module.exports = router;
+// User: Delete own account
+export const deleteOwnAccount = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const userId = req.user.id;
+
+    await Product.deleteMany({ userId }, { session });
+    await Account.deleteOne({ userId }, { session });
+    await User.deleteOne({ _id: userId }, { session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.json({ msg: "User and associated data deleted successfully" });
+  } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
+
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+};

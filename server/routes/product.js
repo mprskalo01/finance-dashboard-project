@@ -4,10 +4,13 @@ import mongoose from "mongoose"; // Import mongoose for ObjectId type checks
 
 const router = express.Router();
 
-// Get all products
+// Get all products or products by user ID
 router.get("/products", async (req, res) => {
+  const { userId } = req.query;
+
   try {
-    const products = await Product.find().populate("userId", "name email"); // Adjust as needed
+    const query = userId ? { userId } : {};
+    const products = await Product.find(query).populate("userId", "name email");
     res.status(200).json(products);
   } catch (error) {
     res

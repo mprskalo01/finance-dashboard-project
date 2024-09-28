@@ -1,0 +1,604 @@
+{
+  "monthlyData": [
+    {
+      "month": "january",
+      "revenue": 100000.0,
+      "expenses": 80000.0
+    },
+    {
+      "month": "january",
+      "revenue": 110000.0,
+      "expenses": 85000.0
+    },
+    {
+      "month": "january",
+      "revenue": 120000.0,
+      "expenses": 90000.0
+    },
+    {
+      "month": "january",
+      "revenue": 130000.0,
+      "expenses": 95000.0
+    },
+    {
+      "month": "january",
+      "revenue": 140000.0,
+      "expenses": 100000.0
+    },
+    {
+      "month": "january",
+      "revenue": 150000.0,
+      "expenses": 105000.0
+    },
+    {
+      "month": "january",
+      "revenue": 160000.0,
+      "expenses": 110000.0
+    },
+    {
+      "month": "january",
+      "revenue": 170000.0,
+      "expenses": 115000.0
+    },
+    {
+      "month": "january",
+      "revenue": 180000.0,
+      "expenses": 120000.0
+    },
+    {
+      "month": "january",
+      "revenue": 190000.0,
+      "expenses": 125000.0
+    },
+    {
+      "month": "february",
+      "revenue": 120000.0,
+      "expenses": 100000.0
+    },
+    {
+      "month": "february",
+      "revenue": 130000.0,
+      "expenses": 105000.0
+    },
+    {
+      "month": "february",
+      "revenue": 140000.0,
+      "expenses": 110000.0
+    },
+    {
+      "month": "february",
+      "revenue": 150000.0,
+      "expenses": 115000.0
+    },
+    {
+      "month": "february",
+      "revenue": 160000.0,
+      "expenses": 120000.0
+    },
+    {
+      "month": "february",
+      "revenue": 170000.0,
+      "expenses": 125000.0
+    },
+    {
+      "month": "february",
+      "revenue": 180000.0,
+      "expenses": 130000.0
+    },
+    {
+      "month": "february",
+      "revenue": 190000.0,
+      "expenses": 135000.0
+    },
+    {
+      "month": "february",
+      "revenue": 200000.0,
+      "expenses": 140000.0
+    },
+    {
+      "month": "february",
+      "revenue": 210000.0,
+      "expenses": 145000.0
+    },
+    {
+      "month": "march",
+      "revenue": 140000.0,
+      "expenses": 120000.0
+    },
+    {
+      "month": "march",
+      "revenue": 150000.0,
+      "expenses": 125000.0
+    },
+    {
+      "month": "march",
+      "revenue": 160000.0,
+      "expenses": 130000.0
+    },
+    {
+      "month": "march",
+      "revenue": 170000.0,
+      "expenses": 135000.0
+    },
+    {
+      "month": "march",
+      "revenue": 180000.0,
+      "expenses": 140000.0
+    },
+    {
+      "month": "march",
+      "revenue": 190000.0,
+      "expenses": 145000.0
+    },
+    {
+      "month": "march",
+      "revenue": 200000.0,
+      "expenses": 150000.0
+    },
+    {
+      "month": "march",
+      "revenue": 210000.0,
+      "expenses": 155000.0
+    },
+    {
+      "month": "march",
+      "revenue": 220000.0,
+      "expenses": 160000.0
+    },
+    {
+      "month": "march",
+      "revenue": 230000.0,
+      "expenses": 165000.0
+    },
+    {
+      "month": "april",
+      "revenue": 200000.0,
+      "expenses": 150000.0
+    },
+    {
+      "month": "april",
+      "revenue": 210000.0,
+      "expenses": 155000.0
+    },
+    {
+      "month": "april",
+      "revenue": 220000.0,
+      "expenses": 160000.0
+    },
+    {
+      "month": "april",
+      "revenue": 230000.0,
+      "expenses": 165000.0
+    },
+    {
+      "month": "april",
+      "revenue": 240000.0,
+      "expenses": 170000.0
+    },
+    {
+      "month": "april",
+      "revenue": 250000.0,
+      "expenses": 175000.0
+    },
+    {
+      "month": "april",
+      "revenue": 260000.0,
+      "expenses": 180000.0
+    },
+    {
+      "month": "april",
+      "revenue": 270000.0,
+      "expenses": 185000.0
+    },
+    {
+      "month": "april",
+      "revenue": 280000.0,
+      "expenses": 190000.0
+    },
+    {
+      "month": "april",
+      "revenue": 290000.0,
+      "expenses": 195000.0
+    },
+    {
+      "month": "may",
+      "revenue": 230000.0,
+      "expenses": 170000.0
+    },
+    {
+      "month": "may",
+      "revenue": 240000.0,
+      "expenses": 175000.0
+    },
+    {
+      "month": "may",
+      "revenue": 250000.0,
+      "expenses": 180000.0
+    },
+    {
+      "month": "may",
+      "revenue": 260000.0,
+      "expenses": 185000.0
+    },
+    {
+      "month": "may",
+      "revenue": 270000.0,
+      "expenses": 190000.0
+    },
+    {
+      "month": "may",
+      "revenue": 280000.0,
+      "expenses": 195000.0
+    },
+    {
+      "month": "may",
+      "revenue": 290000.0,
+      "expenses": 200000.0
+    },
+    {
+      "month": "may",
+      "revenue": 300000.0,
+      "expenses": 205000.0
+    },
+    {
+      "month": "may",
+      "revenue": 310000.0,
+      "expenses": 210000.0
+    },
+    {
+      "month": "may",
+      "revenue": 320000.0,
+      "expenses": 215000.0
+    },
+    {
+      "month": "june",
+      "revenue": 250000.0,
+      "expenses": 200000.0
+    },
+    {
+      "month": "june",
+      "revenue": 260000.0,
+      "expenses": 205000.0
+    },
+    {
+      "month": "june",
+      "revenue": 270000.0,
+      "expenses": 210000.0
+    },
+    {
+      "month": "june",
+      "revenue": 280000.0,
+      "expenses": 215000.0
+    },
+    {
+      "month": "june",
+      "revenue": 290000.0,
+      "expenses": 220000.0
+    },
+    {
+      "month": "june",
+      "revenue": 300000.0,
+      "expenses": 225000.0
+    },
+    {
+      "month": "june",
+      "revenue": 310000.0,
+      "expenses": 230000.0
+    },
+    {
+      "month": "june",
+      "revenue": 320000.0,
+      "expenses": 235000.0
+    },
+    {
+      "month": "june",
+      "revenue": 330000.0,
+      "expenses": 240000.0
+    },
+    {
+      "month": "june",
+      "revenue": 340000.0,
+      "expenses": 245000.0
+    },
+    {
+      "month": "july",
+      "revenue": 360000.0,
+      "expenses": 270000.0
+    },
+    {
+      "month": "july",
+      "revenue": 370000.0,
+      "expenses": 275000.0
+    },
+    {
+      "month": "july",
+      "revenue": 380000.0,
+      "expenses": 280000.0
+    },
+    {
+      "month": "july",
+      "revenue": 390000.0,
+      "expenses": 285000.0
+    },
+    {
+      "month": "july",
+      "revenue": 400000.0,
+      "expenses": 290000.0
+    },
+    {
+      "month": "july",
+      "revenue": 410000.0,
+      "expenses": 295000.0
+    },
+    {
+      "month": "july",
+      "revenue": 420000.0,
+      "expenses": 300000.0
+    },
+    {
+      "month": "july",
+      "revenue": 430000.0,
+      "expenses": 305000.0
+    },
+    {
+      "month": "july",
+      "revenue": 440000.0,
+      "expenses": 310000.0
+    },
+    {
+      "month": "july",
+      "revenue": 450000.0,
+      "expenses": 315000.0
+    },
+    {
+      "month": "august",
+      "revenue": 150000.0,
+      "expenses": 120000.0
+    },
+    {
+      "month": "august",
+      "revenue": 160000.0,
+      "expenses": 125000.0
+    },
+    {
+      "month": "august",
+      "revenue": 170000.0,
+      "expenses": 130000.0
+    },
+    {
+      "month": "august",
+      "revenue": 180000.0,
+      "expenses": 135000.0
+    },
+    {
+      "month": "august",
+      "revenue": 190000.0,
+      "expenses": 140000.0
+    },
+    {
+      "month": "august",
+      "revenue": 200000.0,
+      "expenses": 145000.0
+    },
+    {
+      "month": "august",
+      "revenue": 210000.0,
+      "expenses": 150000.0
+    },
+    {
+      "month": "august",
+      "revenue": 220000.0,
+      "expenses": 155000.0
+    },
+    {
+      "month": "august",
+      "revenue": 230000.0,
+      "expenses": 160000.0
+    },
+    {
+      "month": "august",
+      "revenue": 240000.0,
+      "expenses": 165000.0
+    },
+    {
+      "month": "september",
+      "revenue": 180000.0,
+      "expenses": 130000.0
+    },
+    {
+      "month": "september",
+      "revenue": 190000.0,
+      "expenses": 135000.0
+    },
+    {
+      "month": "september",
+      "revenue": 200000.0,
+      "expenses": 140000.0
+    },
+    {
+      "month": "september",
+      "revenue": 210000.0,
+      "expenses": 145000.0
+    },
+    {
+      "month": "september",
+      "revenue": 220000.0,
+      "expenses": 150000.0
+    },
+    {
+      "month": "september",
+      "revenue": 230000.0,
+      "expenses": 155000.0
+    },
+    {
+      "month": "september",
+      "revenue": 240000.0,
+      "expenses": 160000.0
+    },
+    {
+      "month": "september",
+      "revenue": 250000.0,
+      "expenses": 165000.0
+    },
+    {
+      "month": "september",
+      "revenue": 260000.0,
+      "expenses": 170000.0
+    },
+    {
+      "month": "september",
+      "revenue": 270000.0,
+      "expenses": 175000.0
+    },
+    {
+      "month": "october",
+      "revenue": 190000.0,
+      "expenses": 140000.0
+    },
+    {
+      "month": "october",
+      "revenue": 200000.0,
+      "expenses": 145000.0
+    },
+    {
+      "month": "october",
+      "revenue": 210000.0,
+      "expenses": 150000.0
+    },
+    {
+      "month": "october",
+      "revenue": 220000.0,
+      "expenses": 155000.0
+    },
+    {
+      "month": "october",
+      "revenue": 230000.0,
+      "expenses": 160000.0
+    },
+    {
+      "month": "october",
+      "revenue": 240000.0,
+      "expenses": 165000.0
+    },
+    {
+      "month": "october",
+      "revenue": 250000.0,
+      "expenses": 170000.0
+    },
+    {
+      "month": "october",
+      "revenue": 260000.0,
+      "expenses": 175000.0
+    },
+    {
+      "month": "october",
+      "revenue": 270000.0,
+      "expenses": 180000.0
+    },
+    {
+      "month": "october",
+      "revenue": 280000.0,
+      "expenses": 185000.0
+    },
+    {
+      "month": "november",
+      "revenue": 210000.0,
+      "expenses": 160000.0
+    },
+    {
+      "month": "november",
+      "revenue": 220000.0,
+      "expenses": 165000.0
+    },
+    {
+      "month": "november",
+      "revenue": 230000.0,
+      "expenses": 170000.0
+    },
+    {
+      "month": "november",
+      "revenue": 240000.0,
+      "expenses": 175000.0
+    },
+    {
+      "month": "november",
+      "revenue": 250000.0,
+      "expenses": 180000.0
+    },
+    {
+      "month": "november",
+      "revenue": 260000.0,
+      "expenses": 185000.0
+    },
+    {
+      "month": "november",
+      "revenue": 270000.0,
+      "expenses": 190000.0
+    },
+    {
+      "month": "november",
+      "revenue": 280000.0,
+      "expenses": 195000.0
+    },
+    {
+      "month": "november",
+      "revenue": 290000.0,
+      "expenses": 200000.0
+    },
+    {
+      "month": "november",
+      "revenue": 300000.0,
+      "expenses": 205000.0
+    },
+    {
+      "month": "december",
+      "revenue": 220000.0,
+      "expenses": 170000.0
+    },
+    {
+      "month": "december",
+      "revenue": 230000.0,
+      "expenses": 175000.0
+    },
+    {
+      "month": "december",
+      "revenue": 240000.0,
+      "expenses": 180000.0
+    },
+    {
+      "month": "december",
+      "revenue": 250000.0,
+      "expenses": 185000.0
+    },
+    {
+      "month": "december",
+      "revenue": 260000.0,
+      "expenses": 190000.0
+    },
+    {
+      "month": "december",
+      "revenue": 270000.0,
+      "expenses": 195000.0
+    },
+    {
+      "month": "december",
+      "revenue": 280000.0,
+      "expenses": 200000.0
+    },
+    {
+      "month": "december",
+      "revenue": 290000.0,
+      "expenses": 205000.0
+    },
+    {
+      "month": "december",
+      "revenue": 300000.0,
+      "expenses": 210000.0
+    },
+    {
+      "month": "december",
+      "revenue": 310000.0,
+      "expenses": 215000.0
+    }
+  ]
+}

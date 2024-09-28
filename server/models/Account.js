@@ -28,23 +28,24 @@ const transactionSchema = new Schema({
     type: mongoose.Types.Currency,
     currency: "USD",
     get: (v) => v / 100,
-    set: (v) => v * 100, // Added set to multiply by 100
+    set: (v) => v * 100,
     required: true,
   },
   type: {
-    type: String, // e.g., revenue, expense
+    type: String,
     required: true,
   },
   date: {
-    type: String, // Date in format 'YYYY-MM-DD'
+    type: String,
     required: true,
   },
   description: {
-    type: String, // A brief description of the transaction
+    type: String,
     required: true,
-    maxlength: 20,
+    maxlength: 50,
   },
 });
+
 const AccountSchema = new Schema(
   {
     userId: {
@@ -57,27 +58,44 @@ const AccountSchema = new Schema(
       currency: "USD",
       get: (v) => v / 100,
       set: (v) => v * 100,
-      default: 1,
+      default: 0,
     },
     totalRevenue: {
       type: mongoose.Types.Currency,
       currency: "USD",
       get: (v) => v / 100,
       set: (v) => v * 100,
-      default: 1,
+      default: 0,
     },
     totalExpenses: {
       type: mongoose.Types.Currency,
       currency: "USD",
       get: (v) => v / 100,
       set: (v) => v * 100,
-      default: 1,
+      default: 0,
     },
     monthlyData: [monthSchema],
     transactions: [transactionSchema],
   },
   { timestamps: true, toJSON: { getters: true } }
 );
+
+// Pre-save hook to calculate totalRevenue and totalExpenses
+AccountSchema.pre("save", function (next) {
+  const account = this;
+  let totalRevenue = 0;
+  let totalExpenses = 0;
+
+  account.monthlyData.forEach((month) => {
+    totalRevenue += month.revenue;
+    totalExpenses += month.expenses;
+  });
+
+  account.totalRevenue = totalRevenue;
+  account.totalExpenses = totalExpenses;
+
+  next();
+});
 
 const Account = mongoose.model("Account", AccountSchema);
 
