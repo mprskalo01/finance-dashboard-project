@@ -128,7 +128,7 @@ function ProductList() {
     {
       field: "name",
       headerName: "Name",
-      flex: 1,
+      flex: 0.8,
       renderCell: (params: GridCellParams) => (
         <StyledCell>{params.value as string}</StyledCell> // Cast params.value to string
       ),
@@ -136,7 +136,7 @@ function ProductList() {
     {
       field: "price",
       headerName: "Price",
-      flex: 0.5,
+      flex: 0.3,
       renderCell: (params: GridCellParams) => (
         <StyledCell>{`$${params.value as number}`}</StyledCell> // Cast params.value to number
       ),
@@ -144,7 +144,7 @@ function ProductList() {
     {
       field: "expense",
       headerName: "Expense",
-      flex: 0.5,
+      flex: 0.3,
       renderCell: (params: GridCellParams) => (
         <StyledCell>{`$${params.value as number}`}</StyledCell> // Cast params.value to number
       ),
@@ -152,7 +152,7 @@ function ProductList() {
     {
       field: "margin",
       headerName: "Margin",
-      flex: 0.5,
+      flex: 0.2,
       renderCell: (params: GridCellParams) => {
         const product = params.row as Product;
         const margin =
@@ -163,7 +163,7 @@ function ProductList() {
     {
       field: "actions",
       headerName: "Actions",
-      width: 120,
+      flex: 0.3,
       renderCell: (params: GridCellParams) => (
         <Box>
           <IconButton
@@ -171,7 +171,7 @@ function ProductList() {
               setSelectedProduct(params.row as Product);
               setOpenEditDialog(true);
             }}
-            style={{ backgroundColor: "rgba(0, 0, 0, 0.1)", margin: "0 5px" }} // Temporary styles
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.1)", margin: "0 5px" }}
           >
             <Svgs.editSvg fillColor="#fff" size="12px" />
           </IconButton>
@@ -180,7 +180,7 @@ function ProductList() {
               setSelectedProduct(params.row as Product);
               setOpenDeleteDialog(true);
             }}
-            style={{ backgroundColor: "rgba(0, 0, 0, 0.1)", margin: "0 5px" }} // Temporary styles
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.1)", margin: "0 5px" }}
           >
             <Svgs.deleteSvg fillColor="#fff" />
           </IconButton>
@@ -244,7 +244,7 @@ function ProductList() {
           columnHeaderHeight={25}
           rowHeight={35}
           hideFooter={true}
-          rows={Array.isArray(productData) ? productData : []}
+          rows={Array.isArray(productData) ? productData.slice().reverse() : []}
           columns={productColumns}
           getRowId={(row) => row._id || row.name} // Ensure unique id
         />

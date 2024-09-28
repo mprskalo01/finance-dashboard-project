@@ -1,24 +1,23 @@
 import { useState } from "react";
-import BoxHeader from "@/components/BoxHeader";
-import DashboardBox from "@/components/DashboardBox";
-import api from "@/api/api";
-import {
-  Box,
-  useTheme,
-  Button,
-  TextField,
-  Select,
-  MenuItem,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Snackbar,
-  IconButton,
-} from "@mui/material";
+import { Box, IconButton, Snackbar, useTheme } from "@mui/material";
 import { DataGrid, GridCellParams, GridColDef } from "@mui/x-data-grid";
+import {
+  TransactionDialog,
+  DeleteConfirmationDialog,
+} from "./TransactionDialog";
+import { ProductTransactionDialog } from "./ProductTransactionDialog";
+import DashboardBox from "@/components/DashboardBox";
+import BoxHeader from "@/components/BoxHeader";
 import Svgs from "@/assets/Svgs";
+import api from "@/api/api";
 import { useAccount } from "@/context/AccountContext/UseAccount";
+
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  expense: number;
+}
 
 interface Transaction {
   _id: string;
@@ -33,6 +32,9 @@ const TransactionList = () => {
   const { account, fetchUserAccount } = useAccount();
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openProductTransactionDialog, setOpenProductTransactionDialog] =
+    useState(false);
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
   const [newTransaction, setNewTransaction] = useState<
@@ -49,16 +51,13 @@ const TransactionList = () => {
     isError: false,
   });
 
-  const handleAddTransaction = async () => {
+  const handleAddTransaction = async (
+    transactionData: Omit<Transaction, "_id">
+  ) => {
     try {
-      await api.addTransaction(newTransaction);
+      await api.addTransaction(transactionData);
+      console.log(transactionData);
       setOpenAddDialog(false);
-      setNewTransaction({
-        amount: 0,
-        type: "revenue",
-        date: new Date().toISOString().split("T")[0],
-        description: "",
-      });
       setSnackbar({
         open: true,
         message: "Transaction added successfully",
@@ -75,12 +74,14 @@ const TransactionList = () => {
     }
   };
 
-  const handleEditTransaction = async () => {
+  const handleEditTransaction = async (
+    transactionData: Omit<Transaction, "_id">
+  ) => {
     if (selectedTransaction) {
       try {
         await api.updateTransaction({
           transactionId: selectedTransaction._id,
-          ...newTransaction,
+          ...transactionData,
         });
         setOpenEditDialog(false);
         setSelectedTransaction(null);
@@ -101,20 +102,64 @@ const TransactionList = () => {
     }
   };
 
-  const handleDeleteTransaction = async (id: string) => {
+  const handleDeleteTransaction = async () => {
+    if (selectedTransaction) {
+      try {
+        await api.deleteTransaction(selectedTransaction._id);
+        setSnackbar({
+          open: true,
+          message: "Transaction deleted successfully",
+          isError: false,
+        });
+        fetchUserAccount(); // Refetch account data
+        setOpenDeleteDialog(false);
+      } catch (err) {
+        console.error(err);
+        setSnackbar({
+          open: true,
+          message: "Failed to delete transaction",
+          isError: true,
+        });
+      }
+    }
+  };
+
+  const handleProductTransactionSubmit = async (productTransactionData: {
+    product: Product;
+    type: "purchase" | "sale";
+    quantity: number;
+  }) => {
+    const { product, type, quantity } = productTransactionData;
+    const transactionAmount =
+      type === "purchase"
+        ? product.expense * quantity
+        : product.price * quantity;
+    const transactionType = type === "purchase" ? "expense" : "revenue";
+    const transactionDescription = `${type} of ${quantity} ${product.name}`;
+
+    const newProductTransaction: Omit<Transaction, "_id"> = {
+      amount: transactionAmount,
+      type: transactionType,
+      date: new Date().toISOString().split("T")[0],
+      description: transactionDescription,
+    };
+
     try {
-      await api.deleteTransaction(id);
+      console.log("Sending transaction:", newProductTransaction);
+      await api.addTransaction(newProductTransaction);
+      console.log("Transaction added successfully:", newProductTransaction);
+      setOpenProductTransactionDialog(false);
       setSnackbar({
         open: true,
-        message: "Transaction deleted successfully",
+        message: "Product transaction added successfully",
         isError: false,
       });
-      fetchUserAccount(); // Refetch account data
+      fetchUserAccount(); // Refetch account data to refresh the DataGrid
     } catch (err) {
-      console.error(err);
+      console.error("Failed to add product transaction:", err);
       setSnackbar({
         open: true,
-        message: "Failed to delete transaction",
+        message: "Failed to add product transaction",
         isError: true,
       });
     }
@@ -124,7 +169,7 @@ const TransactionList = () => {
     {
       field: "amount",
       headerName: "Amount",
-      flex: 0.35,
+      flex: 0.3,
       renderCell: (params: GridCellParams) => {
         const amount = params.value ? Number(params.value) : 0;
         return `$${amount.toFixed(2)}`;
@@ -133,7 +178,7 @@ const TransactionList = () => {
     {
       field: "type",
       headerName: "Type",
-      flex: 0.4,
+      flex: 0.2,
     },
     {
       field: "description",
@@ -143,15 +188,15 @@ const TransactionList = () => {
     {
       field: "date",
       headerName: "Date",
-      flex: 0.4,
+      flex: 0.25,
     },
     {
       field: "actions",
       headerName: "Actions",
-      flex: 0.5,
+      flex: 0.25,
       renderCell: (params: GridCellParams) => (
         <Box>
-          <Button
+          <IconButton
             onClick={() => {
               setSelectedTransaction(params.row as Transaction);
               setNewTransaction({
@@ -162,12 +207,19 @@ const TransactionList = () => {
               });
               setOpenEditDialog(true);
             }}
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.1)", margin: "0 5px" }}
           >
-            Edit
-          </Button>
-          <Button onClick={() => handleDeleteTransaction(params.row._id)}>
-            Delete
-          </Button>
+            <Svgs.editSvg fillColor="#fff" size="12px" />
+          </IconButton>
+          <IconButton
+            onClick={() => {
+              setSelectedTransaction(params.row as Transaction);
+              setOpenDeleteDialog(true);
+            }}
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.1)", margin: "0 5px" }}
+          >
+            <Svgs.deleteSvg fillColor="#fff" />
+          </IconButton>
         </Box>
       ),
     },
@@ -195,6 +247,19 @@ const TransactionList = () => {
               >
                 <Svgs.addSvg strokeColor="#12efc8" />
               </IconButton>
+              <IconButton
+                onClick={() => setOpenProductTransactionDialog(true)}
+                size="small"
+                sx={{
+                  backgroundColor: "rgba(136, 132, 216, 0.1)",
+                  "&:hover": {
+                    backgroundColor: "rgba(136, 132, 216, 0.2)",
+                  },
+                  borderRadius: "4px",
+                }}
+              >
+                <Svgs.addSvg strokeColor="#12efc8" />
+              </IconButton>
             </Box>
           }
           sideText={
@@ -209,7 +274,7 @@ const TransactionList = () => {
         <Box
           mt="0.5rem"
           p="0 0.5rem"
-          height="75%"
+          height="75%" // Set the height to 75%
           sx={{
             "& .MuiDataGrid-root": {
               color: palette.grey[300],
@@ -221,18 +286,19 @@ const TransactionList = () => {
             "& .MuiDataGrid-columnHeaders": {
               borderBottom: `1px solid ${palette.grey[800]} !important`,
             },
-            "& .MuiDataGrid-columnSeparator": {
-              visibility: "hidden",
-            },
+            // "& .MuiDataGrid-columnSeparator": {
+            //   visibility: "hidden",
+            // },
           }}
         >
           <DataGrid
             columnHeaderHeight={25}
             rowHeight={35}
-            autoPageSize
             hideFooter={true}
             rows={
-              Array.isArray(account?.transactions) ? account.transactions : []
+              Array.isArray(account?.transactions)
+                ? account.transactions.slice().reverse()
+                : []
             }
             columns={transactionColumns}
             getRowId={(row) => row._id}
@@ -240,123 +306,32 @@ const TransactionList = () => {
         </Box>
       </DashboardBox>
 
-      <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)}>
-        <DialogTitle>Add New Transaction</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Amount"
-            type="number"
-            value={newTransaction.amount}
-            onChange={(e) =>
-              setNewTransaction({
-                ...newTransaction,
-                amount: parseFloat(e.target.value),
-              })
-            }
-            fullWidth
-            margin="normal"
-          />
-          <Select
-            value={newTransaction.type}
-            onChange={(e) =>
-              setNewTransaction({
-                ...newTransaction,
-                type: e.target.value as "revenue" | "expense",
-              })
-            }
-            fullWidth
-            margin="dense"
-          >
-            <MenuItem value="revenue">Revenue</MenuItem>
-            <MenuItem value="expense">Expense</MenuItem>
-          </Select>
-          <TextField
-            label="Date"
-            type="date"
-            value={newTransaction.date}
-            onChange={(e) =>
-              setNewTransaction({ ...newTransaction, date: e.target.value })
-            }
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Description"
-            value={newTransaction.description}
-            onChange={(e) =>
-              setNewTransaction({
-                ...newTransaction,
-                description: e.target.value,
-              })
-            }
-            fullWidth
-            margin="normal"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenAddDialog(false)}>Cancel</Button>
-          <Button onClick={handleAddTransaction}>Add</Button>
-        </DialogActions>
-      </Dialog>
+      <TransactionDialog
+        open={openAddDialog}
+        onClose={() => setOpenAddDialog(false)}
+        onSubmit={handleAddTransaction}
+        title="Add New Transaction"
+      />
 
-      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
-        <DialogTitle>Edit Transaction</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Amount"
-            type="number"
-            value={newTransaction.amount}
-            onChange={(e) =>
-              setNewTransaction({
-                ...newTransaction,
-                amount: parseFloat(e.target.value),
-              })
-            }
-            fullWidth
-            margin="normal"
-          />
-          <Select
-            value={newTransaction.type}
-            onChange={(e) =>
-              setNewTransaction({
-                ...newTransaction,
-                type: e.target.value as "revenue" | "expense",
-              })
-            }
-            fullWidth
-            margin="dense"
-          >
-            <MenuItem value="revenue">Revenue</MenuItem>
-            <MenuItem value="expense">Expense</MenuItem>
-          </Select>
-          <TextField
-            label="Date"
-            type="date"
-            value={newTransaction.date}
-            onChange={(e) =>
-              setNewTransaction({ ...newTransaction, date: e.target.value })
-            }
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Description"
-            value={newTransaction.description}
-            onChange={(e) =>
-              setNewTransaction({
-                ...newTransaction,
-                description: e.target.value,
-              })
-            }
-            fullWidth
-            margin="normal"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
-          <Button onClick={handleEditTransaction}>Save</Button>
-        </DialogActions>
-      </Dialog>
+      <TransactionDialog
+        open={openEditDialog}
+        onClose={() => setOpenEditDialog(false)}
+        onSubmit={handleEditTransaction}
+        initialData={newTransaction}
+        title="Edit Transaction"
+      />
+
+      <DeleteConfirmationDialog
+        open={openDeleteDialog}
+        onClose={() => setOpenDeleteDialog(false)}
+        onConfirm={handleDeleteTransaction}
+      />
+
+      <ProductTransactionDialog
+        open={openProductTransactionDialog}
+        onClose={() => setOpenProductTransactionDialog(false)}
+        onSubmit={handleProductTransactionSubmit}
+      />
 
       <Snackbar
         open={snackbar.open}

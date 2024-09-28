@@ -93,7 +93,7 @@ const Row3 = () => {
     <>
       <CombinedChart />
       <ProductList />
-      <DashboardBox gridArea="i" sx={{ px: 2, pb: 2, pt: 0 }}>
+      <DashboardBox gridArea="i">
         <BoxHeader
           title={
             <Box display="flex" gap="10px" alignItems="center">
@@ -104,7 +104,7 @@ const Row3 = () => {
           }
           sideText={`Welcome, ${user?.username}!`}
         />
-        <Box mt={2}>
+        <Box mt={2} sx={{ px: 2, pb: 2, pt: 0 }}>
           <Typography variant="h3" color={palette.grey[300]}>
             Your current account balance is:{" "}
             <Typography
@@ -163,7 +163,7 @@ const Row3 = () => {
             variant="contained"
             color="secondary"
             onClick={buttonClick}
-            sx={{ mt: 2 }}
+            sx={{ mt: 2, ml: 2 }}
           >
             Logout
           </Button>

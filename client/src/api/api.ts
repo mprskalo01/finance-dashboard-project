@@ -144,7 +144,6 @@ export const api = {
       throw error;
     }
   },
-
   addTransaction: async (transactionData: {
     date: string;
     amount: number;
@@ -158,7 +157,15 @@ export const api = {
         getAuthHeader()
       );
     } catch (error) {
-      console.error("Failed to add transaction:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Failed to add transaction:", error.response.data);
+      } else {
+        if (error instanceof Error) {
+          console.error("Failed to add transaction:", error.message);
+        } else {
+          console.error("Failed to add transaction:", error);
+        }
+      }
       throw error;
     }
   },

@@ -17,7 +17,7 @@ import {
   Tooltip,
   Area,
   Bar,
-  Legend,
+  // Legend,
   ResponsiveContainer,
 } from "recharts";
 import api from "@/api/api";
@@ -211,7 +211,25 @@ function CombinedChart() {
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
-            <Legend />
+            {/* <Legend
+              payload={[
+                {
+                  value: "Revenue",
+                  type: "square",
+                  color: palette.tertiary[500],
+                },
+                {
+                  value: "Expenses",
+                  type: "square",
+                  color: palette.secondary[500],
+                },
+                {
+                  value: "Profit",
+                  type: "square",
+                  color: palette.primary[500],
+                },
+              ]}
+            /> */}
             <Bar dataKey="revenue" stackId="a" fill="url(#colorRevenue)" />
             <Bar dataKey="expenses" stackId="b" fill="url(#colorExpenses)" />
             <Bar dataKey="profit" stackId="c" fill="url(#colorProfit)" />
