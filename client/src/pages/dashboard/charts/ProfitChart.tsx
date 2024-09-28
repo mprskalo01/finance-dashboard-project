@@ -12,6 +12,7 @@ import {
   YAxis,
   Tooltip,
   Area,
+  ReferenceLine,
 } from "recharts";
 import Svgs from "@/assets/Svgs";
 import { useAccount } from "@/context/AccountContext/UseAccount";
@@ -36,6 +37,7 @@ function ProfitChart() {
         revenue,
         expenses,
         profit: (revenue - expenses).toFixed(2),
+        fill: revenue - expenses < 0 ? "url(#colorProfitNegative)" : "url(#colorProfit)",
       }));
     }
     return [];
@@ -64,6 +66,14 @@ function ProfitChart() {
     }
     return "N/A";
   }, [account]);
+
+  const minProfit = Math.min(
+    ...revenueExpensesProfit.map((item) => parseFloat(item.profit))
+  );
+  const maxProfit = Math.max(
+    ...revenueExpensesProfit.map((item) => parseFloat(item.profit))
+  );
+  const buffer = 50; // Adjust the buffer as needed
 
   return (
     <DashboardBox gridArea="c">
@@ -111,14 +121,24 @@ function ProfitChart() {
               <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor={palette.primary[500]}
-                  stopOpacity={0.5}
+                  stopColor={palette.primary[400]}
+                  stopOpacity={0.8}
                 />
                 <stop
                   offset="95%"
                   stopColor={palette.primary[400]}
                   stopOpacity={0}
                 />
+              </linearGradient>
+              <linearGradient
+                id="colorProfitNegative"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop offset="5%" stopColor="red" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="red" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis
@@ -130,9 +150,15 @@ function ProfitChart() {
               tickLine={false}
               axisLine={{ strokeWidth: "0" }}
               style={{ fontSize: "10px" }}
-              domain={["auto", "auto"]}
+              domain={[Math.min(minProfit, 0), maxProfit + buffer]}
             />
             <Tooltip />
+            <CartesianGrid
+              vertical={false}
+              horizontal={false}
+              stroke={palette.grey[800]}
+            />
+            <ReferenceLine y={0} stroke="rgba(200,0,0,0.5)" />
             <Area
               type="monotone"
               dataKey="profit"

@@ -303,6 +303,23 @@ export const api = {
       throw error;
     }
   },
+
+  // TensorFlow Prediction API
+  getFinancialPredictions: async (): Promise<any> => {
+    try {
+      return await axios.get(`${baseURL}/predict`, getAuthHeader());
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error(
+          "Failed to fetch financial predictions:",
+          error.response?.data || error.message
+        );
+      } else {
+        console.error("Failed to fetch financial predictions:", error);
+      }
+      throw error;
+    }
+  },
 };
 
 export default api;

@@ -120,7 +120,7 @@ function RevenueChart() {
               tickLine={false}
               axisLine={{ strokeWidth: "0" }}
               style={{ fontSize: "10px" }}
-              domain={["auto", "auto"]}
+              domain={[0, "auto"]}
             />
             <Tooltip />
             <Area

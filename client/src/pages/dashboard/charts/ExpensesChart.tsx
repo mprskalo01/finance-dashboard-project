@@ -111,6 +111,7 @@ function ExpensesChart() {
                 />
               </linearGradient>
             </defs>
+            <CartesianGrid vertical={false} horizontal={false} />
             <XAxis
               dataKey="name"
               tickLine={false}
@@ -120,7 +121,7 @@ function ExpensesChart() {
               tickLine={false}
               axisLine={{ strokeWidth: "0" }}
               style={{ fontSize: "10px" }}
-              domain={["auto", "auto"]}
+              domain={[0, "auto"]}
             />
             <Tooltip />
             <Area

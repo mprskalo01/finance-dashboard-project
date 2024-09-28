@@ -1,19 +1,12 @@
+import { useState } from "react";
 import BoxHeader from "@/components/BoxHeader";
 import DashboardBox from "@/components/DashboardBox";
-import { useState, useEffect } from "react";
-import api from "@/api/api";
-
 import { Box, useTheme, IconButton, styled } from "@mui/material";
-
-import Svgs from "@/assets/Svgs";
-
 import { DataGrid, GridCellParams } from "@mui/x-data-grid";
 import { ProductDialog, DeleteConfirmationDialog } from "./ProductDialog";
-
-interface User {
-  _id: string;
-  username: string;
-}
+import Svgs from "@/assets/Svgs";
+import { useProductContext } from "@/context/ProductContext/useProduct";
+import api from "@/api/api";
 
 interface Product {
   _id: string;
@@ -24,43 +17,11 @@ interface Product {
 
 function ProductList() {
   const { palette } = useTheme();
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const response = await api.getUserProfile();
-        setUser(response.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    fetchUserProfile();
-  }, []);
-
-  const [productData, setProductData] = useState<Product[]>([]);
-
+  const { products, setProducts, user } = useProductContext();
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      if (user) {
-        try {
-          const response = await api.getProductsByUserId(user._id); // Fetch products by userId
-
-          setProductData(response); // Set the fetched products to state
-        } catch (error) {
-          console.error("Failed to fetch products:", error);
-        }
-      }
-    };
-
-    fetchProducts();
-  }, [user]);
 
   const handleAddProduct = async (productData: {
     name: string;
@@ -73,9 +34,7 @@ function ProductList() {
           userId: user._id,
           ...productData,
         });
-
-        // Assuming you have a state variable `products` that holds the list of products
-        setProductData((prevProducts) => [...prevProducts, response.data]);
+        setProducts((prevProducts) => [...prevProducts, response.data]);
         setOpenAddDialog(false);
       } catch (error) {
         console.error("Failed to add product:", error);
@@ -94,9 +53,7 @@ function ProductList() {
           selectedProduct._id,
           productData
         );
-
-        // Assuming you have a state variable `productData` that holds the list of products
-        setProductData((prevProducts) =>
+        setProducts((prevProducts) =>
           prevProducts.map((p) =>
             p._id === selectedProduct._id ? response.data : p
           )
@@ -112,8 +69,8 @@ function ProductList() {
     if (selectedProduct) {
       try {
         await api.deleteProduct(selectedProduct._id);
-        setProductData(
-          productData.filter((p) => p._id !== selectedProduct._id)
+        setProducts((prevProducts) =>
+          prevProducts.filter((p) => p._id !== selectedProduct._id)
         );
         setOpenDeleteDialog(false);
       } catch (error) {
@@ -121,16 +78,18 @@ function ProductList() {
       }
     }
   };
+
   const StyledCell = styled("div")({
-    color: "white", // Set text color to white
+    color: "white",
   });
+
   const productColumns = [
     {
       field: "name",
       headerName: "Name",
       flex: 0.8,
       renderCell: (params: GridCellParams) => (
-        <StyledCell>{params.value as string}</StyledCell> // Cast params.value to string
+        <StyledCell>{params.value as string}</StyledCell>
       ),
     },
     {
@@ -138,7 +97,7 @@ function ProductList() {
       headerName: "Price",
       flex: 0.3,
       renderCell: (params: GridCellParams) => (
-        <StyledCell>{`$${params.value as number}`}</StyledCell> // Cast params.value to number
+        <StyledCell>{`$${params.value as number}`}</StyledCell>
       ),
     },
     {
@@ -146,7 +105,7 @@ function ProductList() {
       headerName: "Expense",
       flex: 0.3,
       renderCell: (params: GridCellParams) => (
-        <StyledCell>{`$${params.value as number}`}</StyledCell> // Cast params.value to number
+        <StyledCell>{`$${params.value as number}`}</StyledCell>
       ),
     },
     {
@@ -188,7 +147,7 @@ function ProductList() {
       ),
     },
   ];
-  // console.log(productData);
+
   return (
     <DashboardBox gridArea="h">
       <BoxHeader
@@ -213,11 +172,9 @@ function ProductList() {
           </Box>
         }
         sideText={
-          productData?.length === 0
+          products?.length === 0
             ? "No products stored"
-            : `${productData.length} product${
-                productData.length > 1 ? "s" : ""
-              }`
+            : `${products.length} product${products.length > 1 ? "s" : ""}`
         }
       />
       <Box
@@ -235,18 +192,15 @@ function ProductList() {
           "& .MuiDataGrid-columnHeaders": {
             borderBottom: `1px solid ${palette.grey[800]} !important`,
           },
-          // "& .MuiDataGrid-columnSeparator": {
-          //   visibility: "hidden",
-          // },
         }}
       >
         <DataGrid
           columnHeaderHeight={25}
           rowHeight={35}
           hideFooter={true}
-          rows={Array.isArray(productData) ? productData.slice().reverse() : []}
+          rows={Array.isArray(products) ? products.slice().reverse() : []}
           columns={productColumns}
-          getRowId={(row) => row._id || row.name} // Ensure unique id
+          getRowId={(row) => row._id || row.name}
         />
       </Box>
       <ProductDialog

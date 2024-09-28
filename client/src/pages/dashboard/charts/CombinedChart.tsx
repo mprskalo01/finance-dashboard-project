@@ -17,7 +17,6 @@ import {
   Tooltip,
   Area,
   Bar,
-  // Legend,
   ResponsiveContainer,
 } from "recharts";
 import api from "@/api/api";
@@ -37,7 +36,10 @@ function CombinedChart() {
   const { account, fetchUserAccount } = useAccount();
   const [showChart, setShowChart] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingMonth, setEditingMonth] = useState<MonthlyData | null>(null);
+  const [editingMonths, setEditingMonths] = useState<{
+    [key: string]: MonthlyData;
+  }>({});
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
 
   const revenueExpensesProfit = useMemo(() => {
     if (account?.monthlyData) {
@@ -45,7 +47,7 @@ function CombinedChart() {
         name: month.substring(0, 3),
         revenue,
         expenses,
-        profit: (revenue - expenses).toFixed(2),
+        profit: parseFloat((revenue - expenses).toFixed(2)),
       }));
     }
     return [];
@@ -54,35 +56,57 @@ function CombinedChart() {
   const handleChartToggle = () => setShowChart((prev) => !prev);
 
   const handleEditMonthlyValues = () => {
-    if (account?.monthlyData) {
-      const latestMonth = account.monthlyData[account.monthlyData.length - 1];
-      setEditingMonth(latestMonth);
-    }
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setEditingMonth(null);
+    setEditingMonths({});
+    setSelectedMonth(null);
   };
 
-  const handleInputChange = (field: "revenue" | "expenses", value: string) => {
-    if (editingMonth) {
-      setEditingMonth({
-        ...editingMonth,
-        [field]: Number(value),
-      });
+  const handleMonthSelection = (month: string) => {
+    const selectedMonthData = account?.monthlyData.find(
+      (m) => m.month === month
+    );
+    if (selectedMonthData) {
+      setSelectedMonth(month);
+      setEditingMonths((prev) => ({
+        ...prev,
+        [month]: {
+          ...selectedMonthData,
+          revenue: selectedMonthData.revenue, // Already in dollars
+          expenses: selectedMonthData.expenses, // Already in dollars
+        },
+      }));
     }
+  };
+
+  const handleInputChange = (
+    month: string,
+    field: "revenue" | "expenses",
+    value: string
+  ) => {
+    setEditingMonths((prev) => ({
+      ...prev,
+      [month]: {
+        ...prev[month],
+        [field]: parseFloat(value), // Input is in dollars
+      },
+    }));
   };
 
   const handleSaveChanges = async () => {
     try {
-      const monthData = {
-        month: editingMonth?.month || "",
-        revenue: Number(editingMonth?.revenue) || 0,
-        expenses: Number(editingMonth?.expenses) || 0,
-      };
-      await api.editMonthlyData(monthData);
+      const promises = Object.values(editingMonths).map((monthData) => {
+        const dataToSave = {
+          ...monthData,
+          revenue: monthData.revenue, // Convert dollars to cents
+          expenses: monthData.expenses, // Convert dollars to cents
+        };
+        return api.editMonthlyData(dataToSave);
+      });
+      await Promise.all(promises);
       fetchUserAccount(); // Refresh data after saving changes
       handleCloseModal(); // Close modal after saving changes
     } catch (error) {
@@ -90,6 +114,14 @@ function CombinedChart() {
       // Handle error (e.g., show error message)
     }
   };
+
+  const minValue = Math.min(
+    ...revenueExpensesProfit.flatMap((item) => [
+      item.revenue,
+      item.expenses,
+      item.profit,
+    ])
+  );
 
   return (
     <DashboardBox gridArea="d">
@@ -151,23 +183,10 @@ function CombinedChart() {
               bottom: 0,
             }}
           >
-            <defs>
-              <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor={palette.tertiary[500]}
-                  stopOpacity={0.5}
-                />
-                <stop
-                  offset="95%"
-                  stopColor={palette.tertiary[300]}
-                  stopOpacity={0}
-                />
-              </linearGradient>
-            </defs>
+            <defs></defs>
             <CartesianGrid vertical={false} strokeDasharray="1 2" />
             <XAxis dataKey="name" />
-            <YAxis domain={["auto", "auto"]} />
+            <YAxis domain={[minValue, "auto"]} />
             <Tooltip />
             <Area
               type="monotone"
@@ -211,25 +230,6 @@ function CombinedChart() {
             <XAxis dataKey="name" />
             <YAxis />
             <Tooltip />
-            {/* <Legend
-              payload={[
-                {
-                  value: "Revenue",
-                  type: "square",
-                  color: palette.tertiary[500],
-                },
-                {
-                  value: "Expenses",
-                  type: "square",
-                  color: palette.secondary[500],
-                },
-                {
-                  value: "Profit",
-                  type: "square",
-                  color: palette.primary[500],
-                },
-              ]}
-            /> */}
             <Bar dataKey="revenue" stackId="a" fill="url(#colorRevenue)" />
             <Bar dataKey="expenses" stackId="b" fill="url(#colorExpenses)" />
             <Bar dataKey="profit" stackId="c" fill="url(#colorProfit)" />
@@ -258,57 +258,59 @@ function CombinedChart() {
           {account?.monthlyData.map((month) => (
             <Button
               key={month.month}
-              onClick={() => setEditingMonth(month)}
+              onClick={() => handleMonthSelection(month.month)}
               fullWidth
-              variant={
-                editingMonth?.month === month.month ? "contained" : "outlined"
-              }
+              variant={selectedMonth === month.month ? "contained" : "outlined"}
               sx={{ mb: 1 }}
             >
               {month.month}
             </Button>
           ))}
-          {editingMonth && (
+          {selectedMonth && (
             <Box mt={2}>
               <TextField
                 label="Revenue"
                 type="number"
-                value={editingMonth.revenue}
-                onChange={(e) => handleInputChange("revenue", e.target.value)}
+                value={editingMonths[selectedMonth]?.revenue || ""}
+                onChange={(e) =>
+                  handleInputChange(selectedMonth, "revenue", e.target.value)
+                }
                 fullWidth
                 margin="normal"
               />
               <TextField
                 label="Expenses"
                 type="number"
-                value={editingMonth.expenses}
-                onChange={(e) => handleInputChange("expenses", e.target.value)}
+                value={editingMonths[selectedMonth]?.expenses || ""}
+                onChange={(e) =>
+                  handleInputChange(selectedMonth, "expenses", e.target.value)
+                }
                 fullWidth
                 margin="normal"
               />
-              <Box mt={2} display="flex" justifyContent="flex-end">
-                <Button
-                  onClick={handleCloseModal}
-                  sx={{
-                    mr: 1,
-                    backgroundColor: palette.secondary[500],
-                    color: palette.grey[700],
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleSaveChanges}
-                  sx={{
-                    backgroundColor: palette.primary[500],
-                    color: palette.grey[700],
-                  }}
-                >
-                  Save
-                </Button>
-              </Box>
             </Box>
           )}
+          <Box mt={2} display="flex" justifyContent="flex-end">
+            <Button
+              onClick={handleCloseModal}
+              sx={{
+                mr: 1,
+                backgroundColor: palette.secondary[500],
+                color: palette.grey[700],
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveChanges}
+              sx={{
+                backgroundColor: palette.primary[500],
+                color: palette.grey[700],
+              }}
+            >
+              Save
+            </Button>
+          </Box>
         </Box>
       </Modal>
     </DashboardBox>
