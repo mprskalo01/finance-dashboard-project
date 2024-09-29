@@ -13,10 +13,22 @@ function Navbar() {
     <FlexBetween mb="0.25rem" p="0.5rem 0rem" color={palette.grey[300]}>
       {/* LEFT SIDE */}
       <FlexBetween gap="0.75rem">
-        <PixIcon sx={{ fontSize: "28px" }} />
-        <Typography variant="h4" fontSize="16">
-          FAInance
-        </Typography>
+        <NavLink
+          to="/dashboard"
+          onClick={() => setSelected("dashboard")}
+          style={({ isActive }) => ({
+            color: isActive ? "inherit" : palette.grey[700],
+            textDecoration: "inherit",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+          })}
+        >
+          <PixIcon sx={{ fontSize: "28px" }} />
+          <Typography variant="h4" fontSize="16">
+            FAInance
+          </Typography>
+        </NavLink>
       </FlexBetween>
       {/* RIGHT SIDE */}
       <FlexBetween gap="2rem">

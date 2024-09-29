@@ -202,7 +202,7 @@ export const deleteUser = async (req, res) => {
 };
 
 // User: Delete own account
-export const deleteOwnAccount = async (req, res) => {
+export const deleteSelf = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 

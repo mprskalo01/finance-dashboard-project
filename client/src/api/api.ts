@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
+interface MonthlyData {
+  month: string;
+  revenue: number;
+  expenses: number;
+}
 
 const baseURL = import.meta.env.VITE_BASE_URL || "http://localhost:5000"; // Fallback URL
 
@@ -21,7 +26,6 @@ const getAuthHeader = () => {
 export const api = {
   // User API
   register: async (userData: {
-    username: string;
     name: string;
     email: string;
     password: string;
@@ -52,9 +56,12 @@ export const api = {
     }
   },
 
+  // Update the updateUserProfile function to accept currentPassword and newPassword
   updateUserProfile: async (profileData: {
-    username?: string;
+    name?: string;
     email?: string;
+    currentPassword?: string;
+    newPassword?: string;
   }): Promise<any> => {
     try {
       return await axios.put(
@@ -67,7 +74,21 @@ export const api = {
       throw error;
     }
   },
-
+  verifyCurrentPassword: async (
+    email: string,
+    password: string
+  ): Promise<boolean> => {
+    try {
+      const response = await axios.post(`${baseURL}/verify-password`, {
+        email,
+        password,
+      });
+      return response.data.success;
+    } catch (error) {
+      console.error("Failed to verify password:", error);
+      return false;
+    }
+  },
   getAllUsers: async (): Promise<any> => {
     try {
       return await axios.get(`${baseURL}/users`, getAuthHeader());
@@ -79,7 +100,7 @@ export const api = {
 
   updateUser: async (
     userId: string,
-    userData: { username?: string; email?: string; isAdmin?: boolean }
+    userData: { name?: string; email?: string; isAdmin?: boolean }
   ): Promise<any> => {
     try {
       return await axios.put(
@@ -131,6 +152,16 @@ export const api = {
       throw error;
     }
   },
+  
+  deleteSelf: async (): Promise<any> => {
+    try {
+      return await axios.delete(`${baseURL}/profile`, getAuthHeader());
+    } catch (error) {
+      console.error("Failed to delete own account:", error);
+      throw error;
+    }
+  },
+
   // Edit monthly data
   editMonthlyData: async (monthData: {
     month: string;
@@ -305,9 +336,13 @@ export const api = {
   },
 
   // TensorFlow Prediction API
-  getFinancialPredictions: async (): Promise<any> => {
+  getFinancialPredictions: async (monthlyData: MonthlyData[]): Promise<any> => {
     try {
-      return await axios.get(`${baseURL}/predict`, getAuthHeader());
+      return await axios.post(
+        `${baseURL}/predict`,
+        { monthlyData },
+        getAuthHeader()
+      );
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error(

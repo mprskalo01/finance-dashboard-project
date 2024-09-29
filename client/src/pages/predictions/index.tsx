@@ -45,21 +45,28 @@ const Predictions = () => {
       }
     };
 
+    fetchUserAccount();
+  }, []);
+
+  useEffect(() => {
     const fetchLstmPredictions = async () => {
       try {
-        const response = await api.getFinancialPredictions();
-        setLstmPredictions(response.data.predictedRevenues);
+        if (account) {
+          const response = await api.getFinancialPredictions(
+            account.monthlyData
+          );
+          setLstmPredictions(response.data.predictedRevenues);
+        }
       } catch (err) {
         console.log(err);
       }
     };
 
-    fetchUserAccount();
     fetchLstmPredictions();
-  }, []); // Add dependency array to avoid infinite loop
+  }, [account]);
 
-  const formattedData = useMemo(() => {
-    if (!account) return [];
+  const { formattedData, minValue, maxValue } = useMemo(() => {
+    if (!account) return { formattedData: [], minValue: 0, maxValue: 0 };
     const allMonths = [
       "January",
       "February",
@@ -75,31 +82,46 @@ const Predictions = () => {
       "December",
     ];
     const monthData = account?.monthlyData;
-    console.log("Month Data:", monthData); // Log month data
     const formatted: Array<DataPoint> = monthData.map(
       ({ revenue }, i: number) => [i, revenue]
     );
-    console.log("Formatted Data Points:", formatted); // Log formatted data points
     const regressionLine = regression.linear(formatted);
-    console.log("Regression Line:", regressionLine); // Log regression line
-    return allMonths.map((month, i) => {
+    const data = allMonths.map((month, i) => {
       const actualData = monthData.find(
         (data) => data.month.toLowerCase() === month.toLowerCase()
       );
-      console.log(`Actual Data for ${month}:`, actualData); // Log actual data for each month
       return {
         name: month,
         "Actual Revenue": actualData ? actualData.revenue : null,
         "Regression Line": regressionLine.points[i]
           ? regressionLine.points[i][1]
           : null,
-        "Predicted Revenue": regressionLine.predict(i + monthData.length)[1],
-        "LSTM Predicted Revenue": lstmPredictions[i] || null,
+        "Next Year Predicted Revenue": regressionLine.predict(
+          i + monthData.length
+        )[1],
+        "Current Year Predicted Revenue": lstmPredictions[i] || null,
       };
     });
-  }, [account, lstmPredictions]);
 
-  console.log("Formatted Data for Chart:", formattedData); // Log formatted data for chart
+    const allValues = data.flatMap((d) =>
+      [
+        "Actual Revenue",
+        "Regression Line",
+        "Next Year Predicted Revenue",
+        "Current Year Predicted Revenue",
+      ]
+        .map((key) => d[key as keyof typeof d])
+        .filter((value) => value !== null)
+    );
+
+    const numericValues = allValues.filter(
+      (value): value is number => typeof value === "number"
+    );
+    const minValue = Math.min(...numericValues);
+    const maxValue = Math.max(...numericValues);
+
+    return { formattedData: data, minValue, maxValue };
+  }, [account, lstmPredictions]);
 
   return (
     <>
@@ -112,8 +134,8 @@ const Predictions = () => {
               <span style={{ color: "#0ea5e9" }}>Predictions</span>
             </Typography>
             <Typography variant="h6">
-              charted revenue and predicted revenue based on a simple linear
-              regression model
+              Next year based on simple linear regression, current year based on
+              LTSM
             </Typography>
           </Box>
           <FlexBetween gap="1rem">
@@ -165,7 +187,7 @@ const Predictions = () => {
               <Label value="Month" offset={-5} position="insideBottom" />
             </XAxis>
             <YAxis
-              domain={["auto", "auto"]}
+              domain={[Math.min(minValue - 200, 0), maxValue + 200]}
               axisLine={{ strokeWidth: "0" }}
               style={{ fontSize: "10px" }}
               tickFormatter={(v) => `$${v}`}

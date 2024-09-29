@@ -20,19 +20,18 @@ import {
   useTheme,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "@/hooks/userHooks"; // Adjust the import path as needed
+import { useAuth } from "@/context/AuthContext/useAuth"; // Adjust the import path as needed
 import DashboardBox from "@/components/DashboardBox";
+import { useUser } from "@/hooks/userHooks";
 
 interface User {
   _id: string;
-  username: string;
   name: string;
   email: string;
   isAdmin: boolean;
 }
 
 interface EditUserData {
-  username: string;
   name: string;
   email: string;
   password: string;
@@ -44,13 +43,14 @@ const AdminDashboard: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [editUserData, setEditUserData] = useState<EditUserData>({
-    username: "",
     name: "",
     email: "",
     password: "",
     isAdmin: false,
   });
+  const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null); // State to store logged-in user's ID
   const navigate = useNavigate();
+  const { getLoggedInUserId } = useAuth();
   const { getAllUsers, updateUser, deleteUser, handleLogout } = useUser();
 
   const buttonClick = () => {
@@ -58,7 +58,6 @@ const AdminDashboard: React.FC = () => {
     navigate("/login"); // Redirect to login page
   };
 
-  // Fetch users directly inside the useEffect without adding it to dependencies.
   useEffect(() => {
     const fetchUsers = async () => {
       const response = await getAllUsers();
@@ -67,13 +66,19 @@ const AdminDashboard: React.FC = () => {
       }
     };
 
+    const fetchLoggedInUserId = async () => {
+      const userId = getLoggedInUserId();
+      setLoggedInUserId(userId ?? null);
+    };
+
     fetchUsers();
-  }, [getAllUsers]); // Assuming getAllUsers is stable or a custom hook
+    fetchLoggedInUserId();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleEditUser = (user: User) => {
     setEditingUser(user);
     setEditUserData({
-      username: user.username,
       name: user.name,
       email: user.email,
       password: "",
@@ -85,14 +90,12 @@ const AdminDashboard: React.FC = () => {
     if (editingUser) {
       const { password, ...updateData } = editUserData;
 
-      // Check if password exists, and include it in the update data if so
       if (password) {
         (updateData as EditUserData).password = password;
       }
 
       const updatedUser = await updateUser(editingUser._id, updateData);
       if (updatedUser) {
-        // Fetch users again after updating to refresh the list
         const response = await getAllUsers();
         if (response?.data) {
           setUsers(response.data);
@@ -126,15 +129,11 @@ const AdminDashboard: React.FC = () => {
         color: palette.grey[100],
       }}
     >
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center" // Ensure both the button and the heading are vertically aligned
-      >
+      <Box display="flex" justifyContent="space-between" alignItems="center">
         <Typography
           variant="h1"
-          color={palette.grey[100]} // Ensure text color is grey[100]
-          sx={{ pb: "5rem", fontWeight: "bold" }} // Slight gray color for the heading
+          color={palette.grey[100]}
+          sx={{ pb: "5rem", fontWeight: "bold" }}
         >
           Admin Dashboard
         </Typography>
@@ -142,7 +141,7 @@ const AdminDashboard: React.FC = () => {
           variant="contained"
           color="secondary"
           onClick={buttonClick}
-          sx={{ ml: 2 }} // Add margin to the left for spacing
+          sx={{ ml: 2 }}
         >
           Logout
         </Button>
@@ -152,9 +151,6 @@ const AdminDashboard: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow style={{ backgroundColor: palette.grey[800] }}>
-              <TableCell style={{ color: palette.grey[100] }}>
-                Username
-              </TableCell>
               <TableCell style={{ color: palette.grey[100] }}>Name</TableCell>
               <TableCell style={{ color: palette.grey[100] }}>Email</TableCell>
               <TableCell style={{ color: palette.grey[100] }}>Admin</TableCell>
@@ -169,9 +165,6 @@ const AdminDashboard: React.FC = () => {
                 key={user._id}
                 style={{ backgroundColor: palette.grey[800] }}
               >
-                <TableCell style={{ color: palette.grey[100] }}>
-                  {user.username}
-                </TableCell>
                 <TableCell style={{ color: palette.grey[100] }}>
                   {user.name}
                 </TableCell>
@@ -220,16 +213,6 @@ const AdminDashboard: React.FC = () => {
           }}
         >
           <TextField
-            autoFocus
-            margin="dense"
-            name="username"
-            label="Username"
-            type="text"
-            fullWidth
-            value={editUserData.username}
-            onChange={handleInputChange}
-          />
-          <TextField
             margin="dense"
             name="name"
             label="Name"
@@ -263,6 +246,7 @@ const AdminDashboard: React.FC = () => {
                 checked={editUserData.isAdmin}
                 onChange={handleCheckboxChange}
                 name="isAdmin"
+                disabled={editingUser?._id === loggedInUserId} // Disable if editing the logged-in user
               />
             }
             label="Admin"

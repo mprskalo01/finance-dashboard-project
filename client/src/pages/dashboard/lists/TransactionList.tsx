@@ -5,19 +5,12 @@ import {
   TransactionDialog,
   DeleteConfirmationDialog,
 } from "./TransactionDialog";
-import { ProductTransactionDialog } from "./ProductTransactionDialog";
 import DashboardBox from "@/components/DashboardBox";
 import BoxHeader from "@/components/BoxHeader";
 import Svgs from "@/assets/Svgs";
 import api from "@/api/api";
 import { useAccount } from "@/context/AccountContext/UseAccount";
-
-interface Product {
-  _id: string;
-  name: string;
-  price: number;
-  expense: number;
-}
+import { CombinedTransactionDialog } from "./CombinedTransactionDialog";
 
 interface Transaction {
   _id: string;
@@ -30,11 +23,10 @@ interface Transaction {
 const TransactionList = () => {
   const { palette } = useTheme();
   const { account, fetchUserAccount } = useAccount();
-  const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
+
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [openProductTransactionDialog, setOpenProductTransactionDialog] =
-    useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
   const [newTransaction, setNewTransaction] = useState<
@@ -51,16 +43,38 @@ const TransactionList = () => {
     isError: false,
   });
 
-  const handleAddTransaction = async (
+  const handleTransactionSubmit = async (
     transactionData: Omit<Transaction, "_id">
   ) => {
+    const date = new Date().toISOString().split("T")[0];
+    const month = new Date()
+      .toLocaleString("default", { month: "long" })
+      .toLowerCase();
+
     try {
-      await api.addTransaction(transactionData);
-      console.log(transactionData);
-      setOpenAddDialog(false);
+      await api.addTransaction({ ...transactionData, date });
+
+      // Update monthlyData
+      const monthData = account?.monthlyData.find((m) => m.month === month);
+      if (monthData) {
+        monthData.revenue +=
+          transactionData.type === "revenue" ? transactionData.amount : 0;
+        monthData.expenses +=
+          transactionData.type === "expense" ? transactionData.amount : 0;
+      } else {
+        account?.monthlyData.push({
+          month,
+          revenue:
+            transactionData.type === "revenue" ? transactionData.amount : 0,
+          expenses:
+            transactionData.type === "expense" ? transactionData.amount : 0,
+        });
+      }
+
+      setOpenDialog(false);
       setSnackbar({
         open: true,
-        message: "Transaction added successfully",
+        message: "Transaction processed successfully",
         isError: false,
       });
       fetchUserAccount(); // Refetch account data
@@ -68,7 +82,7 @@ const TransactionList = () => {
       console.error(err);
       setSnackbar({
         open: true,
-        message: "Failed to add transaction",
+        message: "Failed to process transaction",
         isError: true,
       });
     }
@@ -83,6 +97,28 @@ const TransactionList = () => {
           transactionId: selectedTransaction._id,
           ...transactionData,
         });
+
+        // Update monthlyData
+        const date = new Date(transactionData.date);
+        const month = date
+          .toLocaleString("default", { month: "long" })
+          .toLowerCase();
+        const monthData = account?.monthlyData.find((m) => m.month === month);
+        if (monthData) {
+          monthData.revenue +=
+            transactionData.type === "revenue" ? transactionData.amount : 0;
+          monthData.expenses +=
+            transactionData.type === "expense" ? transactionData.amount : 0;
+        } else {
+          account?.monthlyData.push({
+            month,
+            revenue:
+              transactionData.type === "revenue" ? transactionData.amount : 0,
+            expenses:
+              transactionData.type === "expense" ? transactionData.amount : 0,
+          });
+        }
+
         setOpenEditDialog(false);
         setSelectedTransaction(null);
         setSnackbar({
@@ -121,47 +157,6 @@ const TransactionList = () => {
           isError: true,
         });
       }
-    }
-  };
-
-  const handleProductTransactionSubmit = async (productTransactionData: {
-    product: Product;
-    type: "purchase" | "sale";
-    quantity: number;
-  }) => {
-    const { product, type, quantity } = productTransactionData;
-    const transactionAmount =
-      type === "purchase"
-        ? product.expense * quantity
-        : product.price * quantity;
-    const transactionType = type === "purchase" ? "expense" : "revenue";
-    const transactionDescription = `${type} of ${quantity} ${product.name}`;
-
-    const newProductTransaction: Omit<Transaction, "_id"> = {
-      amount: transactionAmount,
-      type: transactionType,
-      date: new Date().toISOString().split("T")[0],
-      description: transactionDescription,
-    };
-
-    try {
-      console.log("Sending transaction:", newProductTransaction);
-      await api.addTransaction(newProductTransaction);
-      console.log("Transaction added successfully:", newProductTransaction);
-      setOpenProductTransactionDialog(false);
-      setSnackbar({
-        open: true,
-        message: "Product transaction added successfully",
-        isError: false,
-      });
-      fetchUserAccount(); // Refetch account data to refresh the DataGrid
-    } catch (err) {
-      console.error("Failed to add product transaction:", err);
-      setSnackbar({
-        open: true,
-        message: "Failed to add product transaction",
-        isError: true,
-      });
     }
   };
 
@@ -205,7 +200,7 @@ const TransactionList = () => {
                 date: params.row.date,
                 description: params.row.description,
               });
-              setOpenEditDialog(true);
+              setOpenDialog(true);
             }}
             style={{ backgroundColor: "rgba(0, 0, 0, 0.1)", margin: "0 5px" }}
           >
@@ -235,20 +230,7 @@ const TransactionList = () => {
                 Recent Transactions
               </span>
               <IconButton
-                onClick={() => setOpenAddDialog(true)}
-                size="small"
-                sx={{
-                  backgroundColor: "rgba(136, 132, 216, 0.1)",
-                  "&:hover": {
-                    backgroundColor: "rgba(136, 132, 216, 0.2)",
-                  },
-                  borderRadius: "4px",
-                }}
-              >
-                <Svgs.addSvg strokeColor="#12efc8" />
-              </IconButton>
-              <IconButton
-                onClick={() => setOpenProductTransactionDialog(true)}
+                onClick={() => setOpenDialog(true)}
                 size="small"
                 sx={{
                   backgroundColor: "rgba(136, 132, 216, 0.1)",
@@ -296,27 +278,38 @@ const TransactionList = () => {
             rowHeight={35}
             hideFooter={true}
             rows={
-              Array.isArray(account?.transactions)
-                ? account.transactions.slice().reverse()
-                : []
+              Array.isArray(account?.transactions) ? account.transactions : []
             }
             columns={transactionColumns}
             getRowId={(row) => row._id}
+            sortModel={[
+              {
+                field: "date",
+                sort: "desc",
+              },
+            ]}
           />
         </Box>
       </DashboardBox>
 
-      <TransactionDialog
-        open={openAddDialog}
-        onClose={() => setOpenAddDialog(false)}
-        onSubmit={handleAddTransaction}
-        title="Add New Transaction"
+      <CombinedTransactionDialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        onSubmit={handleTransactionSubmit}
+        initialData={newTransaction}
+        title="Transaction"
       />
 
       <TransactionDialog
         open={openEditDialog}
         onClose={() => setOpenEditDialog(false)}
-        onSubmit={handleEditTransaction}
+        onSubmit={(transactionData) =>
+          handleEditTransaction({
+            ...transactionData,
+            date:
+              transactionData.date || new Date().toISOString().split("T")[0], // Ensure date is always a string
+          })
+        }
         initialData={newTransaction}
         title="Edit Transaction"
       />
@@ -325,12 +318,6 @@ const TransactionList = () => {
         open={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}
         onConfirm={handleDeleteTransaction}
-      />
-
-      <ProductTransactionDialog
-        open={openProductTransactionDialog}
-        onClose={() => setOpenProductTransactionDialog(false)}
-        onSubmit={handleProductTransactionSubmit}
       />
 
       <Snackbar

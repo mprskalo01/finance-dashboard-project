@@ -1,6 +1,5 @@
 export interface User {
   id: string;
-  username: string;
   name: string;
   email: string;
   password: string;
@@ -18,7 +17,11 @@ export interface Day {
   revenue: number;
   expenses: number;
 }
-
+export interface MonthlyData {
+  month: string;
+  revenue: number;
+  expenses: number;
+}
 export interface Month {
   id: string;
   month: string;

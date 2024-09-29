@@ -9,7 +9,7 @@ import {
   getAllUsers,
   updateUser,
   deleteUser,
-  deleteOwnAccount,
+  deleteSelf,
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -36,6 +36,6 @@ router.put("/admin/users/:id", authMiddleware, adminMiddleware, updateUser);
 router.delete("/admin/users/:id", authMiddleware, adminMiddleware, deleteUser);
 
 // User: Delete own account
-router.delete("/profile", authMiddleware, deleteOwnAccount);
+router.delete("/profile", authMiddleware, deleteSelf);
 
 export default router;

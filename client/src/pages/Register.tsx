@@ -15,7 +15,6 @@ import { Link } from "react-router-dom";
 import { useUser } from "@/hooks/userHooks"; // Import the custom hook
 
 const Register = () => {
-  const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +24,6 @@ const Register = () => {
   const { handleRegister } = useUser(); // Destructure the handleRegister function from useUser
 
   const clearForm = () => {
-    setUsername("");
     setName("");
     setEmail("");
     setPassword("");
@@ -40,7 +38,7 @@ const Register = () => {
       return;
     }
     // Call the handleRegister function from the custom hook
-    handleRegister(username, name, email, password);
+    handleRegister(name, email, password);
   };
 
   return (
@@ -60,25 +58,7 @@ const Register = () => {
         <Typography variant="h5">Register</Typography>
         <Box component="form" sx={{ mt: 3 }} onSubmit={onSubmit}>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                name="username"
-                required
-                fullWidth
-                id="username"
-                type="text"
-                label="Username"
-                value={username}
-                style={{
-                  backgroundColor: palette.grey[600],
-                  borderRadius: "1rem",
-                }}
-                onChange={(e) => setUsername(e.target.value)}
-                InputLabelProps={{
-                  style: { color: palette.grey[100], fontSize: "1rem" },
-                }}
-              />
-            </Grid>
+            <Grid item xs={12}></Grid>
             <Grid item xs={12}>
               <TextField
                 name="name"
@@ -86,7 +66,7 @@ const Register = () => {
                 fullWidth
                 id="name"
                 type="text"
-                label="Name"
+                label="Company name"
                 value={name}
                 style={{
                   backgroundColor: palette.grey[600],

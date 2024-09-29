@@ -1,8 +1,9 @@
 import { useState, useEffect, ReactNode } from "react";
 import { AuthContext } from "./AuthContext";
 
-// Assuming your User interface includes an isAdmin property
+// Assuming your User interface includes an id and isAdmin property
 interface User {
+  id: string; // Add the id property
   isAdmin: boolean;
   // Add other properties if needed
 }
@@ -20,7 +21,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = (userData: User) => {
     setIsAuthenticated(true);
-    setUser(userData); // Set the user data (e.g., isAdmin)
+    setUser(userData); // Set the user data (e.g., id and isAdmin)
     localStorage.setItem("isAuthenticated", JSON.stringify(true));
     localStorage.setItem("user", JSON.stringify(userData)); // Store the user data in localStorage
   };

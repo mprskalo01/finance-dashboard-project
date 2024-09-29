@@ -16,13 +16,13 @@ interface TransactionDialogProps {
   onSubmit: (transactionData: {
     amount: number;
     type: "revenue" | "expense";
-    date: string;
     description: string;
+    date?: string;
   }) => void;
   initialData?: {
     amount: number;
     type: "revenue" | "expense";
-    date: string;
+    date?: string;
     description: string;
   };
   title: string;
@@ -39,11 +39,11 @@ export const TransactionDialog: React.FC<TransactionDialogProps> = ({
   const [type, setType] = useState<"revenue" | "expense">(
     initialData?.type || "revenue"
   );
-  const [date, setDate] = useState(
-    initialData?.date || new Date().toISOString().split("T")[0]
-  );
   const [description, setDescription] = useState(
     initialData?.description || ""
+  );
+  const [date, setDate] = useState(
+    initialData?.date || new Date().toISOString().split("T")[0]
   );
   const [isValid, setIsValid] = useState(false);
 
@@ -51,18 +51,18 @@ export const TransactionDialog: React.FC<TransactionDialogProps> = ({
     if (initialData) {
       setAmount(initialData.amount);
       setType(initialData.type);
-      setDate(initialData.date);
       setDescription(initialData.description);
+      setDate(initialData.date || new Date().toISOString().split("T")[0]);
     }
   }, [initialData]);
 
   useEffect(() => {
     setIsValid(amount > 0 && description.trim() !== "");
-  }, [amount, type, date, description]);
+  }, [amount, type, description]);
 
   const handleSubmit = () => {
     if (isValid) {
-      onSubmit({ amount, type, date, description });
+      onSubmit({ amount, type, description, date });
       onClose();
     }
   };
@@ -88,14 +88,16 @@ export const TransactionDialog: React.FC<TransactionDialogProps> = ({
           <MenuItem value="revenue">Revenue</MenuItem>
           <MenuItem value="expense">Expense</MenuItem>
         </Select>
-        <TextField
-          label="Date"
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          fullWidth
-          margin="normal"
-        />
+        {initialData && (
+          <TextField
+            label="Date"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            fullWidth
+            margin="normal"
+          />
+        )}
         <TextField
           label="Description"
           value={description}

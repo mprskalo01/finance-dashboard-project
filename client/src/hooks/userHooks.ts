@@ -8,25 +8,28 @@ import { jwtDecode, JwtPayload } from "jwt-decode";
 interface DecodedToken extends JwtPayload {
   user: {
     id: string;
+    name: string;
     email: string;
     isAdmin: boolean;
   };
 }
+
 export const useUser = () => {
   const navigate = useNavigate();
-  const { login, logout } = useAuth();
+  const { login, logout, getLoggedInUserId } = useAuth(); // Include getLoggedInUserId
 
   // Function to handle registration
   const handleRegister = async (
-    username: string,
     name: string,
     email: string,
     password: string
   ) => {
     try {
-      const response = await api.register({ username, name, email, password });
+      const response = await api.register({ name, email, password });
       console.log("Registration successful", response.data);
-      navigate("/login");
+
+      // Automatically log in the user after successful registration
+      await handleLogin(email, password);
     } catch (error) {
       handleError(error);
     }
@@ -43,6 +46,7 @@ export const useUser = () => {
 
       // Extract userData from the decoded token
       const userData = {
+        id: decodedToken.user.id, // Access id from decoded token
         email: decodedToken.user.email, // Access email from decoded token
         isAdmin: decodedToken.user.isAdmin, // Access isAdmin from decoded token
       };
@@ -53,7 +57,7 @@ export const useUser = () => {
       // Check if token exists
       if (token) {
         localStorage.setItem("token", token); // Store token
-        login(userData); // Pass userData (now includes email and isAdmin)
+        login(userData); // Pass userData (now includes id, email, and isAdmin)
 
         // Admin check logic
         if (userData.isAdmin) {
@@ -93,9 +97,9 @@ export const useUser = () => {
   };
 
   // Function to update user profile
-  const updateUserProfile = async (username?: string, email?: string) => {
+  const updateUserProfile = async (name: string, email: string) => {
     try {
-      const data = await api.updateUserProfile({ username, email });
+      const data = await api.updateUserProfile({ name, email });
       console.log("Profile updated successfully", data);
       return data;
     } catch (error) {
@@ -116,7 +120,7 @@ export const useUser = () => {
   // Admin function to update a user
   const updateUser = async (
     userId: string,
-    userData: { username?: string; email?: string; isAdmin?: boolean }
+    userData: { name?: string; email?: string; isAdmin?: boolean }
   ) => {
     try {
       const data = await api.updateUser(userId, userData);
@@ -172,5 +176,6 @@ export const useUser = () => {
     getAllUsers,
     updateUser,
     deleteUser,
+    getLoggedInUserId, // Return getLoggedInUserId
   };
 };

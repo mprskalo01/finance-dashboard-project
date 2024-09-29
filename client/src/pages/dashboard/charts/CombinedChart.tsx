@@ -1,13 +1,5 @@
 import { useState, useMemo } from "react";
-import {
-  Box,
-  Typography,
-  useTheme,
-  IconButton,
-  Modal,
-  TextField,
-  Button,
-} from "@mui/material";
+import { Box, useTheme, IconButton } from "@mui/material";
 import {
   AreaChart,
   BarChart,
@@ -24,8 +16,9 @@ import DashboardBox from "@/components/DashboardBox";
 import BoxHeader from "@/components/BoxHeader";
 import Svgs from "@/assets/Svgs";
 import { useAccount } from "@/context/AccountContext/UseAccount";
+import EditMonthlyValuesModal from "./EditMonthlyValuesModal"; // Adjust the import path as needed
 
-interface MonthlyData {
+export interface MonthlyData {
   month: string;
   revenue: number;
   expenses: number;
@@ -39,7 +32,6 @@ function CombinedChart() {
   const [editingMonths, setEditingMonths] = useState<{
     [key: string]: MonthlyData;
   }>({});
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
 
   const revenueExpensesProfit = useMemo(() => {
     if (account?.monthlyData) {
@@ -56,30 +48,20 @@ function CombinedChart() {
   const handleChartToggle = () => setShowChart((prev) => !prev);
 
   const handleEditMonthlyValues = () => {
+    const initialEditingMonths = account?.monthlyData.reduce(
+      (acc, monthData) => {
+        acc[monthData.month] = { ...monthData };
+        return acc;
+      },
+      {} as { [key: string]: MonthlyData }
+    );
+    setEditingMonths(initialEditingMonths || {});
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingMonths({});
-    setSelectedMonth(null);
-  };
-
-  const handleMonthSelection = (month: string) => {
-    const selectedMonthData = account?.monthlyData.find(
-      (m) => m.month === month
-    );
-    if (selectedMonthData) {
-      setSelectedMonth(month);
-      setEditingMonths((prev) => ({
-        ...prev,
-        [month]: {
-          ...selectedMonthData,
-          revenue: selectedMonthData.revenue, // Already in dollars
-          expenses: selectedMonthData.expenses, // Already in dollars
-        },
-      }));
-    }
   };
 
   const handleInputChange = (
@@ -236,83 +218,14 @@ function CombinedChart() {
           </BarChart>
         )}
       </ResponsiveContainer>
-      <Modal open={isModalOpen} onClose={handleCloseModal}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: palette.grey[700],
-            boxShadow: 24,
-            p: 4,
-            maxHeight: "80vh",
-            overflowY: "auto",
-            borderRadius: "2rem",
-          }}
-        >
-          <Typography variant="h6" component="h2" gutterBottom>
-            Edit Monthly Values
-          </Typography>
-          {account?.monthlyData.map((month) => (
-            <Button
-              key={month.month}
-              onClick={() => handleMonthSelection(month.month)}
-              fullWidth
-              variant={selectedMonth === month.month ? "contained" : "outlined"}
-              sx={{ mb: 1 }}
-            >
-              {month.month}
-            </Button>
-          ))}
-          {selectedMonth && (
-            <Box mt={2}>
-              <TextField
-                label="Revenue"
-                type="number"
-                value={editingMonths[selectedMonth]?.revenue || ""}
-                onChange={(e) =>
-                  handleInputChange(selectedMonth, "revenue", e.target.value)
-                }
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="Expenses"
-                type="number"
-                value={editingMonths[selectedMonth]?.expenses || ""}
-                onChange={(e) =>
-                  handleInputChange(selectedMonth, "expenses", e.target.value)
-                }
-                fullWidth
-                margin="normal"
-              />
-            </Box>
-          )}
-          <Box mt={2} display="flex" justifyContent="flex-end">
-            <Button
-              onClick={handleCloseModal}
-              sx={{
-                mr: 1,
-                backgroundColor: palette.secondary[500],
-                color: palette.grey[700],
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSaveChanges}
-              sx={{
-                backgroundColor: palette.primary[500],
-                color: palette.grey[700],
-              }}
-            >
-              Save
-            </Button>
-          </Box>
-        </Box>
-      </Modal>
+      <EditMonthlyValuesModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        monthlyData={account?.monthlyData || []}
+        editingMonths={editingMonths}
+        handleInputChange={handleInputChange}
+        handleSaveChanges={handleSaveChanges}
+      />
     </DashboardBox>
   );
 }

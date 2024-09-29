@@ -2,6 +2,7 @@ import { createContext } from "react";
 
 // Define user type
 interface User {
+  id: string; // Add the id property
   isAdmin: boolean;
   // Add other user properties if needed
 }

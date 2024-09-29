@@ -57,6 +57,7 @@ packages/react-devtools-timeline/dist# See https://help.github.com/articles/igno
 .env.development.local
 .env.test.local
 .env.production.local
+train.json
 
 npm-debug.log*
 yarn-debug.log*

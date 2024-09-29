@@ -3,7 +3,6 @@ import api from "@/api/api";
 
 interface User {
   _id: string;
-  username: string;
 }
 
 interface Product {
