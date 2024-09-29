@@ -17,7 +17,7 @@ interface Product {
 
 function ProductList() {
   const { palette } = useTheme();
-  const { products, setProducts, user } = useProductContext();
+  const { products, setProducts, user, loading } = useProductContext();
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -147,6 +147,10 @@ function ProductList() {
       ),
     },
   ];
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <DashboardBox gridArea="h">

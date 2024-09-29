@@ -17,6 +17,7 @@ interface ProductContextProps {
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  loading: boolean;
 }
 
 const ProductContext = createContext<ProductContextProps | undefined>(
@@ -28,39 +29,32 @@ export const ProductProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const fetchUserProfileAndProducts = async () => {
       try {
-        const response = await api.getUserProfile();
-        setUser(response.data);
+        const userResponse = await api.getUserProfile();
+        setUser(userResponse.data);
+
+        const productsResponse = await api.getProductsByUserId(
+          userResponse.data._id
+        );
+        setProducts(productsResponse);
       } catch (err) {
-        console.error("Failed to fetch user profile", err);
+        console.error("Failed to fetch data", err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchUserProfile();
+    fetchUserProfileAndProducts();
   }, []);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      if (user) {
-        try {
-          const response = await api.getProductsByUserId(user._id);
-          setProducts(response);
-        } catch (err) {
-          console.error("Failed to fetch products", err);
-        }
-      }
-    };
-
-    if (user) {
-      fetchProducts();
-    }
-  }, [user]);
-
   return (
-    <ProductContext.Provider value={{ products, setProducts, user, setUser }}>
+    <ProductContext.Provider
+      value={{ products, setProducts, user, setUser, loading }}
+    >
       {children}
     </ProductContext.Provider>
   );

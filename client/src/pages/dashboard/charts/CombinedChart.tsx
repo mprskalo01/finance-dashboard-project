@@ -129,9 +129,9 @@ function CombinedChart() {
               }}
             >
               {showChart ? (
-                <Svgs.barSvg strokeColor="#83b7a6" />
+                <Svgs.barSvg strokeColor="#f2b455" />
               ) : (
-                <Svgs.areaChartSvg fillColor="#83b7a6" />
+                <Svgs.areaChartSvg fillColor="#f2b455" />
               )}
             </IconButton>
             <IconButton

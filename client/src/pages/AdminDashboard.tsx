@@ -73,7 +73,7 @@ const AdminDashboard: React.FC = () => {
 
     fetchUsers();
     fetchLoggedInUserId();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleEditUser = (user: User) => {
@@ -151,7 +151,9 @@ const AdminDashboard: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow style={{ backgroundColor: palette.grey[800] }}>
-              <TableCell style={{ color: palette.grey[100] }}>Name</TableCell>
+              <TableCell style={{ color: palette.grey[100] }}>
+                Company Name
+              </TableCell>
               <TableCell style={{ color: palette.grey[100] }}>Email</TableCell>
               <TableCell style={{ color: palette.grey[100] }}>Admin</TableCell>
               <TableCell style={{ color: palette.grey[100] }}>
@@ -178,15 +180,17 @@ const AdminDashboard: React.FC = () => {
                   <Button
                     onClick={() => handleEditUser(user)}
                     variant="contained"
-                    color="primary"
-                    style={{ marginRight: "10px" }}
+                    style={{
+                      marginRight: "10px",
+                      backgroundColor: palette.grey[200],
+                    }}
                   >
                     Edit
                   </Button>
                   <Button
                     onClick={() => handleDeleteUser(user._id)}
                     variant="contained"
-                    color="secondary"
+                    sx={{ backgroundColor: "#dc2626", color: "#fff" }}
                   >
                     Delete
                   </Button>
@@ -215,7 +219,7 @@ const AdminDashboard: React.FC = () => {
           <TextField
             margin="dense"
             name="name"
-            label="Name"
+            label="Company name"
             type="text"
             fullWidth
             value={editUserData.name}

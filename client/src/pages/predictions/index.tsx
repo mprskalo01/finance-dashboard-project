@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { useTheme, Box, Button, Typography } from "@mui/material";
+import { useTheme, Box, Button, Typography, IconButton } from "@mui/material";
 import {
   CartesianGrid,
   Label,
@@ -10,12 +10,15 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  BarChart,
+  Bar,
 } from "recharts";
 import regression, { DataPoint } from "regression";
 import DashboardBox from "@/components/DashboardBox";
 import FlexBetween from "@/components/FlexBetween";
 import api from "@/api/api";
 import Navbar from "@/components/navbar";
+import Svgs from "@/assets/Svgs";
 
 interface MonthlyData {
   month: string;
@@ -34,6 +37,7 @@ const Predictions = () => {
     useState(false);
   const [account, setAccount] = useState<Account | null>(null);
   const [lstmPredictions, setLstmPredictions] = useState<number[]>([]);
+  const [showAreaChart, setShowAreaChart] = useState(true);
 
   useEffect(() => {
     const fetchUserAccount = async () => {
@@ -123,6 +127,10 @@ const Predictions = () => {
     return { formattedData: data, minValue, maxValue };
   }, [account, lstmPredictions]);
 
+  const handleChartToggle = () => {
+    setShowAreaChart((prev) => !prev);
+  };
+
   return (
     <>
       <Navbar />
@@ -132,6 +140,25 @@ const Predictions = () => {
             <Typography variant="h3">
               <span style={{ color: palette.tertiary[500] }}>Revenue</span> &{" "}
               <span style={{ color: "#0ea5e9" }}>Predictions</span>
+              <IconButton
+                onClick={handleChartToggle}
+                size="small"
+                sx={{
+                  backgroundColor: "rgba(14, 165, 233, 0.4)",
+                  marginLeft: "1rem",
+                  "&:hover": {
+                    backgroundColor: "rgba(14, 165, 233, 0.7)",
+                    scale: 1.1,
+                  },
+                  borderRadius: "4px",
+                }}
+              >
+                {showAreaChart ? (
+                  <Svgs.barSvg strokeColor="#F0F0F0" />
+                ) : (
+                  <Svgs.areaChartSvg fillColor="#F0F0F0" />
+                )}
+              </IconButton>
             </Typography>
             <Typography variant="h6">
               Next year based on simple linear regression, current year based on
@@ -143,7 +170,7 @@ const Predictions = () => {
               onClick={() => setIsPredictions(!isPredictions)}
               sx={{
                 color: palette.grey[100],
-                backgroundColor: palette.tertiary[500],
+                backgroundColor: "#519DE9",
                 boxShadow: "0.1rem 0.1rem 0.1rem 0.1rem rgba(0,0,0,.4)",
                 transition: "transform 0.3s ease-in-out",
                 "&:hover": {
@@ -158,8 +185,8 @@ const Predictions = () => {
                 setIsCurrentYearPredictions(!isCurrentYearPredictions)
               }
               sx={{
-                color: palette.grey[100],
-                backgroundColor: palette.secondary[500],
+                color: palette.grey[800],
+                backgroundColor: "#8BC1F7",
                 boxShadow: "0.1rem 0.1rem 0.1rem 0.1rem rgba(0,0,0,.4)",
                 transition: "transform 0.3s ease-in-out",
                 "&:hover": {
@@ -173,80 +200,143 @@ const Predictions = () => {
           </FlexBetween>
         </FlexBetween>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            data={formattedData}
-            margin={{
-              top: 20,
-              right: 75,
-              left: 20,
-              bottom: 80,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke={palette.grey[800]} />
-            <XAxis dataKey="name" tickLine={false} style={{ fontSize: "10px" }}>
-              <Label value="Month" offset={-5} position="insideBottom" />
-            </XAxis>
-            <YAxis
-              domain={[Math.min(minValue - 200, 0), maxValue + 200]}
-              axisLine={{ strokeWidth: "0" }}
-              style={{ fontSize: "10px" }}
-              tickFormatter={(v) => `$${v}`}
+          {showAreaChart ? (
+            <LineChart
+              data={formattedData}
+              margin={{
+                top: 20,
+                right: 75,
+                left: 20,
+                bottom: 80,
+              }}
             >
-              <Label
-                value="Revenue in USD"
-                angle={-90}
-                offset={-5}
-                position="insideLeft"
+              <CartesianGrid strokeDasharray="3 3" stroke={palette.grey[800]} />
+              <XAxis
+                dataKey="name"
+                tickLine={false}
+                style={{ fontSize: "10px" }}
+              >
+                <Label value="Month" offset={-5} position="insideBottom" />
+              </XAxis>
+              <YAxis
+                domain={[Math.min(minValue - 200, 0), maxValue + 200]}
+                axisLine={{ strokeWidth: "0" }}
+                style={{ fontSize: "10px" }}
+                tickFormatter={(v) => `$${v}`}
+              >
+                <Label
+                  value="Revenue in USD"
+                  angle={-90}
+                  offset={-5}
+                  position="insideLeft"
+                />
+              </YAxis>
+              <Tooltip />
+              <Legend verticalAlign="top" />
+              <Line
+                type="monotone"
+                dataKey="Actual Revenue"
+                stroke={palette.tertiary[500]}
+                strokeWidth={3}
+                dot={{ strokeWidth: 5 }}
               />
-            </YAxis>
-            <Tooltip />
-            <Legend verticalAlign="top" />
-            <Line
-              type="monotone"
-              dataKey="Actual Revenue"
-              stroke={palette.tertiary[500]}
-              strokeWidth={3}
-              dot={{ strokeWidth: 5 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="Regression Line"
-              stroke={"#e11d48"}
-              strokeWidth={isPredictions ? 3 : 0}
-              dot={false}
-              style={{
-                opacity: isPredictions ? 1 : 0,
-                transition:
-                  "opacity 300ms ease-in-out, strokeWidth 300ms ease-in-out",
+              <Line
+                type="monotone"
+                dataKey="Regression Line"
+                stroke={"#e11d48"}
+                strokeWidth={isPredictions ? 3 : 0}
+                dot={false}
+                style={{
+                  opacity: isPredictions ? 1 : 0,
+                  transition:
+                    "opacity 300ms ease-in-out, strokeWidth 300ms ease-in-out",
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="Next Year Predicted Revenue"
+                stroke={"#519DE9"}
+                strokeDasharray="5 5"
+                strokeWidth={isPredictions ? 3 : 0}
+                dot={false}
+                style={{
+                  opacity: isPredictions ? 1 : 0,
+                  transition:
+                    "opacity 300ms ease-in-out, strokeWidth 300ms ease-in-out",
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="Current Year Predicted Revenue"
+                stroke={"#8BC1F7"}
+                strokeDasharray="3 3"
+                strokeWidth={isCurrentYearPredictions ? 3 : 0}
+                dot={false}
+                style={{
+                  opacity: isCurrentYearPredictions ? 1 : 0,
+                  transition:
+                    "opacity 300ms ease-in-out, strokeWidth 300ms ease-in-out",
+                }}
+              />
+            </LineChart>
+          ) : (
+            <BarChart
+              data={formattedData}
+              margin={{
+                top: 20,
+                right: 75,
+                left: 20,
+                bottom: 80,
               }}
-            />
-            <Line
-              type="monotone"
-              dataKey="Next Year Predicted Revenue"
-              stroke={"#0ea5e9"}
-              strokeDasharray="5 5"
-              strokeWidth={isPredictions ? 3 : 0}
-              dot={false}
-              style={{
-                opacity: isPredictions ? 1 : 0,
-                transition:
-                  "opacity 300ms ease-in-out, strokeWidth 300ms ease-in-out",
-              }}
-            />
-            <Line
-              type="monotone"
-              dataKey="Current Year Predicted Revenue"
-              stroke={"#ff9800"}
-              strokeDasharray="3 3"
-              strokeWidth={isCurrentYearPredictions ? 3 : 0}
-              dot={false}
-              style={{
-                opacity: isCurrentYearPredictions ? 1 : 0,
-                transition:
-                  "opacity 300ms ease-in-out, strokeWidth 300ms ease-in-out",
-              }}
-            />
-          </LineChart>
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke={palette.grey[800]} />
+              <XAxis
+                dataKey="name"
+                tickLine={false}
+                style={{ fontSize: "10px" }}
+              >
+                <Label value="Month" offset={-5} position="insideBottom" />
+              </XAxis>
+              <YAxis
+                domain={[Math.min(minValue - 200, 0), maxValue + 200]}
+                axisLine={{ strokeWidth: "0" }}
+                style={{ fontSize: "10px" }}
+                tickFormatter={(v) => `$${v}`}
+              >
+                <Label
+                  value="Revenue in USD"
+                  angle={-90}
+                  offset={-5}
+                  position="insideLeft"
+                />
+              </YAxis>
+              <Tooltip />
+              <Legend verticalAlign="top" />
+              <Bar
+                dataKey="Actual Revenue"
+                fill={palette.tertiary[500]}
+                barSize={20}
+              />
+              <Bar
+                dataKey="Current Year Predicted Revenue"
+                fill={"#8BC1F7"}
+                barSize={20}
+                style={{
+                  opacity: isCurrentYearPredictions ? 1 : 0,
+                  transition: "opacity 300ms ease-in-out",
+                }}
+              />
+              <Bar
+                dataKey="Next Year Predicted Revenue"
+                fill={"#0ea5e9"}
+                barSize={20}
+                style={{
+                  opacity: isPredictions ? 1 : 0,
+                  transition: "opacity 300ms ease-in-out",
+                }}
+              />
+            </BarChart>
+          )}
         </ResponsiveContainer>
       </DashboardBox>
     </>
