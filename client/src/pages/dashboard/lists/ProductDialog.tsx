@@ -15,8 +15,14 @@ interface ProductDialogProps {
     name: string;
     price: number;
     expense: number;
+    inStock: number; // Add inStock to the productData type
   }) => void;
-  initialData?: { name: string; price: number; expense: number };
+  initialData?: {
+    name: string;
+    price: number;
+    expense: number;
+    inStock: number; // Add inStock to the initialData type
+  };
   title: string;
 }
 
@@ -30,6 +36,7 @@ export const ProductDialog: React.FC<ProductDialogProps> = ({
   const [name, setName] = useState(initialData?.name || "");
   const [price, setPrice] = useState(initialData?.price || 1);
   const [expense, setExpense] = useState(initialData?.expense || 1);
+  const [inStock, setInStock] = useState(initialData?.inStock || 0); // Add inStock state
   const [isValid, setIsValid] = useState(false);
 
   useEffect(() => {
@@ -37,65 +44,55 @@ export const ProductDialog: React.FC<ProductDialogProps> = ({
       setName(initialData.name);
       setPrice(initialData.price);
       setExpense(initialData.expense);
+      setInStock(initialData.inStock); // Ensure inStock is handled
     }
   }, [initialData]);
 
   useEffect(() => {
-    setIsValid(name.trim() !== "" && price > 0 && expense > 0);
-  }, [name, price, expense]);
+    setIsValid(name.trim() !== "" && price > 0 && expense > 0 && inStock >= 0); // Ensure inStock is handled
+  }, [name, price, expense, inStock]);
 
   const handleSubmit = () => {
     if (isValid) {
-      onSubmit({ name, price, expense });
+      onSubmit({ name, price, expense, inStock });
       onClose();
     }
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      sx={{ "& .MuiDialog-paper": { minWidth: "300px", maxWidth: "400px" } }}
-    >
+    <Dialog open={open} onClose={onClose}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <TextField
-          autoFocus
-          margin="dense"
           label="Name"
-          type="text"
-          fullWidth
           value={name}
-          inputProps={{ maxLength: 30 }}
           onChange={(e) => setName(e.target.value)}
+          fullWidth
+          margin="normal"
         />
         <TextField
-          margin="dense"
           label="Price"
-          type="text"
-          fullWidth
+          type="number"
           value={price}
-          inputProps={{ maxLength: 10 }}
-          onChange={(e) => {
-            const value = e.target.value;
-            if (/^\d{0,10}$/.test(value) && Number(value) >= 0) {
-              setPrice(Number(value));
-            }
-          }}
+          onChange={(e) => setPrice(parseFloat(e.target.value))}
+          fullWidth
+          margin="normal"
         />
         <TextField
-          margin="dense"
           label="Expense"
-          type="text"
-          fullWidth
+          type="number"
           value={expense}
-          inputProps={{ maxLength: 10 }}
-          onChange={(e) => {
-            const value = e.target.value;
-            if (/^\d{0,10}$/.test(value) && Number(value) >= 0) {
-              setExpense(Number(value));
-            }
-          }}
+          onChange={(e) => setExpense(parseFloat(e.target.value))}
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="In Stock"
+          type="number"
+          value={inStock}
+          onChange={(e) => setInStock(parseInt(e.target.value, 10))}
+          fullWidth
+          margin="normal"
         />
       </DialogContent>
       <DialogActions>

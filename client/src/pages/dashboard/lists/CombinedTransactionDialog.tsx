@@ -18,20 +18,31 @@ interface Product {
   name: string;
   price: number;
   expense: number;
+  inStock: number;
 }
 
 interface CombinedTransactionDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (transactionData: { amount: number; type: "revenue" | "expense"; description: string; date: string }) => void;
-  initialData?: { amount: number; type: "revenue" | "expense"; description: string; date: string };
+  onSubmit: (transactionData: {
+    amount: number;
+    type: "revenue" | "expense";
+    description: string;
+    date: string;
+  }) => void;
+  initialData?: {
+    amount: number;
+    type: "revenue" | "expense";
+    description: string;
+    date: string;
+  };
   title: string;
 }
 
 export const CombinedTransactionDialog: React.FC<
   CombinedTransactionDialogProps
 > = ({ open, onClose, onSubmit, initialData, title }) => {
-  const { products } = useProductContext();
+  const { products, updateProductStock } = useProductContext();
   const [mode, setMode] = useState<"regular" | "product">("regular");
 
   // Regular transaction state
@@ -72,6 +83,11 @@ export const CombinedTransactionDialog: React.FC<
       onSubmit({ amount, type, description, date });
       onClose();
     } else if (mode === "product" && selectedProduct && quantity > 0) {
+      if (transactionType === "sale" && selectedProduct.inStock < quantity) {
+        alert("Not enough products in stock for this sale.");
+        return;
+      }
+
       const transactionAmount =
         transactionType === "purchase"
           ? selectedProduct.expense * quantity
@@ -87,10 +103,14 @@ export const CombinedTransactionDialog: React.FC<
         description: transactionDescription,
       };
 
+      updateProductStock(selectedProduct._id, quantity, transactionType);
       onSubmit(newProductTransaction);
       onClose();
     }
   };
+
+
+  
 
   return (
     <Dialog open={open} onClose={onClose}>

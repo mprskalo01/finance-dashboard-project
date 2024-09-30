@@ -16,6 +16,7 @@ interface Product {
   name: string;
   price: number;
   expense: number;
+  inStock: number; // Add inStock to the Product interface
 }
 
 interface ProductTransactionDialogProps {
@@ -31,20 +32,36 @@ interface ProductTransactionDialogProps {
 export const ProductTransactionDialog: React.FC<
   ProductTransactionDialogProps
 > = ({ open, onClose, onSubmit }) => {
-  const { products } = useProductContext();
+  const { products, updateProductStock } = useProductContext();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [transactionType, setTransactionType] = useState<"purchase" | "sale">(
     "purchase"
   );
   const [quantity, setQuantity] = useState(1);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (selectedProduct && quantity > 0) {
+      if (transactionType === "sale" && selectedProduct.inStock < quantity) {
+        alert("Not enough products in stock for this sale transaction.");
+        return;
+      }
+
       onSubmit({
         product: selectedProduct,
         type: transactionType,
         quantity,
       });
+
+      try {
+        await updateProductStock(
+          selectedProduct._id,
+          quantity,
+          transactionType
+        );
+      } catch (error) {
+        console.error("Failed to update product stock:", error);
+      }
+
       onClose();
     }
   };

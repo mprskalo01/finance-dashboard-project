@@ -13,11 +13,12 @@ interface Product {
   name: string;
   price: number;
   expense: number;
+  inStock: number; // Add inStock to the Product interface
 }
 
 function ProductList() {
   const { palette } = useTheme();
-  const { products, setProducts, user, loading } = useProductContext();
+  const { products, setProducts, user } = useProductContext();
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -27,6 +28,7 @@ function ProductList() {
     name: string;
     price: number;
     expense: number;
+    inStock: number; // Ensure inStock is handled
   }) => {
     if (user) {
       try {
@@ -46,6 +48,7 @@ function ProductList() {
     name: string;
     price: number;
     expense: number;
+    inStock: number; // Ensure inStock is handled
   }) => {
     if (selectedProduct) {
       try {
@@ -87,7 +90,7 @@ function ProductList() {
     {
       field: "name",
       headerName: "Name",
-      flex: 0.8,
+      flex: 0.5,
       renderCell: (params: GridCellParams) => (
         <StyledCell>{params.value as string}</StyledCell>
       ),
@@ -103,7 +106,7 @@ function ProductList() {
     {
       field: "expense",
       headerName: "Expense",
-      flex: 0.3,
+      flex: 0.25,
       renderCell: (params: GridCellParams) => (
         <StyledCell>{`$${params.value as number}`}</StyledCell>
       ),
@@ -120,6 +123,14 @@ function ProductList() {
       },
     },
     {
+      field: "inStock",
+      headerName: "Stock",
+      flex: 0.2,
+      renderCell: (params: GridCellParams) => (
+        <StyledCell>{params.value as number}</StyledCell>
+      ),
+    },
+    {
       field: "actions",
       headerName: "Actions",
       flex: 0.3,
@@ -128,6 +139,7 @@ function ProductList() {
           <IconButton
             onClick={() => {
               setSelectedProduct(params.row as Product);
+              console.log(params.row); // Log the selected product
               setOpenEditDialog(true);
             }}
             style={{ backgroundColor: "rgba(0, 0, 0, 0.1)", margin: "0 5px" }}
@@ -147,10 +159,6 @@ function ProductList() {
       ),
     },
   ];
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <DashboardBox gridArea="h">
@@ -224,6 +232,7 @@ function ProductList() {
                 name: selectedProduct.name,
                 price: selectedProduct.price,
                 expense: selectedProduct.expense,
+                inStock: selectedProduct.inStock, // Ensure inStock is handled
               }
             : undefined
         }

@@ -152,7 +152,7 @@ export const api = {
       throw error;
     }
   },
-  
+
   deleteSelf: async (): Promise<any> => {
     try {
       return await axios.delete(`${baseURL}/profile`, getAuthHeader());
@@ -289,6 +289,7 @@ export const api = {
     name: string;
     price: number;
     expense: number;
+    inStock: number;
   }): Promise<any> => {
     try {
       return await axios.post(
@@ -309,6 +310,7 @@ export const api = {
       name?: string;
       price?: number;
       expense?: number;
+      inStock?: number;
     }
   ): Promise<any> => {
     try {
@@ -334,7 +336,22 @@ export const api = {
       throw error;
     }
   },
-
+  updateProductStock: async (
+    productId: string,
+    quantity: number,
+    type: "purchase" | "sale"
+  ): Promise<any> => {
+    try {
+      return await axios.patch(
+        `${baseURL}/products/${productId}/stock`,
+        { quantity, type },
+        getAuthHeader()
+      );
+    } catch (error) {
+      console.error(`Failed to update stock for product with ID ${productId}:`, error);
+      throw error;
+    }
+  },
   // TensorFlow Prediction API
   getFinancialPredictions: async (monthlyData: MonthlyData[]): Promise<any> => {
     try {

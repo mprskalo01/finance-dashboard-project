@@ -10,6 +10,7 @@ import BoxHeader from "@/components/BoxHeader";
 import Svgs from "@/assets/Svgs";
 import api from "@/api/api";
 import { useAccount } from "@/context/AccountContext/UseAccount";
+import { useProductContext } from "@/context/ProductContext/useProduct";
 import { CombinedTransactionDialog } from "./CombinedTransactionDialog";
 
 interface Transaction {
@@ -23,15 +24,14 @@ interface Transaction {
 const TransactionList = () => {
   const { palette } = useTheme();
   const { account, fetchUserAccount } = useAccount();
+  const { products, revertProductStock } = useProductContext();
   const [openEditDialog, setOpenEditDialog] = useState(false);
-
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
-  const [newTransaction, setNewTransaction] = useState<
-    Omit<Transaction, "_id">
-  >({
+
+  const [newTransaction] = useState<Omit<Transaction, "_id">>({
     amount: 0,
     type: "revenue",
     date: new Date().toISOString().split("T")[0],
@@ -105,18 +105,9 @@ const TransactionList = () => {
           .toLowerCase();
         const monthData = account?.monthlyData.find((m) => m.month === month);
         if (monthData) {
-          monthData.revenue +=
-            transactionData.type === "revenue" ? transactionData.amount : 0;
-          monthData.expenses +=
-            transactionData.type === "expense" ? transactionData.amount : 0;
+          // Update logic for monthlyData
         } else {
-          account?.monthlyData.push({
-            month,
-            revenue:
-              transactionData.type === "revenue" ? transactionData.amount : 0,
-            expenses:
-              transactionData.type === "expense" ? transactionData.amount : 0,
-          });
+          // Add new monthData if not found
         }
 
         setOpenEditDialog(false);
@@ -141,6 +132,25 @@ const TransactionList = () => {
   const handleDeleteTransaction = async () => {
     if (selectedTransaction) {
       try {
+        // Check if the transaction is a product transaction
+        const { description } = selectedTransaction;
+        const productTransactionMatch = description.match(
+          /(purchase|sale) of (\d+) (.+)/
+        );
+        if (productTransactionMatch) {
+          const [, transactionType, quantityStr, productName] =
+            productTransactionMatch;
+          const quantity = parseInt(quantityStr, 10);
+          const product = products.find((p) => p.name === productName);
+          if (product) {
+            revertProductStock(
+              product._id,
+              quantity,
+              transactionType as "purchase" | "sale"
+            );
+          }
+        }
+
         await api.deleteTransaction(selectedTransaction._id);
         setSnackbar({
           open: true,
@@ -194,13 +204,7 @@ const TransactionList = () => {
           <IconButton
             onClick={() => {
               setSelectedTransaction(params.row as Transaction);
-              setNewTransaction({
-                amount: params.row.amount,
-                type: params.row.type,
-                date: params.row.date,
-                description: params.row.description,
-              });
-              setOpenDialog(true);
+              setOpenEditDialog(true);
             }}
             style={{ backgroundColor: "rgba(0, 0, 0, 0.1)", margin: "0 5px" }}
           >
@@ -282,12 +286,11 @@ const TransactionList = () => {
             }
             columns={transactionColumns}
             getRowId={(row) => row._id}
-            sortModel={[
-              {
-                field: "date",
-                sort: "desc",
+            initialState={{
+              sorting: {
+                sortModel: [{ field: "date", sort: "desc" }],
               },
-            ]}
+            }}
           />
         </Box>
       </DashboardBox>

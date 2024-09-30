@@ -1,3 +1,4 @@
+// useProduct.tsx
 import { useContext } from "react";
 import { ProductContext } from "./ProductContext";
 

@@ -328,7 +328,7 @@ const Predictions = () => {
               />
               <Bar
                 dataKey="Next Year Predicted Revenue"
-                fill={"#0ea5e9"}
+                fill={"#1e82af"}
                 barSize={20}
                 style={{
                   opacity: isPredictions ? 1 : 0,

@@ -1,9 +1,9 @@
 import { useState, useEffect, ReactNode } from "react";
+import { useNavigate } from "react-router-dom"; // Assuming you're using react-router-dom for navigation
 import { AuthContext } from "./AuthContext";
 
-// Assuming your User interface includes an id and isAdmin property
 interface User {
-  id: string; // Add the id property
+  id: string;
   isAdmin: boolean;
   // Add other properties if needed
 }
@@ -19,11 +19,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
+  const [logoutTimer, setLogoutTimer] = useState<number | null>(null);
+  const navigate = useNavigate();
+
   const login = (userData: User) => {
     setIsAuthenticated(true);
-    setUser(userData); // Set the user data (e.g., id and isAdmin)
+    setUser(userData);
     localStorage.setItem("isAuthenticated", JSON.stringify(true));
-    localStorage.setItem("user", JSON.stringify(userData)); // Store the user data in localStorage
+    localStorage.setItem("user", JSON.stringify(userData));
+
+    // Set a timer for automatic logout (e.g., 1 hour)
+    const timer = setTimeout(() => {
+      logout();
+      navigate("/login");
+    }, 3600000); // 1 hour in milliseconds
+    setLogoutTimer(timer);
   };
 
   const logout = () => {
@@ -31,6 +41,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     localStorage.removeItem("isAuthenticated");
     localStorage.removeItem("user");
+
+    // Clear the logout timer if it exists
+    if (logoutTimer) {
+      clearTimeout(logoutTimer);
+      setLogoutTimer(null);
+    }
   };
 
   useEffect(() => {
