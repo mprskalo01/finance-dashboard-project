@@ -6,42 +6,6 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-let model;
-
-const loadModel = async () => {
-  try {
-    if (!model) {
-      const modelPath = path.resolve(__dirname, "./model/model.json");
-      console.log("Loading model from path:", modelPath);
-      model = await tf.loadLayersModel(`file://${modelPath}`);
-      console.log("Model loaded successfully");
-    }
-  } catch (error) {
-    console.error("Error loading model:", error);
-    throw error; // Re-throw the error to be caught in the calling function
-  }
-};
-
-const normalizeData = (data) => {
-  const max = Math.max(...data);
-  const min = Math.min(...data);
-  return max !== min
-    ? data.map((value) => (value - min) / (max - min))
-    : data.map(() => 0); // Handle case where max == min
-};
-
-const createSequences = (revenues, expenses, sequenceLength) => {
-  const sequences = [];
-  for (let i = 0; i < revenues.length - sequenceLength; i++) {
-    const sequence = [];
-    for (let j = 0; j < sequenceLength; j++) {
-      sequence.push([revenues[i + j], expenses[i + j]]);
-    }
-    sequences.push(sequence);
-  }
-  return sequences;
-};
-
 const getFinancialPredictions = async (req, res) => {
   try {
     console.log("Entered getFinancialPredictions function");
@@ -110,7 +74,7 @@ const getFinancialPredictions = async (req, res) => {
         extendedMonthlyData[index].revenue === 0 &&
         extendedMonthlyData[index].expenses === 0
       ) {
-        const noise = (Math.random() - 0.5) * 0.2 * maxRevenue; // Adjust the noise level as needed
+        const noise = Math.random() * 1 * maxRevenue; // Adjust the noise level as needed
         return revenue + noise;
       }
       return revenue;
@@ -118,10 +82,17 @@ const getFinancialPredictions = async (req, res) => {
 
     console.log("Predicted revenues with noise:", predictedRevenues);
 
+    // Fix the predicted revenues to 2 decimal places
+    const fixedPredictedRevenues = predictedRevenues.map((revenue) =>
+      revenue.toFixed(2)
+    );
+
+    console.log("Fixed predicted revenues:", fixedPredictedRevenues);
+
     inputTensor.dispose();
     console.log("Input tensor disposed");
 
-    res.json({ predictedRevenues });
+    res.json({ predictedRevenues: fixedPredictedRevenues });
   } catch (error) {
     console.error("Error in getFinancialPredictions:", error);
     res.status(500).send("Internal Server Error");

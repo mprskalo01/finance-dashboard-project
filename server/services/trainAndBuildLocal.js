@@ -47,6 +47,57 @@ function createSequences(revenues, expenses) {
   return { sequences, targets };
 }
 
+function calculateMetrics(yTrue, yPred) {
+  const mse = tf.metrics.meanSquaredError(yTrue, yPred).arraySync();
+  const mae = tf.metrics.meanAbsoluteError(yTrue, yPred).arraySync();
+
+  const yTrueMean = tf.mean(yTrue).arraySync();
+  const yPredMean = tf.mean(yPred).arraySync();
+  const xDeviation = tf.sub(yTrue, yTrueMean);
+  const yDeviation = tf.sub(yPred, yPredMean);
+
+  const pearsonCorr = tf
+    .div(
+      tf.sum(tf.mul(xDeviation, yDeviation)),
+      tf.sqrt(
+        tf.mul(tf.sum(tf.square(xDeviation)), tf.sum(tf.square(yDeviation)))
+      )
+    )
+    .arraySync();
+
+  const ssRes = tf.sum(tf.square(tf.sub(yTrue, yPred))).arraySync();
+  const ssTot = tf.sum(tf.square(tf.sub(yTrue, yTrueMean))).arraySync();
+  const rSquared = 1 - ssRes / ssTot;
+
+  return {
+    mse,
+    mae,
+    pearsonCorr,
+    rSquared,
+  };
+}
+
+class CustomCallback extends tf.Callback {
+  constructor(inputTensor, outputTensor, model) {
+    super();
+    this.inputTensor = inputTensor;
+    this.outputTensor = outputTensor;
+    this.model = model;
+  }
+
+  async onEpochEnd(epoch, logs) {
+    const predictions = this.model.predict(this.inputTensor);
+    const metrics = calculateMetrics(this.outputTensor, predictions);
+    console.log(`Epoch ${epoch + 1}`);
+    console.log(`Loss: ${logs.loss}, Val Loss: ${logs.val_loss}`);
+    console.log(`MSE: ${metrics.mse}, MAE: ${metrics.mae}`);
+    console.log(`R-squared: ${metrics.rSquared}`);
+    console.log(`Pearson Correlation: ${metrics.pearsonCorr}`);
+    console.log("---");
+    predictions.dispose();
+  }
+}
+
 async function buildAndTrainLSTMModel(monthlyData) {
   const { revenues, expenses } = preprocessData(monthlyData);
   const normalizedRevenues = normalizeData(revenues);
@@ -67,20 +118,27 @@ async function buildAndTrainLSTMModel(monthlyData) {
       returnSequences: false,
     })
   );
+  model.add(tf.layers.dropout({ rate: 0.2 }));
   model.add(tf.layers.dense({ units: 1 }));
 
   model.compile({
-    optimizer: tf.train.adam(0.01),
+    optimizer: tf.train.adam(0.001),
     loss: "meanSquaredError",
   });
 
+  const customCallback = new CustomCallback(inputTensor, outputTensor, model);
+
   await model.fit(inputTensor, outputTensor, {
-    epochs: 1000,
+    epochs: 2000,
+    batchSize: 32,
     validationSplit: 0.2,
-    callbacks: tf.callbacks.earlyStopping({
-      monitor: "val_loss",
-      patience: 500,
-    }),
+    callbacks: [
+      tf.callbacks.earlyStopping({
+        monitor: "val_loss",
+        patience: 50,
+      }),
+      customCallback,
+    ],
   });
 
   await model.save("file://./model");

@@ -20,13 +20,19 @@ function populateTrainJson(number) {
 
   for (const month of months) {
     for (let i = 0; i < number; i++) {
-      const revenue = Math.random() * (100000 - 1000) + 1000;
-      const expenses = Math.random() * (99000 - 500) + 500;
-      monthlyData.push({
-        month: month,
-        revenue: parseFloat(revenue.toFixed(2)),
-        expenses: parseFloat(expenses.toFixed(2)),
-      });
+      for (let j = 0; j < 1000; j++) {
+        let revenue, expenses;
+        do {
+          revenue = Math.random() * 100000 + i * 100000;
+          expenses = Math.random() * 100000 + i * 100000;
+        } while (revenue < expenses * 1.1);
+
+        monthlyData.push({
+          month: month,
+          revenue: parseFloat(revenue.toFixed(2)),
+          expenses: parseFloat(expenses.toFixed(2)),
+        });
+      }
     }
   }
 
@@ -36,4 +42,4 @@ function populateTrainJson(number) {
 }
 
 // Example usage:
-populateTrainJson(50000);
+populateTrainJson(1); // This will generate 1 * 1000 values for each month

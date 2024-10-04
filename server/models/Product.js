@@ -26,6 +26,11 @@ const ProductSchema = new Schema(
       get: (v) => v / 100,
       set: (v) => v * 100,
     },
+    inStock: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
   },
   { timestamps: true, toJSON: { getters: true } }
 );
