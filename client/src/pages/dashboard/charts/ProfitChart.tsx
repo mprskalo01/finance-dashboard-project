@@ -37,7 +37,10 @@ function ProfitChart() {
         revenue,
         expenses,
         profit: (revenue - expenses).toFixed(2),
-        fill: revenue - expenses < 0 ? "url(#colorProfitNegative)" : "url(#colorProfit)",
+        fill:
+          revenue - expenses < 0
+            ? "url(#colorProfitNegative)"
+            : "url(#colorProfit)",
       }));
     }
     return [];

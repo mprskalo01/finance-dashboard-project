@@ -183,7 +183,7 @@ function AccountStats() {
           sideText={`${user?.name}`}
         />
         <Box mt={2} sx={{ px: 2, pb: 2, pt: 0 }}>
-          <Typography variant="h3" color={palette.grey[300]}>
+          <Typography variant="h5" color={palette.grey[300]}>
             Your current account balance is:{" "}
             <Typography
               variant="h2"
@@ -208,7 +208,7 @@ function AccountStats() {
               </IconButton>
             </Typography>
           </Typography>
-          <Typography variant="h3" color={palette.grey[300]}>
+          <Typography variant="h5" color={palette.grey[300]}>
             Your total revenue is:{" "}
             <Typography
               variant="h4" // Changed from h3 to h4
@@ -219,7 +219,7 @@ function AccountStats() {
               ${account?.totalRevenue.toFixed(2)}
             </Typography>
           </Typography>
-          <Typography variant="h3" color={palette.grey[300]}>
+          <Typography variant="h5" color={palette.grey[300]}>
             Your total expenses are:{" "}
             <Typography
               variant="h4" // Changed from h3 to h4
@@ -230,7 +230,7 @@ function AccountStats() {
               ${account?.totalExpenses.toFixed(2)}
             </Typography>
           </Typography>
-          <Typography variant="h3" color={palette.grey[300]}>
+          <Typography variant="h5" color={palette.grey[300]}>
             Your total profit is:{" "}
             <Typography
               variant="h4" // Changed from h3 to h4
@@ -245,33 +245,27 @@ function AccountStats() {
             </Typography>
           </Typography>
         </Box>
-        <Typography
-          variant="h3"
-          fontWeight="bold"
-          color={palette.secondary[300]}
-          sx={{ my: "1rem" }}
+
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={buttonClick}
+          sx={{ mt: 1, ml: 2 }}
         >
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={buttonClick}
-            sx={{ mt: 1, ml: 2 }}
-          >
-            Logout
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleEditUser}
-            sx={{
-              mt: 1,
-              ml: 2,
-              backgroundColor: palette.grey[700],
-              color: palette.grey[100],
-            }}
-          >
-            Edit User
-          </Button>
-        </Typography>
+          Logout
+        </Button>
+        <Button
+          variant="contained"
+          onClick={handleEditUser}
+          sx={{
+            mt: 1,
+            ml: 2,
+            backgroundColor: palette.grey[700],
+            color: palette.grey[100],
+          }}
+        >
+          Edit User
+        </Button>
       </DashboardBox>
 
       <Modal
