@@ -6,10 +6,10 @@ The application was primarily developed using React  and TypeScript for the fron
 The implementation of the locally trained LSTM model in the application was accomplished through integration with the backend, where the model is used to generate forecasts based on user revenue data. The frontend of the application is designed to intuitively display the results of AI analysis, allowing users to easily understand predicted financial trends.
 
 
-## Frontend technologies
+## Frontend technologies | React & TypeScript
 For the frontend, I used Vite with the React + TypeScript template due to its fast build times, simplicity, and optimized development environment. React offers efficient component-based architecture, while TypeScript provides type safety, improving code quality and maintainability.
 
-## Backend technologies 
+## Backend technologies | Node & MongoDB
 For the backend, I used Node.js with Express and MongoDB because of their scalability, ease of use, and seamless integration with JavaScript. Node.js handles asynchronous operations efficiently, Express simplifies server-side logic, and MongoDB offers flexibility with its NoSQL database structure.
 
 ### Screenshots of the application  
