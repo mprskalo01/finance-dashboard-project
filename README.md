@@ -1,50 +1,95 @@
-# financeMERN
-The FAInance web application is designed as a component for easy integration into existing business environments, providing financial overview and forecasts based on artificial intelligence.
+# FAInance - AI-Powered Financial Management Platform
 
-The application was primarily developed using React  and TypeScript for the frontend and Node.js for the backend. A key part of the application is the implementation of regression and LSTM (Long Short-Term Memory) AI models for predicting financial trends.
+## Overview
+FAInance is a sophisticated financial management web application that leverages artificial intelligence to provide business intelligence and forecasting capabilities. Built with modern web technologies, it seamlessly integrates into existing business environments to deliver actionable financial insights and predictive analytics.
 
-The implementation of the locally trained LSTM model in the application was accomplished through integration with the backend, where the model is used to generate forecasts based on user revenue data. The frontend of the application is designed to intuitively display the results of AI analysis, allowing users to easily understand predicted financial trends.
+## Key Features
+- Financial dashboard with comprehensive CRUD operations
+- AI-powered revenue forecasting using LSTM and regression models
+- User authentication and role-based access control
+- Interactive data visualization
+- Admin panel for user management
+- Transaction and product management
+- Monthly financial data tracking
 
+## Technology Stack
 
-## Frontend technologies | React & TypeScript
-For the frontend, I used Vite with the React + TypeScript template due to its fast build times, simplicity, and optimized development environment. React offers efficient component-based architecture, while TypeScript provides type safety, improving code quality and maintainability.
+### Frontend
+- React with TypeScript
+- Vite for build tooling
+- Modern component architecture
+- Type-safe development environment
+- Responsive grid-based UI design
 
-## Backend technologies | Node & MongoDB
-For the backend, I used Node.js with Express and MongoDB because of their scalability, ease of use, and seamless integration with JavaScript. Node.js handles asynchronous operations efficiently, Express simplifies server-side logic, and MongoDB offers flexibility with its NoSQL database structure.
+### Backend
+- Node.js with Express
+- MongoDB for data persistence
+- RESTful API architecture
+- AI model integration
+- Secure authentication system
 
-### Screenshots of the application  
+### AI Components
+- LSTM (Long Short-Term Memory) model for precise revenue forecasting
+- Linear regression for trend analysis
+- Backend integration for real-time predictions
+- Data preprocessing and validation
 
-***On the Dashboard page, the interface is organized using a grid system, allowing each section to serve a specific function and display relevant information. Users can access all CRUD operations and view profile, account, and transaction details.***  
+## Application Screenshots
 
-![dashboard](https://github.com/user-attachments/assets/939c1def-c8c6-40bd-a596-42f3ba674236)  
+### Dashboard Interface
+The dashboard features an intuitive grid layout providing quick access to:
+- Profile information
+- Account details
+- Transaction management
+- Financial overview
 
+![Dashboard View](https://github.com/user-attachments/assets/939c1def-c8c6-40bd-a596-42f3ba674236)
 
+### Predictions Interface
+The predictions page showcases:
+- Interactive data visualization
+- AI prediction controls
+- Linear regression forecasting
+- LSTM model predictions
+- Year-over-year analysis
 
- ***The main feature of the Predictions page is a large graph displaying relevant data, with buttons above it to activate prediction functions. When pressed, the AI predicts next year's business revenue using linear regression or the current year's revenue with an LSTM model.***  
+![Predictions View](https://github.com/user-attachments/assets/1e661ffc-fb1b-4bc0-ba58-726a5511856f)
 
-   
-![predictions](https://github.com/user-attachments/assets/1e661ffc-fb1b-4bc0-ba58-726a5511856f)   
+## System Architecture
 
+### Use Case Diagram
+Illustrates the system's core functionality and user interactions:
+![Use Case Diagram](https://github.com/user-attachments/assets/f4e16665-e1b5-4d26-9d54-988406682a54)
 
+### Component Architecture
+Displays the system's technical structure and component relationships:
+![Component Diagram](https://github.com/user-attachments/assets/d5dc0cba-60aa-4404-91f3-1ee5402c8752)
 
-***In addition to these interfaces, the app includes user registration and login pages with relevant forms. If an admin logs in, they see an admin dashboard with access to all registered users, where they can view, edit, or delete user data. The app also features dialogs for various CRUD operations, such as adding transactions, products, and editing monthly data.***
+### Database Schema
+Shows the data model and relationships:
+![Database Diagram](https://github.com/user-attachments/assets/54df9802-28a9-4b06-9043-d8fa37c0e035)
 
-### Diagrams
+## Installation
 
-#### Use case diagram   
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/financeMERN.git
 
-  ![eng_usecase](https://github.com/user-attachments/assets/f4e16665-e1b5-4d26-9d54-988406682a54)
+# Install dependencies for frontend and backend
+cd financeMERN
+cd client
+npm install
 
+cd ..
+cd server
+npm install
 
+# Start development frontend and backend
+npm run dev
+```
 
-#### Basic Architecture Diagram  
+## Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-  
-![dijagram komponenti](https://github.com/user-attachments/assets/d5dc0cba-60aa-4404-91f3-1ee5402c8752)
-
-
-
-#### Database diagram
-
-   ![dijagrambaze](https://github.com/user-attachments/assets/54df9802-28a9-4b06-9043-d8fa37c0e035)
-
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
