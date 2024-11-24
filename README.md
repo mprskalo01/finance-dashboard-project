@@ -70,22 +70,25 @@ Shows the data model and relationships:
 ![Database Diagram](https://github.com/user-attachments/assets/54df9802-28a9-4b06-9043-d8fa37c0e035)
 
 ## Installation
-
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/financeMERN.git
 
-# Install dependencies for frontend and backend
-cd financeMERN
-cd client
+# Install frontend dependencies
+cd financeMERN/client
 npm install
 
-cd ..
-cd server
+# Install backend dependencies
+cd ../server
 npm install
 
-# Start development frontend and backend
+# Start development servers
+# Frontend (in client directory)
+npm start
+
+# Backend (in server directory)
 npm run dev
+
 ```
 
 ## Contributing
