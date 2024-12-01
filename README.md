@@ -70,6 +70,15 @@ Shows the data model and relationships:
 ![Database Diagram](https://github.com/user-attachments/assets/54df9802-28a9-4b06-9043-d8fa37c0e035)
 
 ## Installation
+
+### Environment Variables
+Create a `.env` file in the server directory with the following:
+```
+PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+```
+### Project setup
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/financeMERN.git
