@@ -58,6 +58,8 @@ packages/react-devtools-timeline/dist# See https://help.github.com/articles/igno
 .env.test.local
 .env.production.local
 train.json
+model.json
+weights.bin
 
 npm-debug.log*
 yarn-debug.log*
@@ -74,6 +76,7 @@ yarn-error.log*
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
