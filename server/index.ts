@@ -5,10 +5,10 @@ import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import morgan from "morgan";
-import userRoutes from "./routes/user.js";
-import accountRoutes from "./routes/account.js";
-import productRoutes from "./routes/product.js";
-import tensorflowRoutes from "./routes/tensorflow.js";
+import userRoutes from "./routes/user";
+import accountRoutes from "./routes/account";
+import productRoutes from "./routes/product";
+import tensorflowRoutes from "./routes/tensorflow";
 
 // CONFIG
 dotenv.config();
@@ -30,7 +30,7 @@ app.use("/api/", tensorflowRoutes);
 // MONGOOSE SETUP
 const PORT = process.env.PORT || 9000;
 mongoose
-  .connect(process.env.MONGO_URL)
+  .connect(process.env.MONGO_URL as string)
   .then(() => {
     app.listen(PORT, () => console.log(`Server Port: ${PORT}`));
   })
